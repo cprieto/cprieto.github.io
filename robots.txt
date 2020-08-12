@@ -1,0 +1,8 @@
+Sitemap: http://cprieto.com/sitemap.xml
+
+User-agent: googlebot
+User-agent: google
+User-agent: bingbot
+User-agent: bing
+Crawl-delay: 10
+Allow: /
