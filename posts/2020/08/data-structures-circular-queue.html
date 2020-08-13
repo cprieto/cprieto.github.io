@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Data structures, a circular queue in&nbsp;C++</title>
+  <meta name="description" content="Last time we took a look at a simple linear queue with a list using Python, this implementation was super simple and basically we have to care nothing about the size or capacity of the queue. This is fantastic and I am pretty sure most of the time you won …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Data structures, a circular queue in C++" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="/posts/2020/08/data-structures-circular-queue.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="/theme/css/tomorrow.css" />
+  <link rel="stylesheet" href="/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css" integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js" integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js" integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc" crossorigin="anonymous"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Data structures, a circular queue in C++">
+<meta name="twitter:image" content="/images/queue-1.png">
+
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Data structures, a circular queue in C++</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="/about.html">
+          <img class="avatar" alt="Cristian Prieto" src="/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-08-13T00:00:00+02:00">13 August 2020</time>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/c.html">c++</a>          <span class="readtime">4 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>Last time we took a look at a simple linear queue with a list using Python, this implementation was super simple and basically we have to care nothing about the size or capacity of the queue. This is fantastic and I am pretty sure most of the time you won&#8217;t have to take care of the capacity of the&nbsp;queue.</p>
+<p>Do you remember I mentioned there are many ways to implement a simple queue and one of them was using an array or vector?, well, in many languages (like C/C++ or Go) you cannot easily resize a vector and you cannot declare a vector &#8220;dynamic&#8221; at run time (yes, I am pretty sure some of you will scream: &#8220;hey, you can do <code>auto elems = new int[n]</code> in C++ but surprisingly that is not standard and it will fail in some compilers, like <span class="caps">MS</span> <span class="caps">VC</span>++). This brings some challenges, what do we do when we surpass the capacity of our initial&nbsp;array?</p>
+<ul>
+<li>We could throw an exception or error and keeps our life&nbsp;moving</li>
+<li>We could create a new bigger array, move all the data to the new array and continue as nothing&nbsp;happened</li>
+</ul>
+<p>The last option sounds pretty fair but it will incur in some serious performance problems and easily your queue will go <span class="math">\(\Theta(n)\)</span> for a common operation like <code>enqueue</code>. Another problem is with <code>dequeue</code>, if we <em>expand</em> our initial array and then consume most of their elements we are &#8220;wasting&#8221; space with unused content so we have to think about <em>shrinking</em> our queue in some <code>dequeue</code> operations, incurring in another <span class="math">\(\Theta(n)\)</span>&nbsp;problem.</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#pragma once</span>
+<span class="cp">#include</span> <span class="cpf">&lt;array&gt;</span><span class="cp"></span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">S</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">CircularQueue</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="o">&gt;</span> <span class="n">elements</span><span class="p">{};</span>
+    <span class="kt">size_t</span> <span class="n">top</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+    <span class="kt">size_t</span> <span class="n">tail</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">CircularQueue</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+    <span class="o">~</span><span class="n">CircularQueue</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+
+    <span class="n">T</span> <span class="nf">dequeue</span><span class="p">();</span>
+    <span class="n">T</span> <span class="nf">peek</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="nf">enqueue</span><span class="p">(</span><span class="n">T</span> <span class="n">element</span><span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span>
+    <span class="p">[[</span><span class="n">nodiscard</span><span class="p">]]</span> <span class="kt">bool</span> <span class="n">isEmpty</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">S</span><span class="o">&gt;</span>
+<span class="kt">bool</span> <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="o">&gt;::</span><span class="n">isEmpty</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">top</span> <span class="o">==</span> <span class="n">tail</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">S</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="o">&gt;::</span><span class="n">enqueue</span><span class="p">(</span><span class="n">T</span> <span class="n">element</span><span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>
+    <span class="n">elements</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">tail</span><span class="o">++</span><span class="p">)</span> <span class="o">=</span> <span class="n">element</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">S</span><span class="o">&gt;</span>
+<span class="n">T</span> <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="o">&gt;::</span><span class="n">peek</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">top</span> <span class="o">==</span> <span class="n">tail</span><span class="p">)</span> <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">{</span><span class="s">&quot;Queue is empty&quot;</span><span class="p">};</span>
+    <span class="k">return</span> <span class="n">elements</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">top</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">S</span><span class="o">&gt;</span>
+<span class="n">T</span> <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="o">&gt;::</span><span class="n">dequeue</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">top</span> <span class="o">==</span> <span class="n">tail</span><span class="p">)</span> <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">{</span><span class="s">&quot;Queue is empty&quot;</span><span class="p">};</span>
+    <span class="k">return</span> <span class="n">elements</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">top</span><span class="o">++</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>And the unit tests (using <a href="https://github.com/catchorg/Catch2">Catch2</a>) for our implementation is a little verbose but hey, it is C++ after&nbsp;all!</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define CATCH_CONFIG_MAIN</span>
+<span class="cp">#include</span> <span class="cpf">&lt;catch2/catch.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;CircularQueue.h&quot;</span><span class="cp"></span>
+
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">&quot;It is empty&quot;</span><span class="p">,</span> <span class="s">&quot;[circular queue]&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="o">&gt;</span> <span class="n">queue</span><span class="p">;</span>
+    <span class="n">CHECK</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">&quot;Normal enqueue-dequeue&quot;</span><span class="p">,</span> <span class="s">&quot;[circular queue]&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="o">&gt;</span> <span class="n">queue</span><span class="p">;</span>
+    <span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="n">CHECK_FALSE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">());</span>
+    <span class="n">REQUIRE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">dequeue</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">CHECK_FALSE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">());</span>
+    <span class="n">REQUIRE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">dequeue</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="n">CHECK</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">&quot;Peek doesn&#39;t dequeue&quot;</span><span class="p">,</span> <span class="s">&quot;[circular queue]&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="o">&gt;</span> <span class="n">queue</span><span class="p">;</span>
+    <span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">REQUIRE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">peek</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">CHECK_FALSE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">&quot;Dequeue and peek throw if empty&quot;</span><span class="p">,</span> <span class="s">&quot;[circular queue]&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">10</span><span class="o">&gt;</span> <span class="n">queue</span><span class="p">;</span>
+    <span class="n">REQUIRE_THROWS_WITH</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">dequeue</span><span class="p">(),</span> <span class="s">&quot;Queue is empty&quot;</span><span class="p">);</span>
+    <span class="n">REQUIRE_THROWS_WITH</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">peek</span><span class="p">(),</span> <span class="s">&quot;Queue is empty&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">&quot;When queue limit is reached, we discard top and move&quot;</span><span class="p">,</span> <span class="s">&quot;[circular queue]&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CircularQueue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">2</span><span class="o">&gt;</span> <span class="n">queue</span><span class="p">;</span>
+    <span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+    <span class="n">REQUIRE</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">peek</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>In the same way as with Python, the standard library in C++ has a really good and powerful implementation for <a href="https://en.cppreference.com/w/cpp/header/queue">queues</a> using an underline container, as usual, use any of those instead of this sample&nbsp;code!</p>
+<p><strong><span class="caps">PD</span>:</strong> Yes, I know we could use slices in Go or <code>std::vector</code> in C++, but that is not the point of this&nbsp;post.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="/posts/2020/08/data-structures-simple-queue-in-python.html" rel="next" title="Data structures, a simple queue in Python">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="/about.html">Cristian Prieto</a> &copy; 2019
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
