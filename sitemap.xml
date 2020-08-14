@@ -2,9 +2,14 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://cprieto.com/</loc>
-<lastmod>2020-08-13</lastmod>
+<lastmod>2020-08-14</lastmod>
 <changefreq>daily</changefreq>
 <priority>1.00</priority>
+</url><url>
+<loc>http://cprieto.com/posts/2020/08/data-structures-simple-single-linked-lists.html</loc>
+<lastmod>2020-08-14</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.80</priority>
 </url><url>
 <loc>http://cprieto.com/posts/2020/08/data-structures-queue-using-arrays.html</loc>
 <lastmod>2020-08-13</lastmod>
@@ -192,7 +197,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tag/data-structures.html</loc>
-<lastmod>2020-08-13</lastmod>
+<lastmod>2020-08-14</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -222,7 +227,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tag/go.html</loc>
-<lastmod>2020-04-23</lastmod>
+<lastmod>2020-08-14</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -342,7 +347,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tag/theory.html</loc>
-<lastmod>2020-08-13</lastmod>
+<lastmod>2020-08-14</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -362,12 +367,12 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/posts/index.html</loc>
-<lastmod>2020-08-13</lastmod>
+<lastmod>2020-08-14</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tags/index.html</loc>
-<lastmod>2020-08-13</lastmod>
+<lastmod>2020-08-14</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url>
