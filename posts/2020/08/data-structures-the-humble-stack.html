@@ -77,8 +77,8 @@
 <div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">java.util.*</span>
 
 <span class="k">class</span> <span class="nc">Stack</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
-    <span class="k">var</span> <span class="py">top</span><span class="p">:</span> <span class="n">Node</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
-    <span class="k">inner</span> <span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="k">val</span> <span class="py">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">val</span> <span class="py">next</span><span class="p">:</span> <span class="n">Node</span><span class="p">?)</span>
+    <span class="k">private</span> <span class="k">var</span> <span class="py">top</span><span class="p">:</span> <span class="n">Node</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+    <span class="k">private</span> <span class="k">inner</span> <span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="k">val</span> <span class="py">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">val</span> <span class="py">next</span><span class="p">:</span> <span class="n">Node</span><span class="p">?)</span>
 
     <span class="k">fun</span> <span class="nf">push</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">top</span> <span class="p">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
