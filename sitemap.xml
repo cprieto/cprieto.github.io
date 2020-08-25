@@ -2,9 +2,14 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://cprieto.com/</loc>
-<lastmod>2020-08-24</lastmod>
+<lastmod>2020-08-25</lastmod>
 <changefreq>daily</changefreq>
 <priority>1.00</priority>
+</url><url>
+<loc>http://cprieto.com/posts/2020/08/data-structures-selection-sort-algorithm.html</loc>
+<lastmod>2020-08-25</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.80</priority>
 </url><url>
 <loc>http://cprieto.com/posts/2020/08/data-structures-binary-search-recursive.html</loc>
 <lastmod>2020-08-24</lastmod>
@@ -13,6 +18,11 @@
 </url><url>
 <loc>http://cprieto.com/posts/2020/08/data-structures-binary-and-linear-search.html</loc>
 <lastmod>2020-08-19</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.80</priority>
+</url><url>
+<loc>http://cprieto.com/posts/2020/08/data-structures-bubble-sort-algorithm.html</loc>
+<lastmod>2020-08-18</lastmod>
 <changefreq>weekly</changefreq>
 <priority>0.80</priority>
 </url><url>
@@ -212,7 +222,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tag/data-structures.html</loc>
-<lastmod>2020-08-24</lastmod>
+<lastmod>2020-08-25</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -312,7 +322,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tag/python.html</loc>
-<lastmod>2020-08-12</lastmod>
+<lastmod>2020-08-25</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -362,7 +372,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tag/theory.html</loc>
-<lastmod>2020-08-24</lastmod>
+<lastmod>2020-08-25</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -382,12 +392,12 @@
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/posts/index.html</loc>
-<lastmod>2020-08-24</lastmod>
+<lastmod>2020-08-25</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
 <loc>http://cprieto.com/tags/index.html</loc>
-<lastmod>2020-08-24</lastmod>
+<lastmod>2020-08-25</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url>
