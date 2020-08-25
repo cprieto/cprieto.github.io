@@ -13,7 +13,7 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Because of this, we can see this algorithm will need to do &lt;span class="math"&gt;\(n^2\)&lt;/span&gt; comparissons but up to &lt;span class="math"&gt;\(n\)&lt;/span&gt; swaps (while bubble sort was doing &lt;span class="math"&gt;\(n^2\)&lt;/span&gt; swaps and the same amount of&amp;nbsp;comparissons):&lt;/p&gt;
+&lt;p&gt;As you see, we end up doing simple linear search for the max value between all the values remaining in the list after our current index, because of this, we can see this algorithm will need to do &lt;span class="math"&gt;\(n^2\)&lt;/span&gt; comparissons but up to &lt;span class="math"&gt;\(n\)&lt;/span&gt; swaps (while bubble sort was doing &lt;span class="math"&gt;\(n^2\)&lt;/span&gt; swaps and the same amount of&amp;nbsp;comparissons):&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
