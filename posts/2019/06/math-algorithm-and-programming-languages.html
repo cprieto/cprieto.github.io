@@ -80,21 +80,21 @@
 
 
 <p>This is very similar to the &#8220;loop&#8221; code in the previous Wikipedia&nbsp;article:</p>
-<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="nf">gcd</span><span class="p">(</span>a, b<span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">while</span> <span class="n">b</span> ≠ <span class="mi">0</span>
-       <span class="n">t</span> <span class="s">:=</span> <span class="s">b</span><span class="p">;</span> 
-       <span class="n">b</span> <span class="s">:=</span> <span class="s">a</span> <span class="s">mod</span> <span class="s">b</span><span class="p">;</span> 
-       <span class="n">a</span> <span class="s">:=</span> <span class="s">t</span><span class="p">;</span> 
-    <span class="n">return</span> <span class="s">a</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="kr">function</span> <span class="no">gcd</span><span class="p">(</span><span class="no">a</span><span class="p">,</span> <span class="no">b</span><span class="p">)</span>
+    <span class="kr">while</span> <span class="no">b</span> <span class="err">≠</span> <span class="mi">0</span>
+       <span class="no">t</span> <span class="p">:</span><span class="o">=</span> <span class="no">b</span><span class="err">;</span> 
+       <span class="no">b</span> <span class="p">:</span><span class="o">=</span> <span class="no">a</span> <span class="no">mod</span> <span class="no">b</span><span class="err">;</span> 
+       <span class="no">a</span> <span class="p">:</span><span class="o">=</span> <span class="no">t</span><span class="err">;</span> 
+    <span class="kr">return</span> <span class="no">a</span><span class="err">;</span>
 </code></pre></div>
 
 
 <p>Wikipedia has a recursive version as&nbsp;well:</p>
-<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="nf">gcd</span><span class="p">(</span>a, b<span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span> <span class="n">b</span> <span class="p">=</span> <span class="mi">0</span>
-       <span class="n">return</span> <span class="s">a</span><span class="p">;</span> 
-    <span class="n">else</span>
-       <span class="s">return</span> <span class="s">gcd(b,</span> <span class="s">a</span> <span class="s">mod</span> <span class="s">b)</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="kr">function</span> <span class="no">gcd</span><span class="p">(</span><span class="no">a</span><span class="p">,</span> <span class="no">b</span><span class="p">)</span>
+    <span class="kr">if</span> <span class="no">b</span> <span class="o">=</span> <span class="mi">0</span>
+       <span class="kr">return</span> <span class="no">a</span><span class="err">;</span> 
+    <span class="no">else</span>
+       <span class="kr">return</span> <span class="no">gcd</span><span class="p">(</span><span class="no">b</span><span class="p">,</span> <span class="no">a</span> <span class="no">mod</span> <span class="no">b</span><span class="p">)</span><span class="err">;</span>
 </code></pre></div>
 
 
