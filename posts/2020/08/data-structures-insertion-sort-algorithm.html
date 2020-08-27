@@ -83,7 +83,7 @@
 </code></pre></div>
 
 
-<p>But in reality the idea (and implementation) is not that complex, what we do is that we take an element (let&#8217;s say the <span class="math">\(i\)</span> element in the list) and then compare it with all the <em>previous</em> elements in the list, if that element is <em>greater</em> than our current element, we move it (or push) to our current position (so the element at index <span class="math">\(i - 1\)</span> will be at index <span class="math">\(i\)</span>) until we found a place <span class="math">\(x\)</span> where the current element is not greater or lesser than previous and next (so we found the element correct place in the array). This is analogous as the way we sort a deck of cards, we take one card and then look for the correct position of that card in the deck and <em>insert</em> the card into that position, hence the name of this&nbsp;algorithm.</p>
+<p>But in reality the idea (and implementation) is not that complex, what we take an element (let&#8217;s say the <span class="math">\(i\)</span> element in the list) and then compare it with all the <em>previous</em> elements in the list, if that element is <em>greater</em> than our current element, we move it (or push) to our current position (so the element at index <span class="math">\(i - 1\)</span> will be at index <span class="math">\(i\)</span>) until we found a place <span class="math">\(x\)</span> where the current element is not greater or lesser than previous and next (so we found the element correct place in the array). This is analogous as the way we sort a deck of cards, we take one card and then look for the correct position of that card in the deck and <em>insert</em> the card into that position, hence the name of this&nbsp;algorithm.</p>
 <p>If we try this in something like Kotlin we will end up with a simple implementation like&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="p">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Comparable</span><span class="err">&lt;</span><span class="n">T</span><span class="p">&gt;</span><span class="err">&gt; </span><span class="nf">insertionSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;)</span> <span class="p">{</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">current</span> <span class="k">in</span> <span class="m">0</span> <span class="n">until</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span><span class="p">)</span> <span class="p">{</span>
@@ -93,11 +93,11 @@
         <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="n">idx</span> <span class="p">-</span> <span class="m">1</span> <span class="n">downTo</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// We compare with all the previous elements</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="p">&lt;</span> <span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">{</span>
                 <span class="n">items</span><span class="p">[(</span><span class="n">i</span> <span class="p">+</span> <span class="m">1</span><span class="p">)]</span> <span class="p">=</span> <span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1">// If bigger, we move current element to the right</span>
-                <span class="n">idx</span> <span class="p">-=</span> <span class="m">1</span>
+                <span class="n">idx</span> <span class="p">-=</span> <span class="m">1</span> <span class="c1">// And we continue checking the previous element</span>
             <span class="p">}</span>
         <span class="p">}</span>
 
-        <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="p">=</span> <span class="n">value</span> <span class="c1">// This is the right place for the list</span>
+        <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="p">=</span> <span class="n">value</span> <span class="c1">// This is the right place for the item in the list</span>
     <span class="p">}</span>   
 <span class="p">}</span>
 </code></pre></div>
@@ -116,13 +116,13 @@
 <tbody>
 <tr>
 <td>Best case (list is already sorted)</td>
-<td><span class="math">\(\Theta(n)\)</span></td>
-<td><span class="math">\(\Theta(1)\)</span></td>
+<td><span class="math">\(\mathcal{O}(n)\)</span></td>
+<td><span class="math">\(\mathcal{O}(1)\)</span></td>
 </tr>
 <tr>
 <td>Worst case (list is super unsorted)</td>
-<td><span class="math">\(\Theta(n^2)\)</span></td>
-<td><span class="math">\(\Theta(n^2)\)</span></td>
+<td><span class="math">\(\mathcal{O}(n^2)\)</span></td>
+<td><span class="math">\(\mathcal{O}(n^2)\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -146,6 +146,7 @@
   <div class="twelve columns">
     <nav>
       <ul>
+          <li><a href="http://cprieto.com/posts/2020/08/data-structures-quicksort.html" rel="prev" title="Data structures, quicksort">Next post</a></li>
           <li><a href="http://cprieto.com/posts/2020/08/data-structures-selection-sort-algorithm.html" rel="next" title="Data structures, selection sort algorithm">Previous post</a></li>
       </ul>
     </nav>

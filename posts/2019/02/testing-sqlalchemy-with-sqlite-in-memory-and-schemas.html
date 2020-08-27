@@ -109,7 +109,7 @@ the <a href="https://www.sqlite.org/lang_detach.html"><span class="caps">DETACH<
 <p>To do so, we have to change our <code>setUp</code> method just a little to issue a few commands after setting our database&nbsp;connection:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">db</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="s1">&#39;sqlite://&#39;</span><span class="p">)</span>
-    <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;ATTACH &#39;:memory:&#39; DATABASE AS authentication&quot;</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;ATTACH DATABASE &#39;:memory:&#39; AS authentication&quot;</span><span class="p">)</span>
     <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
 </code></pre></div>
 

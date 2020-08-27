@@ -1,5 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>IDisposable Thoughts</title><link href="http://cprieto.com/" rel="alternate"></link><link href="http://cprieto.com/atom.xml" rel="self"></link><id>http://cprieto.com/</id><updated>2020-08-26T00:00:00+02:00</updated><entry><title>Data structures, insertion sort algorithm</title><link href="http://cprieto.com/posts/2020/08/data-structures-insertion-sort-algorithm.html" rel="alternate"></link><published>2020-08-26T00:00:00+02:00</published><updated>2020-08-26T00:00:00+02:00</updated><author><name>Cristian Prieto</name></author><id>tag:cprieto.com,2020-08-26:/posts/2020/08/data-structures-insertion-sort-algorithm.html</id><summary type="html">&lt;p&gt;So far we had discussed two algorithms that you &lt;em&gt;should never use&lt;/em&gt; (because there are better options) but today we are going to talk about one of those &lt;em&gt;basic&lt;/em&gt; algorithms that you should &lt;strong&gt;definitely use&lt;/strong&gt; for very specific cases. We are talking about &lt;a href="https://en.wikipedia.org/wiki/Insertion_sort"&gt;insertion sort&lt;/a&gt;, one of those algorithms that …&lt;/p&gt;</summary><content type="html">&lt;p&gt;So far we had discussed two algorithms that you &lt;em&gt;should never use&lt;/em&gt; (because there are better options) but today we are going to talk about one of those &lt;em&gt;basic&lt;/em&gt; algorithms that you should &lt;strong&gt;definitely use&lt;/strong&gt; for very specific cases. We are talking about &lt;a href="https://en.wikipedia.org/wiki/Insertion_sort"&gt;insertion sort&lt;/a&gt;, one of those algorithms that if we look at its pseudocode it kind of look complex and&amp;nbsp;weird:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>IDisposable Thoughts</title><link href="http://cprieto.com/" rel="alternate"></link><link href="http://cprieto.com/atom.xml" rel="self"></link><id>http://cprieto.com/</id><updated>2020-08-27T00:00:00+02:00</updated><entry><title>Data structures, quicksort</title><link href="http://cprieto.com/posts/2020/08/data-structures-quicksort.html" rel="alternate"></link><published>2020-08-27T00:00:00+02:00</published><updated>2020-08-27T00:00:00+02:00</updated><author><name>Cristian Prieto</name></author><id>tag:cprieto.com,2020-08-27:/posts/2020/08/data-structures-quicksort.html</id><summary type="html">&lt;p&gt;Now it is time for the sorting algorithm that a lot of people says once you know it you don&amp;#8217;t need anything else (that is not really true in practice but who am I to judge them?), the venerable &lt;a href="https://en.wikipedia.org/wiki/Quicksort"&gt;Quicksort&lt;/a&gt;. This algorithm, discovered by &lt;a href="https://en.wikipedia.org/wiki/Tony_Hoare"&gt;Sir Tony Hoare&lt;/a&gt;, is so …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Now it is time for the sorting algorithm that a lot of people says once you know it you don&amp;#8217;t need anything else (that is not really true in practice but who am I to judge them?), the venerable &lt;a href="https://en.wikipedia.org/wiki/Quicksort"&gt;Quicksort&lt;/a&gt;. This algorithm, discovered by &lt;a href="https://en.wikipedia.org/wiki/Tony_Hoare"&gt;Sir Tony Hoare&lt;/a&gt;, is so effective that many of the default sorting algorithm in the standard library use it, a good example, that is why &lt;code&gt;qsort&lt;/code&gt; exists in the C standard&amp;nbsp;library.&lt;/p&gt;
+&lt;p&gt;This algorithm is the typical &lt;a href="https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm"&gt;&lt;em&gt;divide and conquer&lt;/em&gt;&lt;/a&gt; type of person, it basically picks an element (which is called &lt;em&gt;pivot&lt;/em&gt;) and place all the elements greater than him in the right, and those lesser than him in the left, once this is done, you pick another element in the left and in the right and apply the same algorithm recursively until you end up with a sorted&amp;nbsp;collection.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kr"&gt;function&lt;/span&gt; &lt;span class="no"&gt;quicksort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="kr"&gt;if&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt; &lt;span class="kr"&gt;then&lt;/span&gt;
+    &lt;span class="no"&gt;pivot&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="no"&gt;partition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="no"&gt;quicksort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;pivot&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="no"&gt;quicksort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;pivot&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="kr"&gt;end&lt;/span&gt;
+&lt;span class="kr"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you see this is very a recursive and very simple algorithm but there is one part that is cleverly hidden in the pseudocode, the partition algorithm. The partition algorithm is basically the one that makes all the hardcore work, it picks an element (this is actually more complex that it sounds), in fact, without the partition function our sorting is useless. This function needs to get the pivot element and then place all the elements greater than it to the right or lesser than it to the&amp;nbsp;left.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s start implementing the core of the recursive function in Kotlin, we will discuss more about the partition function later, there are many options to see&amp;nbsp;there!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;tailrec&lt;/span&gt; &lt;span class="k"&gt;fun&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Comparable&lt;/span&gt;&lt;span class="err"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="err"&gt;&amp;gt; &lt;/span&gt;&lt;span class="nf"&gt;quickSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;MutableList&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;low&lt;/span&gt; &lt;span class="p"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt;
+
+  &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="py"&gt;pivot&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;quickSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pivot&lt;/span&gt; &lt;span class="p"&gt;-&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;quickSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pivot&lt;/span&gt; &lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If you don&amp;#8217;t care about memory one easy way to do this is just &lt;em&gt;generating an array of the same size as the original&lt;/em&gt; and start filling it putting the smaller elements in the left and the greater elements in the right and placing the pivot in the space left after the operation, then simply copy the array into the original array and done. The problem I see with this approach is the use of memory, we need to create a temporary array as big as the current array being processed and for me that is a waste of space! Can we do a swap in place? yes we can, for example, if we use the first element as pivot the pseudocode will be something like&amp;nbsp;this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kr"&gt;function&lt;/span&gt; &lt;span class="no"&gt;partition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="no"&gt;p&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+  &lt;span class="kr"&gt;for&lt;/span&gt; &lt;span class="no"&gt;j&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="no"&gt;to&lt;/span&gt; &lt;span class="no"&gt;hi&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+    &lt;span class="kr"&gt;if&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;p&lt;/span&gt; &lt;span class="kr"&gt;then&lt;/span&gt;
+      &lt;span class="no"&gt;swap&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;j&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+      &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+    &lt;span class="kr"&gt;end&lt;/span&gt;
+  &lt;span class="kr"&gt;end&lt;/span&gt;
+  &lt;span class="no"&gt;swap&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="kr"&gt;return&lt;/span&gt; &lt;span class="no"&gt;i&lt;/span&gt;
+&lt;span class="kr"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Apparently there are problems when chosing the first element as the pivot value (as a mention before, this is the secret sauce with quicksort, chosing the right pivot value) because when the elements are already (or nearly) sorted we have to do a lot of work, &lt;a href="https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)"&gt;Sedgewick&lt;/a&gt; and others advice to instead use the &lt;em&gt;last element&lt;/em&gt; in the list (in reality he says we should use the median of the first, last and middle but that is too long to see for a short blog post). Knowing this we can change and adapt our partition function&amp;nbsp;pseudocode:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kr"&gt;function&lt;/span&gt; &lt;span class="no"&gt;partition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="no"&gt;p&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="no"&gt;low&lt;/span&gt;
+  &lt;span class="kr"&gt;for&lt;/span&gt; &lt;span class="no"&gt;j&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="no"&gt;to&lt;/span&gt; &lt;span class="no"&gt;high&lt;/span&gt; &lt;span class="kr"&gt;do&lt;/span&gt;
+    &lt;span class="kr"&gt;if&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="no"&gt;p&lt;/span&gt; &lt;span class="kr"&gt;then&lt;/span&gt;
+      &lt;span class="no"&gt;swap&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;j&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+      &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;i&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+    &lt;span class="kr"&gt;end&lt;/span&gt;
+  &lt;span class="kr"&gt;end&lt;/span&gt;
+  &lt;span class="no"&gt;swap&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;high&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="kr"&gt;return&lt;/span&gt; &lt;span class="no"&gt;i&lt;/span&gt;
+&lt;span class="kr"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you see not many things changes and that is good, we just took care of the indices in the first partition versus the second. I know it is difficult to see the move and swaps of elements but I will highly advice to write the code in something that you feel comfortable with and place a log or print at the end of the loop displaying the current status of the list, you will then see what elements move and the values of &lt;span class="math"&gt;\(i\)&lt;/span&gt; and &lt;span class="math"&gt;\(j\)&lt;/span&gt;, low tech but&amp;nbsp;effective!&lt;/p&gt;
+&lt;p&gt;Knowing this implementing the partition function in Kotlin is easy, let&amp;#8217;s do it as an inner&amp;nbsp;function:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;tailrec&lt;/span&gt; &lt;span class="k"&gt;fun&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Comparable&lt;/span&gt;&lt;span class="err"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="err"&gt;&amp;gt; &lt;/span&gt;&lt;span class="nf"&gt;quickSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;MutableList&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;fun&lt;/span&gt; &lt;span class="nf"&gt;partition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="n"&gt;Int&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="py"&gt;current&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="py"&gt;idx&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;
+
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="n"&gt;until&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;also&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;j&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;  &lt;span class="c1"&gt;// This is how you do the a,b = b, a in Kotlin&lt;/span&gt;
+        &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;++&lt;/span&gt;
+      &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="n"&gt;also&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;low&lt;/span&gt; &lt;span class="p"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt;
+
+  &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="py"&gt;pivot&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;quickSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;low&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pivot&lt;/span&gt; &lt;span class="p"&gt;-&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;quickSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pivot&lt;/span&gt; &lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;high&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Yes, I admit the code in Kotlin looks &amp;#8220;weird&amp;#8221; but you can test it with the same unit tests we have for all our sorting examples, in fact, a good idea will be to pass the &lt;code&gt;partition&lt;/code&gt; function as a parameter (with a sensitive default) and implement both partition schemas (or try some other from the Wikipedia page) and create unit tests around&amp;nbsp;them.&lt;/p&gt;
+&lt;p&gt;Why all of this mess? well, quick sort is, how I say this, &lt;strong&gt;quick&lt;/strong&gt;! and it gets us a worst case of &lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt; (not different than all the other &lt;em&gt;comparisson algorithms&lt;/em&gt;) but in the best case we get up to &lt;span class="math"&gt;\(\mathcal{O}(n \log{n})\)&lt;/span&gt; or &lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt; (depending on the partition function) no matter the size of your collection. There is one specific case when quicksort is as slow as any other sorting algorithm by comparisson (&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;), when we have a collection with very few repeated elements, for example something like this: &lt;code&gt;[1, 1, 5, 1, 12, 12, 12, 5, 5, 5, 5, 1, 12, 1, 12, 1, 1, 12, 1, 5]&lt;/code&gt;, can you spot&amp;nbsp;why?&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Comparisson&lt;/th&gt;
+&lt;th&gt;Swaps&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Best case (using good pivot)&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n \log{n})\)&lt;/span&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Worst case (a lot of repeated elements)&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;This is why is so important to &lt;em&gt;at least&lt;/em&gt; know your sorting algorithms, not a single algorithm applies to every situation. We will see more of this in the upcoming blog posts (we will continue with sorting for a&amp;nbsp;while).&lt;/p&gt;</content><category term="misc"></category><category term="theory"></category><category term="data structures"></category><category term="kotlin"></category><category term="algorithm"></category></entry><entry><title>Data structures, insertion sort algorithm</title><link href="http://cprieto.com/posts/2020/08/data-structures-insertion-sort-algorithm.html" rel="alternate"></link><published>2020-08-26T00:00:00+02:00</published><updated>2020-08-26T00:00:00+02:00</updated><author><name>Cristian Prieto</name></author><id>tag:cprieto.com,2020-08-26:/posts/2020/08/data-structures-insertion-sort-algorithm.html</id><summary type="html">&lt;p&gt;So far we had discussed two algorithms that you &lt;em&gt;should never use&lt;/em&gt; (because there are better options) but today we are going to talk about one of those &lt;em&gt;basic&lt;/em&gt; algorithms that you should &lt;strong&gt;definitely use&lt;/strong&gt; for very specific cases. We are talking about &lt;a href="https://en.wikipedia.org/wiki/Insertion_sort"&gt;insertion sort&lt;/a&gt;, one of those algorithms that …&lt;/p&gt;</summary><content type="html">&lt;p&gt;So far we had discussed two algorithms that you &lt;em&gt;should never use&lt;/em&gt; (because there are better options) but today we are going to talk about one of those &lt;em&gt;basic&lt;/em&gt; algorithms that you should &lt;strong&gt;definitely use&lt;/strong&gt; for very specific cases. We are talking about &lt;a href="https://en.wikipedia.org/wiki/Insertion_sort"&gt;insertion sort&lt;/a&gt;, one of those algorithms that if we look at its pseudocode it kind of look complex and&amp;nbsp;weird:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kr"&gt;function&lt;/span&gt; &lt;span class="no"&gt;insertion_sort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[],&lt;/span&gt; &lt;span class="no"&gt;length&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
   &lt;span class="kr"&gt;for&lt;/span&gt; &lt;span class="no"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="err"&gt;;&lt;/span&gt; &lt;span class="no"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;length&lt;/span&gt;&lt;span class="err"&gt;;&lt;/span&gt; &lt;span class="no"&gt;n&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;
     &lt;span class="no"&gt;elem&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="no"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;n&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
@@ -16,7 +121,7 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;But in reality the idea (and implementation) is not that complex, what we do is that we take an element (let&amp;#8217;s say the &lt;span class="math"&gt;\(i\)&lt;/span&gt; element in the list) and then compare it with all the &lt;em&gt;previous&lt;/em&gt; elements in the list, if that element is &lt;em&gt;greater&lt;/em&gt; than our current element, we move it (or push) to our current position (so the element at index &lt;span class="math"&gt;\(i - 1\)&lt;/span&gt; will be at index &lt;span class="math"&gt;\(i\)&lt;/span&gt;) until we found a place &lt;span class="math"&gt;\(x\)&lt;/span&gt; where the current element is not greater or lesser than previous and next (so we found the element correct place in the array). This is analogous as the way we sort a deck of cards, we take one card and then look for the correct position of that card in the deck and &lt;em&gt;insert&lt;/em&gt; the card into that position, hence the name of this&amp;nbsp;algorithm.&lt;/p&gt;
+&lt;p&gt;But in reality the idea (and implementation) is not that complex, what we take an element (let&amp;#8217;s say the &lt;span class="math"&gt;\(i\)&lt;/span&gt; element in the list) and then compare it with all the &lt;em&gt;previous&lt;/em&gt; elements in the list, if that element is &lt;em&gt;greater&lt;/em&gt; than our current element, we move it (or push) to our current position (so the element at index &lt;span class="math"&gt;\(i - 1\)&lt;/span&gt; will be at index &lt;span class="math"&gt;\(i\)&lt;/span&gt;) until we found a place &lt;span class="math"&gt;\(x\)&lt;/span&gt; where the current element is not greater or lesser than previous and next (so we found the element correct place in the array). This is analogous as the way we sort a deck of cards, we take one card and then look for the correct position of that card in the deck and &lt;em&gt;insert&lt;/em&gt; the card into that position, hence the name of this&amp;nbsp;algorithm.&lt;/p&gt;
 &lt;p&gt;If we try this in something like Kotlin we will end up with a simple implementation like&amp;nbsp;this:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;fun&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Comparable&lt;/span&gt;&lt;span class="err"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="err"&gt;&amp;gt; &lt;/span&gt;&lt;span class="nf"&gt;insertionSort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;MutableList&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="n"&gt;until&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
@@ -26,11 +131,11 @@
         &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="p"&gt;-&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt; &lt;span class="n"&gt;downTo&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// We compare with all the previous elements&lt;/span&gt;
             &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
                 &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="p"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;// If bigger, we move current element to the right&lt;/span&gt;
-                &lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="p"&gt;-=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+                &lt;span class="n"&gt;idx&lt;/span&gt; &lt;span class="p"&gt;-=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt; &lt;span class="c1"&gt;// And we continue checking the previous element&lt;/span&gt;
             &lt;span class="p"&gt;}&lt;/span&gt;
         &lt;span class="p"&gt;}&lt;/span&gt;
 
-        &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="c1"&gt;// This is the right place for the list&lt;/span&gt;
+        &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;idx&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="c1"&gt;// This is the right place for the item in the list&lt;/span&gt;
     &lt;span class="p"&gt;}&lt;/span&gt;   
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
@@ -49,13 +154,13 @@
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;Best case (list is already sorted)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt;&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(1)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Worst case (list is super unsorted)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n^2)\)&lt;/span&gt;&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -86,13 +191,13 @@
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;Best case (already sorted )&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n^2)\)&lt;/span&gt;&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(1)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Worst case&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n^2)\)&lt;/span&gt;&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -132,7 +237,7 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;In the best case the element we are looking for is the first element in the collection so its time performance would be &lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt; in the worst case scenario (let&amp;#8217;s say the element &lt;em&gt;is not&lt;/em&gt; in the list) we will need to go through all the elements, being this a &lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt; operation (where &lt;span class="math"&gt;\(n\)&lt;/span&gt; is the number of elements in the&amp;nbsp;collection).&lt;/p&gt;
+&lt;p&gt;In the best case the element we are looking for is the first element in the collection so its time performance would be &lt;span class="math"&gt;\(\mathcal{O}(1)\)&lt;/span&gt; in the worst case scenario (let&amp;#8217;s say the element &lt;em&gt;is not&lt;/em&gt; in the list) we will need to go through all the elements, being this a &lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt; operation (where &lt;span class="math"&gt;\(n\)&lt;/span&gt; is the number of elements in the&amp;nbsp;collection).&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -143,11 +248,11 @@
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;Worst case (element not found)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Best case (element is the first element)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(1)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -204,11 +309,11 @@ $$&lt;/div&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;Best case (element is right in the middle)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(1)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Worst case (element is not there at all)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(\log{n})\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(\log{n})\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -271,13 +376,13 @@ $$&lt;/div&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;Best case (list already sorted)&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt;&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(1)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Worst case&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n^2)\)&lt;/span&gt;&lt;/td&gt;
-&lt;td&gt;&lt;span class="math"&gt;\(\Theta(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;&lt;span class="math"&gt;\(\mathcal{O}(n^2)\)&lt;/span&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -407,7 +512,7 @@ $$&lt;/div&gt;
 
 &lt;p&gt;As you see, &lt;em&gt;appending&lt;/em&gt; (adding an element at the end) with our simple list is a very expensive operation, &lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt;, while &lt;em&gt;prepending&lt;/em&gt; (adding an element at the beginning) is always &lt;span class="math"&gt;\(\Theta(1)\)&lt;/span&gt;. Yes, there are ways we can amortize this, for example using a pointer for the &lt;em&gt;tail&lt;/em&gt; of the list but for now I will keep it simple to illustrate my point, in fact, to do the most basic linked list we don&amp;#8217;t even need a separate structure (as here with &lt;code&gt;LinkedList&lt;/code&gt;) because only knowing the first node is enough to go around the whole list, that way is actually really common instead of using a whole completely alternate structure, a linked list is more an implementation (data structure) than an abstract data&amp;nbsp;type.&lt;/p&gt;
 &lt;p&gt;I made the previous distinction because a common question I get all the time is &amp;#8220;when should we implement our own data structure from scratch?&amp;#8221; and to be honest my answer, 99% of the time, would be &lt;strong&gt;never&lt;/strong&gt;, just use the data structures including in your standard libraries but there is usually that 1% that needs you to know &amp;#8220;oh, this actually looks like a problem where I just need to point to the first element and then that will point to the next and so on because I will always only add elements at the beginning&amp;#8221; so in your mind you know you should implement a data structure named a linked list, see? it is not in vain learning all these banal stuff, believe me, one day it will save the day&amp;nbsp;;)&lt;/p&gt;
-&lt;p&gt;As usual I leave you here with the test implementation, I just used here the &lt;a href="https://github.com/stretchr/testify"&gt;testify&lt;/a&gt; external library because honestly, I dislike how verbose unit tests are in Go. I leave to you to implement the remove and search operations (spoiler alert, it will be a &lt;span class="math"&gt;\(\Theta(n)\)&lt;/span&gt;&amp;nbsp;operation).&lt;/p&gt;
+&lt;p&gt;As usual I leave you here with the test implementation, I just used here the &lt;a href="https://github.com/stretchr/testify"&gt;testify&lt;/a&gt; external library because honestly, I dislike how verbose unit tests are in Go. I leave to you to implement the remove and search operations (spoiler alert, it will be a &lt;span class="math"&gt;\(\mathcal{O}(n)\)&lt;/span&gt;&amp;nbsp;operation).&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
     &lt;span class="s"&gt;&amp;quot;testing&amp;quot;&lt;/span&gt;
     &lt;span class="s"&gt;&amp;quot;github.com/stretchr/testify/assert&amp;quot;&lt;/span&gt;
@@ -1355,7 +1460,7 @@ the &lt;a href="https://www.sqlite.org/lang_detach.html"&gt;&lt;span class="caps
 &lt;p&gt;To do so, we have to change our &lt;code&gt;setUp&lt;/code&gt; method just a little to issue a few commands after setting our database&amp;nbsp;connection:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;setUp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;init&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;sqlite://&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;ATTACH &amp;#39;:memory:&amp;#39; DATABASE AS authentication&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;ATTACH DATABASE &amp;#39;:memory:&amp;#39; AS authentication&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;create_all&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
