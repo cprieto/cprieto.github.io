@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Data structures, Merge&nbsp;sort</title>
+  <meta name="description" content="Merge sort is one of those algorithms that we kind of use everyday (most of the time indirectly or in a modified version) and we probably don’t think about it. As I mentioned previously quicksort is kind of the facto sorting algorithm in many of standard library implementations in …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Data structures, Merge sort" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="/posts/2020/08/data-structures-merge-sort.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="/theme/css/tomorrow.css" />
+  <link rel="stylesheet" href="/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css" integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js" integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js" integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc" crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Data structures, Merge sort</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="/about.html">
+          <img class="avatar" alt="Cristian Prieto" src="/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-08-28T00:00:00+02:00">28 August 2020</time>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">2 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>Merge sort is one of those algorithms that we kind of use everyday (most of the time indirectly or in a modified version) and we probably don&#8217;t think about it. As I mentioned previously <a href="/posts/2020/08/data-structures-quicksort.html">quicksort</a> is kind of the facto sorting algorithm in many of standard library implementations in many languages but surprisingly <a href="">Merge sort</a> is there as well. This is another <a href="">divide and conquer</a> and recursive algorithm, and the idea is extremely&nbsp;simple:</p>
+<blockquote>
+<p>You divide a list until they are sorted (one element) and then merge them back while sorting&nbsp;them</p>
+</blockquote>
+<p>So at the end what you do is to divide into smallest sublist and when merging you take care of sorting them back. In pseudocode it looks very familiar to the previous quick&nbsp;sort:</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="nf">merge_sort</span><span class="p">(</span>items, lo, hi<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">hi</span> <span class="n">then</span>
+    <span class="n">mid</span> <span class="p">=</span> <span class="n">lo</span> <span class="o">+</span> <span class="nb">floor</span><span class="p">((</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">merge_sort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">mid</span><span class="p">)</span>
+    <span class="n">merge_sort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">lo</span><span class="p">)</span>
+
+    <span class="n">merge</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">mid</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
+  <span class="n">end</span>
+<span class="s">end</span>
+</code></pre></div>
+
+
+<p>Again, converting this into Kotlin is simple&nbsp;enough:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">kotlin.math.floor</span>
+
+<span class="k">tailrec</span> <span class="k">fun</span> <span class="p">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Comparable</span><span class="err">&lt;</span><span class="n">T</span><span class="p">&gt;</span><span class="err">&gt; </span><span class="nf">mergeSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;,</span> <span class="n">low</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span> <span class="p">-</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">low</span> <span class="p">&gt;=</span> <span class="n">high</span><span class="p">)</span> <span class="k">return</span>
+
+  <span class="k">val</span> <span class="py">mid</span> <span class="p">=</span> <span class="n">low</span> <span class="p">+</span> <span class="n">floor</span><span class="p">(((</span><span class="n">low</span> <span class="p">+</span> <span class="n">high</span><span class="p">)</span> <span class="p">/</span> <span class="m">2</span><span class="p">).</span><span class="n">toDouble</span><span class="p">).</span><span class="n">toInt</span><span class="p">()</span>
+  <span class="n">mergeSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">mid</span><span class="p">)</span>
+  <span class="n">mergeSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">mid</span> <span class="p">+</span> <span class="m">1</span><span class="p">,</span> <span class="n">low</span><span class="p">)</span>
+
+  <span class="c1">// This is where magic happens!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>This is one specific thing I dislike from quicksort and merge sort, the real <em>core</em> of the algorithm is <em>always</em> hidden in some magic box, in quicksort was the <code>partition</code> section, here is the <code>merge</code> section. The guarantee is to take both divisions (or halves) and merge them back <em>but in sorted order</em> and I remembered for me that was like &#8220;oh yeah, do you want fries with&nbsp;that?&#8221;.</p>
+<p>The easiest way is using an intermediary array, you see, we take both arrays (or array sections) and create a third array that will fit both arrays in memory and then place the sorted items there, sadly, with really big list you end up with a lot of wasted space because creating all those intermediary arrays and all the cost of copying the data back to the original array, nearly every implementation that I had seen out there was using this method but thanks to the great book (<a href="https://algs4.cs.princeton.edu/home/">Algorithms by R. Sedgewick</a>) I saw a very clever way to do the merge operation in place! no memory wasted! (and personally a lot easier to follow and&nbsp;understand).</p>
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="/posts/2020/08/data-structures-quicksort.html" rel="next" title="Data structures, quicksort">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
