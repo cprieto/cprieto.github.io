@@ -67,7 +67,7 @@
       </header>
       <section>
         <p>Ok, today we have another sorting algorithm but &#8220;<em>different</em>&#8221; not only in idea and implementation but in usage. So far we have seen <em>comparison sorts</em> or sorting algorithms depending on comparing elements against each other (yes, some of them even recursive and divide and conquer). One big limitation of comparison sorts is that it doesn&#8217;t matter what we do to improve them, the worst case would never be better (or faster) than <span class="math">\(\mathcal{O}(n \log{n})\)</span>. Most algorithm classes stop in comparison sorts so I was surprised when I learnt about <em>non comparison sorts</em> or sorts that doesn&#8217;t use comparisson to sort the elements. Because of that, non comparisson sorts can do <em>much better</em> than <span class="math">\(\mathcal{O}(n \log{n})\)</span> but with the disvantage that they can sort just certain domain of&nbsp;elements.</p>
-<p>The first non comparisson sort we are going to check is the simplest of them. It is <a href="">counting sort</a> and it is designed to work on a collection of <em>repeated discrete limited</em> elements. This means collection containing repeated elements that we can enumerate, for&nbsp;example:&#8221;</p>
+<p>The first non comparisson sort we are going to check is the simplest of them. It is <a href="https://en.wikipedia.org/wiki/Counting_sort">counting sort</a> and it is designed to work on a collection of <em>repeated discrete limited</em> elements. This means collection containing repeated elements that we can enumerate, for&nbsp;example:&#8221;</p>
 <ul>
 <li>Family of integers: [1, 5, 1, 3,&nbsp;1]</li>
 <li>Enums: [up, up, down, down, left, right, left,&nbsp;right]</li>
