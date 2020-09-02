@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>IDisposable Thoughts - Data structures,&nbsp;quicksort</title>
+  <title>IDisposable Thoughts - Data structures,&nbsp;Quicksort</title>
   <meta name="description" content="Now it is time for the sorting algorithm that a lot of people says once you know it you don’t need anything else (that is not really true in practice but who am I to judge them?), the venerable Quicksort. This algorithm, discovered by Sir Tony Hoare, is so …" />
   <meta name="author" content="Cristian Prieto" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Pelican" />
   <meta property="og:locale" content="en" />
-  <meta property="og:title" content="Data structures, quicksort" />
+  <meta property="og:title" content="Data structures, Quicksort" />
   <meta property="og:type" content="blog">
   <meta property="og:url" content="http://cprieto.com/posts/2020/08/data-structures-quicksort.html" />
   <meta property="og:sitename" content="IDisposable Thoughts" />
@@ -55,7 +55,7 @@
   <div class="twelve columns">
     <article>
       <header>
-        <h2>Data structures, quicksort</h2>
+        <h2>Data structures, Quicksort</h2>
         <div class="meta">
           <span class="u-helper"></span>
           <a rel="author" href="http://cprieto.com/about.html">
@@ -124,7 +124,7 @@
 
 <p>As you see not many things changes and that is good, we just took care of the indices in the first partition versus the second. I know it is difficult to see the move and swaps of elements but I will highly advice to write the code in something that you feel comfortable with and place a log or print at the end of the loop displaying the current status of the list, you will then see what elements move and the values of <span class="math">\(i\)</span> and <span class="math">\(j\)</span>, low tech but&nbsp;effective!</p>
 <p>Knowing this implementing the partition function in Kotlin is easy, let&#8217;s do the partition function as an inner function (to reduce the space in the&nbsp;post):</p>
-<div class="highlight"><pre><span></span><code><span class="k">tailrec</span> <span class="k">fun</span> <span class="p">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Comparable</span><span class="err">&lt;</span><span class="n">T</span><span class="p">&gt;</span><span class="err">&gt; </span><span class="nf">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;,</span> <span class="n">low</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span> <span class="p">-</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="p">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Comparable</span><span class="err">&lt;</span><span class="n">T</span><span class="p">&gt;</span><span class="err">&gt; </span><span class="nf">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;,</span> <span class="n">low</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span> <span class="p">-</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">fun</span> <span class="nf">partition</span><span class="p">(</span><span class="n">low</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="n">Int</span><span class="p">):</span> <span class="n">Int</span> <span class="p">{</span>
     <span class="k">val</span> <span class="py">current</span> <span class="p">=</span> <span class="n">items</span><span class="p">[</span><span class="n">high</span><span class="p">]</span>
     <span class="k">var</span> <span class="py">idx</span> <span class="p">=</span> <span class="n">low</span>
@@ -192,7 +192,7 @@
     <nav>
       <ul>
           <li><a href="http://cprieto.com/posts/2020/09/data-structures-merge-sort.html" rel="prev" title="Data structures, Merge sort">Next post</a></li>
-          <li><a href="http://cprieto.com/posts/2020/08/data-structures-insertion-sort-algorithm.html" rel="next" title="Data structures, insertion sort algorithm">Previous post</a></li>
+          <li><a href="http://cprieto.com/posts/2020/08/data-structures-insertion-sort-algorithm.html" rel="next" title="Data structures, Insertion sort algorithm">Previous post</a></li>
       </ul>
     </nav>
   </div>
