@@ -103,14 +103,14 @@
     <span class="k">private</span> <span class="k">val</span> <span class="py">expected</span> <span class="p">=</span> <span class="n">listOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
 
     <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`It sorts a list of discrete integers`</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">`It sorts a list of integers`</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
         <span class="n">countSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
         <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
     <span class="p">}</span>
 
     <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`It does nothing in an already sorted list of discrete integers`</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">`It does nothing in an already sorted list of integers`</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">expected</span><span class="p">.</span><span class="n">toMutableList</span><span class="p">()</span>
         <span class="n">countSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
         <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
@@ -139,6 +139,7 @@
   <div class="twelve columns">
     <nav>
       <ul>
+          <li><a href="http://cprieto.com/posts/2020/09/data-structures-radix-sort.html" rel="prev" title="Data structures, Radix sort">Next post</a></li>
           <li><a href="http://cprieto.com/posts/2020/09/data-structures-merge-sort.html" rel="next" title="Data structures, Merge sort">Previous post</a></li>
       </ul>
     </nav>
