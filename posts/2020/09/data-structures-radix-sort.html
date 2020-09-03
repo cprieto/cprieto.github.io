@@ -62,7 +62,7 @@
           <img class="avatar" alt="Cristian Prieto" src="http://cprieto.com/theme/images/avatar01_small.jpeg" />
           </a>
           <time pubdate datetime="2020-09-03T00:00:00+02:00">03 September 2020</time>
-           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">5 minutes reading</span>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">6 minutes reading</span>
         </div>
       </header>
       <section>
@@ -143,6 +143,27 @@
 
 
 <p>Our sorter is even <em>tail recursive</em>!&nbsp;yay!</p>
+<p>The test for our sorter is pretty&nbsp;simple:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">RadixSortTests</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="k">val</span> <span class="py">expected</span> <span class="p">=</span> <span class="n">listOf</span><span class="p">(</span><span class="m">108</span><span class="p">,</span> <span class="m">157</span><span class="p">,</span> <span class="m">218</span><span class="p">,</span> <span class="m">350</span><span class="p">,</span> <span class="m">457</span><span class="p">,</span> <span class="m">613</span><span class="p">)</span>
+
+    <span class="n">@Test</span>
+    <span class="k">fun</span> <span class="nf">`It sorts a list of integers`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">613</span><span class="p">,</span> <span class="m">218</span><span class="p">,</span> <span class="m">350</span><span class="p">,</span> <span class="m">157</span><span class="p">,</span> <span class="m">108</span><span class="p">,</span> <span class="m">457</span><span class="p">)</span>
+        <span class="n">radixSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
+        <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">@Test</span>
+    <span class="k">fun</span> <span class="nf">`If the list is already sorted do nothing`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">expected</span><span class="p">.</span><span class="n">toMutableList</span><span class="p">()</span>
+        <span class="n">radixSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
+        <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
 <p>Ok, how good is our sorter? if you examine the code, we basically have to go through every element (<span class="math">\(n\)</span>) the amount of <em>digits</em> (<span class="math">\(d\)</span>) and <em>radix</em> (<span class="math">\(r\)</span>) times the amount of digits, so it will behave something like this: <span class="math">\(\Theta(dn + dr)\)</span> or <span class="math">\(\Theta(d(n + r))\)</span> if you&nbsp;prefer.</p>
 <p>This sorter is still really fast compared to any comparisson sort and it is fantastic for sorting lists, strings, in fact anything that you can think as a collection or that can be represented with a radix. For example, you could use it to sort genetic sequences where the <em>radix</em> is 4 (because you only have 4 bases) or binary strings where your radix is 2, with a little of work this can be used to sort decimal numbers as&nbsp;well!.</p>
 <p>Most of the time you will need to implement a radix sort from scratch but it worth the effort if your data can be sort super fast with this&nbsp;method.</p>
