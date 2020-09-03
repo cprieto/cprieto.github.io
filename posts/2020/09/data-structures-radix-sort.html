@@ -144,7 +144,7 @@
 
 <p>Our sorter is even <em>tail recursive</em>!&nbsp;yay!</p>
 <p>Ok, how good is our sorter? if you examine the code, we basically have to go through every element (<span class="math">\(n\)</span>) the amount of <em>digits</em> (<span class="math">\(d\)</span>) and <em>radix</em> (<span class="math">\(r\)</span>) times the amount of digits, so it will behave something like this: <span class="math">\(\Theta(dn + dr)\)</span> or <span class="math">\(\Theta(d(n + r))\)</span> if you&nbsp;prefer.</p>
-<p>This sorter is still really fast compared to any comparisson sort and it is fantastic for sorting lists, strings, in fact anything that you can think as a collection or that can be represented with a radix. For example, you could use it to sort genetic sequences where the <em>radix</em> is 4 (because you only have 4 bases) or binary strings where your radix is&nbsp;2.</p>
+<p>This sorter is still really fast compared to any comparisson sort and it is fantastic for sorting lists, strings, in fact anything that you can think as a collection or that can be represented with a radix. For example, you could use it to sort genetic sequences where the <em>radix</em> is 4 (because you only have 4 bases) or binary strings where your radix is 2, with a little of work this can be used to sort decimal numbers as&nbsp;well!.</p>
 <p>Most of the time you will need to implement a radix sort from scratch but it worth the effort if your data can be sort super fast with this&nbsp;method.</p>
       </section>
     </article>
