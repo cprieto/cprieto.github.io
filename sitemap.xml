@@ -6,6 +6,11 @@
 <changefreq>daily</changefreq>
 <priority>1.00</priority>
 </url><url>
+<loc>http://cprieto.com/posts/2020/09/data-structures-bucket-sort.html</loc>
+<lastmod>2020-09-03</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.80</priority>
+</url><url>
 <loc>http://cprieto.com/posts/2020/09/data-structures-radix-sort.html</loc>
 <lastmod>2020-09-03</lastmod>
 <changefreq>weekly</changefreq>
