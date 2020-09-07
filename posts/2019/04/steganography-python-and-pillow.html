@@ -10,14 +10,14 @@
   <meta property="og:locale" content="en" />
   <meta property="og:title" content="Steganography, Python and Image manipulation with Pillow" />
   <meta property="og:type" content="blog">
-  <meta property="og:url" content="http://cprieto.com/posts/2019/04/steganography-python-and-pillow.html" />
+  <meta property="og:url" content="https://cprieto.com/posts/2019/04/steganography-python-and-pillow.html" />
   <meta property="og:sitename" content="IDisposable Thoughts" />
   <!-- This should be move to one min css -->
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/normalize.css"/>
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/skeleton.css"/>
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/base16-google-light.css" />
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/site.css"/>
-  <link rel="shortcut icon" type="image/x-icon" href="http://cprieto.com/favicon.ico">
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
 
   <!-- For KaTeX -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css" integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD" crossorigin="anonymous" />
@@ -27,7 +27,7 @@
 <meta name="twitter:creator" content="@cprieto">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Steganography, Python and Image manipulation with Pillow">
-<meta name="twitter:image" content="http://cprieto.com/images/baboon.png">
+<meta name="twitter:image" content="https://cprieto.com/images/baboon.png">
 
   <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -52,7 +52,7 @@
   <div class="container">
 <div class="eight columns offset-by-two">
   <header class="post">
-    <h1><a rel="index" href="http://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
   </header>
 </div>
 <main role="main" class="post">
@@ -62,8 +62,8 @@
         <h2>Steganography, Python and Image manipulation with Pillow</h2>
         <div class="meta">
           <span class="u-helper"></span>
-          <a rel="author" href="http://cprieto.com/about.html">
-          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="http://cprieto.com/theme/images/avatar01_small.jpeg" />
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
           </a>
           <time pubdate datetime="2019-04-20T00:00:00+02:00">20 April 2019</time>
            on <a rel="tag" href="/tag/python.html">python</a>, <a rel="tag" href="/tag/programming.html">programming</a>, <a rel="tag" href="/tag/image.html">image</a>          <span class="readtime">5 minutes reading</span>
@@ -86,7 +86,7 @@
 </code></pre></div>
 
 
-<p><img alt="Colorful" src="http://cprieto.com/posts/2019/04/images/colorful.png"></p>
+<p><img alt="Colorful" src="https://cprieto.com/posts/2019/04/images/colorful.png"></p>
 <p>We can read an existing image and get not only image but pixel information as&nbsp;well:</p>
 <div class="highlight"><pre><span></span><code><span class="n">baboon</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;baboon.png&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">baboon</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">baboon</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
@@ -104,7 +104,7 @@
 </pre>
 </div>
 </div>
-<p><img alt="Baboon" src="http://cprieto.com/posts/2019/04/images/baboon.png"></p>
+<p><img alt="Baboon" src="https://cprieto.com/posts/2019/04/images/baboon.png"></p>
 <p>Ok, let&#8217;s return to steganography. Let&#8217;s say we have the image of this&nbsp;airplane:</p>
 <div class="highlight"><pre><span></span><code><span class="n">airplane</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;airplane.png&#39;</span><span class="p">)</span>
 <span class="n">airplane_pixels</span> <span class="o">=</span> <span class="n">airplane</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
@@ -112,7 +112,7 @@
 </code></pre></div>
 
 
-<p><img alt="Airplane" src="http://cprieto.com/posts/2019/04/images/airplane.png"></p>
+<p><img alt="Airplane" src="https://cprieto.com/posts/2019/04/images/airplane.png"></p>
 <p>And we want to hide that image in the image of our previous baboon. How do we do this? well, remember our talk about <span class="caps">LSB</span> and <span class="caps">MSB</span>? the idea is taking the <span class="caps">MSB</span> from the image to hide and replace the <span class="caps">LSB</span> of the cover up image with them, at the end we should generate an image <em>very similar</em> to our baboon but hiding the&nbsp;airplane!</p>
 <p>As I mentioned before, the idea is very simple, we take the image we want to hide (let&#8217;s call it secret) and read the color channel information for a given pixel, let&#8217;s say, pixel (312, 216) has color information (53, 31, 109). Now, we read the same color info from the image we will use as cover up, (181, 200, 220). Time for the interesting part, we take the color info one by one, convert them into binary, <span class="math">\(181_{10} = 1011 0101_2\)</span> for the baboon red channel pixel (312, 216) and <span class="math">\(53_{10} = 0011 0101_2\)</span> for the same airplane image pixel, now we take the <em>most significant 4 bytes</em> from the airplane (secret) image and place them instead of the <em>less significant 4 bytes</em> of the baboon image (cover up), resulting <span class="math">\(1011 0011_2 = 179_{10}\)</span> for the same pixel, notice even in decimal there is no much distance or difference between the original color channel for red (<span class="math">\(181_{10}\)</span>) and the resulting secret (<span class="math">\(179_{10}\)</span>), we repeat this process for each pixel and color channel and that&#8217;s&nbsp;all!.</p>
 <p>There are many ways to do this in Python, but for simplicity we will use <em>the long way</em>, converting the number to string using <a href="https://pyformat.info/">Python format strings</a>, extracting 4 left and 4 right bytes for msb and lsb and then joining them as one binary number for later converting back into integer using <code>int</code>specifying base 2. Let&#8217;s see that in&nbsp;code!</p>
@@ -134,7 +134,7 @@
 </code></pre></div>
 
 
-<p><img alt="Cover up" src="http://cprieto.com/posts/2019/04/images/cover_up_baboon.png"></p>
+<p><img alt="Cover up" src="https://cprieto.com/posts/2019/04/images/cover_up_baboon.png"></p>
 <p>You could argue the baboon image <em>is not exactly the same</em> as the original image, but it is a good approximation (remember, we lost color channel information in the process), but at the naked eye you cannot tell me there is an airplane hidden in the same&nbsp;image!.</p>
 <p>Let&#8217;s extract now the secret image from the cover up, the process is kind of the opposite, we know the most significant bytes of our secret are hidden in the less significant bytes of our cover up, and then we just complete the lsb with&nbsp;zeroes.</p>
 <div class="highlight"><pre><span></span><code><span class="n">secret</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">cover_up</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">cover_up</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
@@ -153,7 +153,7 @@
 </code></pre></div>
 
 
-<p><img alt="Secret" src="http://cprieto.com/posts/2019/04/images/secret_steganography.png"></p>
+<p><img alt="Secret" src="https://cprieto.com/posts/2019/04/images/secret_steganography.png"></p>
 <p>There it is! This technique could be implemented to hide <em>any type of file</em> inside another, for example, I remember long time ago it was common to hide <a href="https://en.wikipedia.org/wiki/RAR_(file_format)"><span class="caps">RAR</span> files</a> inside <a href="https://en.wikipedia.org/wiki/GIF"><span class="caps">GIF</span> images</a>. Wikipedia even mention some printer manufacturers use them as a way to print and <a href="https://en.wikipedia.org/wiki/Machine_Identification_Code">identify printers by their serial number</a> for many years without anybody ever notice&nbsp;it.</p>
 <p>Go and play with it, I really enjoyed it&nbsp;:)</p>
       </section>
@@ -174,8 +174,8 @@
   <div class="twelve columns">
     <nav>
       <ul>
-          <li><a href="http://cprieto.com/posts/2019/06/math-algorithm-and-programming-languages.html" rel="prev" title="Math, algorithms and programming languages">Next post</a></li>
-          <li><a href="http://cprieto.com/posts/2019/02/testing-sqlalchemy-with-sqlite-in-memory-and-schemas.html" rel="next" title="Testing SQLAlchemy with SQLite in memory and schemas">Previous post</a></li>
+          <li><a href="https://cprieto.com/posts/2019/06/math-algorithm-and-programming-languages.html" rel="prev" title="Math, algorithms and programming languages">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2019/02/testing-sqlalchemy-with-sqlite-in-memory-and-schemas.html" rel="next" title="Testing SQLAlchemy with SQLite in memory and schemas">Previous post</a></li>
       </ul>
     </nav>
   </div>
@@ -185,7 +185,7 @@
           <div class="ten columns offset-by-one">
             <section class="endnote">
               <p>
-              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="http://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
               </p>
             </section>
           </div>

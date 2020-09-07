@@ -10,14 +10,14 @@
   <meta property="og:locale" content="en" />
   <meta property="og:title" content="Data structures, simple single linked lists using Go" />
   <meta property="og:type" content="blog">
-  <meta property="og:url" content="http://cprieto.com/posts/2020/08/data-structures-simple-single-linked-lists.html" />
+  <meta property="og:url" content="https://cprieto.com/posts/2020/08/data-structures-simple-single-linked-lists.html" />
   <meta property="og:sitename" content="IDisposable Thoughts" />
   <!-- This should be move to one min css -->
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/normalize.css"/>
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/skeleton.css"/>
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/base16-google-light.css" />
-  <link rel="stylesheet" href="http://cprieto.com/theme/css/site.css"/>
-  <link rel="shortcut icon" type="image/x-icon" href="http://cprieto.com/favicon.ico">
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
 
   <!-- For KaTeX -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css" integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD" crossorigin="anonymous" />
@@ -27,7 +27,7 @@
 <meta name="twitter:creator" content="@cprieto">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Data structures, simple single linked lists using Go">
-<meta name="twitter:image" content="http://cprieto.com/images/linkedlist-1.png">
+<meta name="twitter:image" content="https://cprieto.com/images/linkedlist-1.png">
 
   <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -52,7 +52,7 @@
   <div class="container">
 <div class="eight columns offset-by-two">
   <header class="post">
-    <h1><a rel="index" href="http://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
   </header>
 </div>
 <main role="main" class="post">
@@ -62,8 +62,8 @@
         <h2>Data structures, simple single linked lists using Go</h2>
         <div class="meta">
           <span class="u-helper"></span>
-          <a rel="author" href="http://cprieto.com/about.html">
-          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="http://cprieto.com/theme/images/avatar01_small.jpeg" />
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
           </a>
           <time pubdate datetime="2020-08-14T00:00:00+02:00">14 August 2020</time>
            on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/go.html">go</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">5 minutes reading</span>
@@ -72,7 +72,7 @@
       <section>
         <p>We already talked about queues and how to implement them using arrays and &#8220;lists&#8221; so I think I should expand a little more about why we do the differentiation between arrays (or vectors) and&nbsp;lists.</p>
 <p>A big difference between linked lists (not list, I will clarify later why) and vectors or arrays is the memory usage. In an array (or vector) we allocate the whole size of the array in the moment we create the array, for example, if we create an array of integers with 10 members we will immediately allocate a continous block of memory of a size of 10 integers. This makes arrays difficult to scale if we are adding or removing elements constantly, if we decide we will have a max of 100 elements but most of the time we contain only 15 we are <em>wasting</em> 85 element size spaces in nothing but if we decide to store more than 100 elements then we will have to <em>resize</em> the array and that will require request another chunk of memory and then relocate all the elements to their new addresses, not a really nice thing to be taken care&nbsp;of.</p>
-<p>A work around for this is using a linked list, in its simplest form it is just a node that points to the next node, if you read my blog post about <a href="http://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-1.html">implementing lists in OCaml from scratch</a> it is simple to do in a functional language like&nbsp;OCaml:</p>
+<p>A work around for this is using a linked list, in its simplest form it is just a node that points to the next node, if you read my blog post about <a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-1.html">implementing lists in OCaml from scratch</a> it is simple to do in a functional language like&nbsp;OCaml:</p>
 <div class="highlight"><pre><span></span><code><span class="k">type</span> <span class="k">&#39;</span><span class="n">a</span> <span class="n">seq</span> <span class="o">=</span> 
   <span class="o">|</span> <span class="nc">End</span>
   <span class="o">|</span> <span class="nc">Next</span> <span class="k">of</span> <span class="k">&#39;</span><span class="n">a</span> <span class="o">*</span> <span class="n">a&#39;</span> <span class="n">seq</span>
@@ -81,7 +81,7 @@
 
 
 <p>There are many different types of linked lists (in fact, I usually find more different types in literature every week) but the most common is the <a href="https://en.wikipedia.org/wiki/Linked_list">single linked list</a> where a node only points to the next node in the list or to nothing if it is the last one in the list (there are many variations of this mix, I will probably mention them in a separate post in the&nbsp;future).</p>
-<p><img alt="Simple single linked list" src="http://cprieto.com/posts/2020/08/images/linkedlist-1.png"></p>
+<p><img alt="Simple single linked list" src="https://cprieto.com/posts/2020/08/images/linkedlist-1.png"></p>
 <p>Because implementing a linked list in a functional programming is kind of cheating for me (you saw the implementation in <a href="https://de.wikipedia.org/wiki/Objective_CAML">OCaml</a>) I will do in a more close to real language, <a href="https://golang.org/">Go</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span> <span class="nx">node</span> <span class="kd">struct</span> <span class="p">{</span>
     <span class="nx">data</span> <span class="kt">string</span>
@@ -191,8 +191,8 @@
   <div class="twelve columns">
     <nav>
       <ul>
-          <li><a href="http://cprieto.com/posts/2020/08/data-structures-the-humble-stack.html" rel="prev" title="Data structures, the humble Stack">Next post</a></li>
-          <li><a href="http://cprieto.com/posts/2020/08/data-structures-queue-using-arrays.html" rel="next" title="Data structures, a queue using arrays in C++">Previous post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/08/data-structures-the-humble-stack.html" rel="prev" title="Data structures, the humble Stack">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/08/data-structures-queue-using-arrays.html" rel="next" title="Data structures, a queue using arrays in C++">Previous post</a></li>
       </ul>
     </nav>
   </div>
@@ -202,7 +202,7 @@
           <div class="ten columns offset-by-one">
             <section class="endnote">
               <p>
-              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="http://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
               </p>
             </section>
           </div>
