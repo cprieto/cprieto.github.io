@@ -62,7 +62,7 @@
           <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
           </a>
           <time pubdate datetime="2020-09-09T00:00:00+02:00">09 September 2020</time>
-           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">3 minutes reading</span>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">2 minutes reading</span>
         </div>
       </header>
       <section>
@@ -71,8 +71,7 @@
 <p><img alt="tree" src="https://cprieto.com/posts/2020/09/images/tree-1.png" title="Simple binary tree">`</p>
 <p>Depending on the maximum number of children per node we have different types of trees, the simplest is a tree where each node has a maximum of 2 children (binary trees) and we will be exploring them extensively in this and upcoming blog posts. There are trees where nodes have up to three children (ternary trees) and even 4 (quaternary) and 8 (octary) trees, in general we usually talk about <span class="math">\(n\)</span>-trees but we will be limiting ourselves to binary trees for&nbsp;now.</p>
 <p>A simple way to assemble a binary tree is with a simple structure to hold the <code>data</code> and references to its <code>left</code> and <code>right</code> children, something simple like&nbsp;this:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// We make it comparable to make our life easier later</span>
-<span class="k">class</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="n">T</span> <span class="p">:</span> <span class="n">Comparable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;&gt;(</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span>
     <span class="k">private</span> <span class="k">val</span> <span class="py">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
     <span class="k">private</span> <span class="k">var</span> <span class="py">left</span><span class="p">:</span> <span class="n">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;?</span> <span class="p">=</span> <span class="k">null</span><span class="p">,</span>
     <span class="k">private</span> <span class="k">var</span> <span class="py">right</span><span class="p">:</span> <span class="n">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;?</span> <span class="p">=</span> <span class="k">null</span>
