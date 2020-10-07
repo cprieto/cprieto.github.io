@@ -29,7 +29,7 @@
             &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-Dcom.sun.management.authenticate=false&amp;quot;&lt;/span&gt;
             &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-Djava.rmi.server.hostname=localhost&amp;quot;&lt;/span&gt;
             &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-Djcom.sun.management.jmxremote.rmi.port=8849&amp;quot;&lt;/span&gt;
-            &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app.jar&amp;quot;&lt;/span&gt;
+            &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;app.jar&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
