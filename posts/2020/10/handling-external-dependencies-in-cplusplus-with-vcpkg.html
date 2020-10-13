@@ -62,7 +62,7 @@
           <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
           </a>
           <time pubdate datetime="2020-10-12T00:00:00+02:00">12 October 2020</time>
-           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/c.html">c</a>, <a rel="tag" href="/tag/build.html">build</a>, <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">5 minutes reading</span>
+           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/c.html">c</a>, <a rel="tag" href="/tag/build.html">build</a>, <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">6 minutes reading</span>
         </div>
       </header>
       <section>
@@ -154,6 +154,7 @@ cmake --build . --clean-first
 
 
 <p>And now it will fetch the x64-windows triplet by default when installing any&nbsp;libraries.</p>
+<p><strong><span class="caps">UPDATE</span></strong>: This actually does not work and it doesn&#8217;t matter Vcpkg is compiled for x64 in Windows, by default, in Windows, the build architecture will be <em>always</em> x86 and if you want to install a package for x64 you have to always specify the architecture triplet in the name or using the <code>--triplet</code> parameter. Another option is using the environment variable <code>VCPKG_DEFAULT_TRIPLET=x64-windows</code> in Windows to tell to Vcpkg to always use x64 instead of their default, go figure! There is <a href="https://github.com/microsoft/vcpkg/issues/1254">a closed issue</a> with this problem and, of course, a lot of developers complaining why is not the default in&nbsp;Windows.</p>
 <h3>Is that&nbsp;all?</h3>
 <p>Well, not really, there are many additional commands and use cases for Vcpkg, it is pretty mature and widely used and more libraries are constantly added to the repertoire. The documentation is <em>ok</em> and while is made by Microsoft it is clearly not centered around the Microsoft world. I really wish their setup and installation use cases feel a little less &#8220;hacky&#8221; but I see a lot of improvements in the&nbsp;tooling.</p>
 <p>Is this the only package manager I should use for C/C++? not really, in big projects you will probably end up with a mix of them. There is another really good package manager out there, <a href="https://conan.io/">Conan</a>, but I will talk about it and how to use it in another blog post in the near&nbsp;future.</p>
