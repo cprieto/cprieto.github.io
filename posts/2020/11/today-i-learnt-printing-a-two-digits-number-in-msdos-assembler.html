@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Today I learnt: Printing two digits number in <span class="caps">MSDOS</span>&nbsp;Assembler</title>
+  <meta name="description" content="Sometimes we assume so many things in technology, for example, we forget how difficult was in the past to do the simplest task that right now we will see hilariously easy to do. Last weekend I sat down and started reading a little about programing in the old MSDOS using …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Today I learnt: Printing two digits number in MSDOS Assembler" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="/posts/2020/11/today-i-learnt-printing-a-two-digits-number-in-msdos-assembler.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Today I learnt: Printing two digits number in MSDOS Assembler</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-11-10T00:00:00+01:00">10 November 2020</time>
+           on <a rel="tag" href="/tag/assembler.html">assembler</a>, <a rel="tag" href="/tag/msdos.html">msdos</a>, <a rel="tag" href="/tag/retro.html">retro</a>          <span class="readtime">3 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>Sometimes we assume so many things in technology, for example, we forget how difficult was in the past to do the simplest task that right now we will see hilariously easy to do. Last weekend I sat down and started reading a little about programing in the old <a href=""><span class="caps">MSDOS</span></a> using plain assembler (and not even assembler but the now forgotten utility <a href=""><span class="caps">DEBUG</span>.<span class="caps">COM</span></a>). One task I was surprised how difficult can become was printing a two digits number in the&nbsp;screen.</p>
+<p>I almost every language, if I want to print the number <code>21</code> in the screen, we just do that, print the number in the screen (with <code>print</code>, <code>printf</code> or whatever we had at hand). In <span class="caps">MSDOS</span> using assembler you can print things in the screen using a software interrupt, <code>INT 21</code>, and the function number <code>02</code> (placed in the high bits of the <code>AX</code> register, <code>AH</code>). For my surprise, even knowing this is not enough to print a two digits number so I decided to write something short here explaining&nbsp;why.</p>
+<p>We can only use <span class="caps">ASCII</span> characters to print things in <span class="caps">MSDOS</span>, so the numbers from 0 to 1 are in the the <span class="caps">ASCII</span> tables in the positions <code>30</code> to <code>3A</code></p>
+<p>We assume we place the number to print in <code>BL</code>, for example, we can place the number <code>5A</code> in <code>BX</code> with <code>rbx 005a</code>.</p>
+<p>To print the left number (in the previous case, <code>5</code>) we will need to&nbsp;do:</p>
+<div class="highlight"><pre><span></span><code><span class="nf">mov</span> <span class="no">ah</span><span class="p">,</span> <span class="mi">02</span>   <span class="c1">; int 21 print what is in DL</span>
+<span class="nf">mov</span> <span class="no">dl</span><span class="p">,</span> <span class="no">bl</span>
+<span class="nf">mov</span> <span class="no">cl</span><span class="p">,</span> <span class="mi">04</span>   <span class="c1">; Counter for shift</span>
+<span class="nf">shr</span> <span class="no">dl</span><span class="p">,</span> <span class="no">cl</span>   <span class="c1">; Shift to the right the amount in CL</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">30</span>   <span class="c1">; Add 30 to whatever is in DL for printing</span>
+<span class="nf">cmp</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">3</span><span class="no">a</span>   <span class="c1">; Compare DL with 3A (ASCII for 9)</span>
+<span class="nf">jl</span>  <span class="mi">0113</span>     <span class="c1">; If it is less than 3A, go to 113</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">07</span>   <span class="c1">; Add 7 to whatever is in DL</span>
+<span class="nf">int</span> <span class="mi">21</span>       <span class="c1">; Print the character in DL</span>
+<span class="nf">int</span> <span class="mi">20</span>       <span class="c1">; End execution</span>
+</code></pre></div>
+
+
+<p>Now, to print the leftmost character we can <code>AND</code> the number to 0F, for example, <code>5A</code> is <code>1011010</code> in binary and adding <code>0F</code> (<code>00001111</code>) will give our expected number <code>A</code> (<code>1010</code>):</p>
+<div class="math">$$
+\begin{array}{r}
+01011010 \\
+\text{AND } 00001111 \\
+\hline
+00001010
+\end{array}
+$$</div>
+<p>The equivalent code would be the following, as usual, we place the number to print (<code>5A</code>) in the <code>BL</code> register:</p>
+<div class="highlight"><pre><span></span><code><span class="nf">mov</span> <span class="no">ah</span><span class="p">,</span> <span class="mi">02</span>   <span class="c1">; int 21 print what is in DL</span>
+<span class="nf">mov</span> <span class="no">dl</span><span class="p">,</span> <span class="no">bl</span>   <span class="c1">; Whatever we want to print in `BL` is copied to `DL`</span>
+<span class="nf">and</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">0</span><span class="no">f</span>   <span class="c1">; We and DL and 0F as we mentioned in the previous paragraph</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">30</span>   <span class="c1">; Add 30 to whatever is in DL for printing</span>
+<span class="nf">cmp</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">3</span><span class="no">a</span>   <span class="c1">; Compare DL with 3A (ASCII for 9)</span>
+<span class="nf">jl</span>  <span class="mi">0112</span>     <span class="c1">; If it is less than 3A, go to 113</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">07</span>   <span class="c1">; Add 7 to whatever is in DL</span>
+<span class="nf">int</span> <span class="mi">21</span>       <span class="c1">; Print the character in DL</span>
+<span class="nf">int</span> <span class="mi">20</span>       <span class="c1">; End execution</span>
+</code></pre></div>
+
+
+<p>Now we can mix both together to print a two digit number placed in the <code>BL</code> register, try printing <code>5A</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nf">mov</span> <span class="no">ah</span><span class="p">,</span> <span class="mi">02</span>
+<span class="nf">mov</span> <span class="no">dl</span><span class="p">,</span> <span class="no">bl</span>
+<span class="nf">mov</span> <span class="no">cl</span><span class="p">,</span> <span class="mi">04</span>
+<span class="nf">shr</span> <span class="no">dl</span><span class="p">,</span> <span class="no">cl</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">30</span>
+<span class="nf">cmp</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">3</span><span class="no">a</span>
+<span class="nf">jl</span> <span class="mi">0113</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">07</span>
+<span class="nf">int</span> <span class="mi">21</span>
+<span class="nf">mov</span> <span class="no">dl</span><span class="p">,</span> <span class="no">bl</span>
+<span class="nf">and</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">0</span><span class="no">f</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">30</span>
+<span class="nf">cmp</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">3</span><span class="no">a</span>
+<span class="nf">jl</span> <span class="mi">0125</span>
+<span class="nf">add</span> <span class="no">dl</span><span class="p">,</span> <span class="mi">07</span>
+<span class="nf">int</span> <span class="mi">21</span>
+<span class="nf">int</span> <span class="mi">20</span>
+</code></pre></div>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="/posts/2020/10/handling-external-dependencies-in-cplusplus-with-conan.html" rel="next" title="Handling external dependencies in C/C++ with Conan">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
