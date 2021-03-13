@@ -62,13 +62,67 @@
           <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
           </a>
           <time pubdate datetime="2020-10-26T00:00:00+01:00">26 October 2020</time>
-           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/c.html">c</a>, <a rel="tag" href="/tag/build.html">build</a>, <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">1 minute reading</span>
+           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/c.html">c</a>, <a rel="tag" href="/tag/build.html">build</a>, <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">4 minutes reading</span>
         </div>
       </header>
       <section>
-        <p>Last time we saw how to handle <a href="{filename}/2020-10-12-handling-external-dependencies-in-cplusplus-with-vcpkg.md">dependencies with vcpkg</a>, an open source, cross platform package made by Microsoft trying to solve the external dependencies problem with native code. Vcpkg solves the problem in a centralized way, if you don&#8217;t see a package you want to use, you ask in the issue tracker or make a <span class="caps">PR</span> with a patch, cmake file and required files to make the package work in the application build. Everything is in the same directory and repository (see the <code>/ports</code> directory) and that is why you need to update your repository and vcpkg application once in a while if you want&nbsp;updates.</p>
+        <p>Last time we saw how to handle <a href="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-vcpkg.html">dependencies with vcpkg</a>, an open source, cross platform package made by Microsoft trying to solve the external dependencies problem with native code. Vcpkg solves the problem in a centralized way, if you don&#8217;t see a package you want to use, you ask in the issue tracker or make a <span class="caps">PR</span> with a patch, cmake file and required files to make the package work in the application build. Everything is in the same directory and repository (see the <code>/ports</code> directory) and that is why you need to update your repository and vcpkg application once in a while if you want&nbsp;updates.</p>
 <p><a href="https://conan.io">Conan</a> is another popular cross platform package manager for C/C++, its approach is slightly different. In Conan, the developer has complete control of the package creation and build packages are available (so you don&#8217;t have to build the package from scratch just to use it). Maybe the best way to explain the difference is doing the same example as last time but now with&nbsp;Conan.</p>
 <p>First, let&#8217;s install Conan, it is a Python application so you need Python installed in your machine. The <a href="">instructions</a> in the official page are clear but in my case, I installed it using <a href="https://brew.sh/">Homebrew</a> in my macOS and <a href="https://scoop.sh/">Scoop</a> in Windows and the <code>pip</code> method in Linux. Just follow the instructions, it is that&nbsp;easy.</p>
+<p>Ok, let&#8217;s say you already have installed conan and we want to compile the same project as the last time, a simple program using the <a href="https://github.com/nlohmann/json">nlohman json</a>&nbsp;library:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="n">json</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">auto</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">&quot;{ </span><span class="se">\&quot;</span><span class="s">name</span><span class="se">\&quot;</span><span class="s">: </span><span class="se">\&quot;</span><span class="s">cristian</span><span class="se">\&quot;</span><span class="s"> }&quot;</span><span class="p">);</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;His name is: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">entry</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>We need to understand that Conan is a meta package generator, pretty much like what CMake is for building. You not only specify the library requirements but the conditions for the build and what are you going to use to build it. To understand this let&#8217;s solve the first problem, the <span class="caps">JSON</span> library requirement. Conan depends on what they call a remote repository that is a central server with package information, think about the remote repository server in <a href="https://npmjs.com">npm</a>, you can have multiple repositories and host your own company repository as well. By default Conan installs the <a href="https://conan.io/center/">Conan Center</a> repository. For search for any package containing the word &#8220;json&#8221; in its name we can issue the&nbsp;command:</p>
+<div class="highlight"><pre><span></span><code><span class="err">conan search &quot;*json&quot; -r conan-center</span>
+</code></pre></div>
+
+
+<p>I found this way to find packages <em>extremely slow</em> so instead I go to the <a href="https://conan.io/center/">Conan Center</a> search page and do it&nbsp;there.</p>
+<p>We see the package we need is named <code>nlohman_json</code> and the latest version is <code>3.9.1</code>, we now create a file <code>conanfile.txt</code> with the <em>requirements</em> and <em>how are we going to build it</em> (this last part is required for conan to specify a way to include the&nbsp;libraries):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[requires]</span>
+<span class="na">nlohmann_json/3.9.1</span>
+
+<span class="k">[generators]</span>
+<span class="na">cmake</span>
+</code></pre></div>
+
+
+<p>We specify <a href="https://cmake.org">CMake</a> as our build generator. There are <em>plenty</em> of different generators and we can specify multiple generators for the same build. In fact, there are generators where they even download and run the whole build system so you only need Conan installed in your machine. You can check the list of available generators in the <a href="https://docs.conan.io/en/latest/reference/generators.html">Conan documentation</a>.</p>
+<p>Now it is time to work in our build script. This will be <em>very similar</em> to the previous build but with a very small&nbsp;change:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.10</span><span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span><span class="s">sample</span><span class="p">)</span>
+
+<span class="nb">include</span><span class="p">(</span><span class="o">${</span><span class="nv">CMAKE_BINARY_DIR</span><span class="o">}</span><span class="s">/conanbuildinfo.cmake</span><span class="p">)</span>
+<span class="nb">conan_basic_setup</span><span class="p">()</span>
+
+<span class="nb">add_executable</span> <span class="p">(</span><span class="s">main</span> <span class="s">main.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">main</span> <span class="o">${</span><span class="nv">CONAN_LIBS</span><span class="o">}</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>Notice the line including a file that conan will <em>generate</em> for us, this file contains macros and specifications for our build files then we tell this set of macros to do the required setup and do the dependency walk. Later to link our dependencies we use the variable <code>${CONAN_LIBS}</code> in the linkage&nbsp;step.</p>
+<p>With this is enough to run the following commands in an out-of-source&nbsp;build:</p>
+<div class="highlight"><pre><span></span><code><span class="err">mkdir build</span>
+<span class="err">cd build</span>
+<span class="err">conan install ..</span>
+<span class="err">cmake ..</span>
+<span class="err">cmake --build . --clean-first</span>
+</code></pre></div>
+
+
+<p>It is important to run <code>conan install</code> <em>before</em> running CMake, this will generate the required <code>conanbuildinfo.cmake</code> file and prepare the dependencies. We don&#8217;t need to specify an toolchain file like with&nbsp;Vcpkg.</p>
+<p>Conan is <em>extremely flexible</em> and powerful, and on top of that, their documentation is amazing (just go and check the <a href="https://docs.conan.io/en/latest/introduction.html">official Conan documentation</a>) and they even include videos and seminars about using Conan from basic users to expert&nbsp;applications.</p>
+<p>When developing C/C++ applications, Conan is always my first choice and I use Vcpkg only if there are not other option. The developers are working in version 2.0 where a new world of options for dependency handling will be opened for C++ developers. Go and give it a try, you won&#8217;t regret&nbsp;it!</p>
       </section>
     </article>
   </div>
