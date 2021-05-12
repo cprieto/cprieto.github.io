@@ -86,7 +86,6 @@
         <span class="c1"># TODO: clean up your test</span>
 </code></pre></div>
 
-
 <p>Of course, your unit test probably will look very different than this, and well, testing against SQLAlchemy is very well described in the SQLAlchemy documentation and <a href="https://www.oreilly.com/library/view/essential-sqlalchemy-2nd/9781491916544/ch04.html">book</a>.</p>
 <p>As you may see, we test <em>against</em> an in-memory database instead of having to attach to a running db, this will speed up all our data operations in the test and reconstruct the db for every test keeping atomicity in our&nbsp;tests.</p>
 <p>Recently I found a problem with testing and using schemas (a common feature in <span class="caps">RDBMS</span> like PostgreSQL to separate different business concerns in the same database, by the way, in MySQL they are synomim of a database), this is because SQLite doesn&#8217;t support schemas, and the idea of a schema is just as metadata included in the entity with SQLAlchemy, for example, in our hypotethical case for <code>User</code>:</p>
@@ -96,7 +95,6 @@
         <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="s1">&#39;authentication&#39;</span>
     <span class="p">}</span>
 </code></pre></div>
-
 
 <p>I was looking around about alternatives to continue testing with in-memory SQLite without having to get rid of the schemas in each table or having to install a db server in our <span class="caps">CI</span>, then, reading the SQLite documentation I found about the command <a href="https://www.sqlite.org/lang_attach.html"><code>ATTACH</code></a>:</p>
 <blockquote>
@@ -112,7 +110,6 @@ the <a href="https://www.sqlite.org/lang_detach.html"><span class="caps">DETACH<
     <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;ATTACH DATABASE &#39;:memory:&#39; AS authentication&quot;</span><span class="p">)</span>
     <span class="n">db</span><span class="o">.</span><span class="n">create_all</span><span class="p">()</span>
 </code></pre></div>
-
 
 <p>And that will work as expected, now the queries designed to go to <code>authentication.users</code> will go to the in-memory database attached to the &#8220;main&#8221; in-memory database (the in-memory database we started the session with is identified by the name <em>main</em>).</p>
 <p>You can have as many attached emulated schemas as you want, this trick saved me a lot of time when writing unit tests using schemas and&nbsp;SQLAlchemy.</p>

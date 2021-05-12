@@ -76,51 +76,50 @@
 <p>This sounds like a really good place to use a linked list, not a full linked list if you think about it, because we only need to <em>prepend</em> data to list or remove data from the top, so we can use the same principle to implement a simple and humble stack (this time in <a href="https://kotlinlang.org/">Kotlin</a>), notice thanks to its simplicity and way of work every operation in our stack will be always <span class="math">\(\Theta(1)\)</span>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">java.util.*</span>
 
-<span class="k">class</span> <span class="nc">Stack</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
-    <span class="k">private</span> <span class="k">var</span> <span class="py">top</span><span class="p">:</span> <span class="n">Node</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
-    <span class="k">private</span> <span class="k">inner</span> <span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="k">val</span> <span class="py">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="k">val</span> <span class="py">next</span><span class="p">:</span> <span class="n">Node</span><span class="p">?)</span>
+<span class="kd">class</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kd">var</span> <span class="nv">top</span><span class="p">:</span> <span class="n">Node? </span><span class="o">=</span> <span class="kc">null</span>
+    <span class="kd">private</span> <span class="kd">inner</span> <span class="kd">class</span> <span class="nc">Node</span><span class="p">(</span><span class="kd">val</span> <span class="nv">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="kd">val</span> <span class="nv">next</span><span class="p">:</span> <span class="n">Node?)</span>
 
-    <span class="k">fun</span> <span class="nf">push</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">top</span> <span class="p">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
+    <span class="kd">fun</span> <span class="nf">push</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
     <span class="p">}</span>
 
-    <span class="k">fun</span> <span class="nf">pop</span><span class="p">():</span> <span class="n">T</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">result</span> <span class="p">=</span> <span class="n">top</span><span class="o">?.</span><span class="n">value</span> <span class="o">?:</span> <span class="k">throw</span> <span class="n">EmptyStackException</span><span class="p">()</span>
-        <span class="n">top</span> <span class="p">=</span> <span class="n">top</span><span class="o">?.</span><span class="n">next</span>
+    <span class="kd">fun</span> <span class="nf">pop</span><span class="p">():</span> <span class="n">T</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">result</span> <span class="o">=</span> <span class="n">top</span><span class="o">?.</span><span class="na">value</span> <span class="o">?:</span> <span class="k">throw</span> <span class="n">EmptyStackException</span><span class="p">()</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="n">top</span><span class="o">?.</span><span class="na">next</span>
         <span class="k">return</span> <span class="n">result</span>
     <span class="p">}</span>
 
-    <span class="k">val</span> <span class="py">isEmpty</span><span class="p">:</span> <span class="n">Boolean</span>
-        <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="n">top</span> <span class="p">==</span> <span class="k">null</span>
+    <span class="kd">val</span> <span class="nv">isEmpty</span><span class="p">:</span> <span class="kt">Boolean</span>
+        <span class="k">get</span><span class="p">()</span> <span class="o">=</span> <span class="n">top</span> <span class="o">==</span> <span class="kc">null</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>You could implement a <em>fixed size stack</em> easily using an array (very similar to what we did with a queue) and you will see it won&#8217;t need anything complex (like a <em>chasing pointer</em>) as we had to do with the queue. I left you to the homework to do a simple limited size stack, remember to have&nbsp;fun!</p>
 <p>As usual I left you with the unit test for this queue, this time using <a href="https://kotlinlang.org/api/latest/kotlin.test/">kotlin.test</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">java.util.*</span>
 <span class="k">import</span> <span class="nn">kotlin.test.*</span>
 
-<span class="k">class</span> <span class="nc">StackTests</span> <span class="p">{</span>
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`Just created stack is empty`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">stack</span> <span class="p">=</span> <span class="n">Stack</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;()</span>
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="n">isEmpty</span> <span class="p">}</span>
+<span class="kd">class</span> <span class="nc">StackTests</span> <span class="p">{</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`Just created stack is empty`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="na">isEmpty</span> <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`Stack can push and pop`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">stack</span> <span class="p">=</span> <span class="n">Stack</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;()</span>
-        <span class="n">stack</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
-        <span class="n">stack</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`Stack can push and pop`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+        <span class="n">stack</span><span class="p">.</span><span class="na">push</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+        <span class="n">stack</span><span class="p">.</span><span class="na">push</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
 
-        <span class="n">assertFalse</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="n">isEmpty</span> <span class="p">}</span>
-        <span class="n">assertEquals</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="n">stack</span><span class="p">.</span><span class="n">pop</span><span class="p">())</span>
-        <span class="n">assertFalse</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">}</span>
-        <span class="n">assertEquals</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="n">stack</span><span class="p">.</span><span class="n">pop</span><span class="p">())</span>
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="n">isEmpty</span> <span class="p">}</span>
-        <span class="n">assertFailsWith</span><span class="p">(</span><span class="n">EmptyStackException</span><span class="o">::</span><span class="k">class</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">stack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">assertFalse</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="na">isEmpty</span> <span class="p">}</span>
+        <span class="n">assertEquals</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="n">stack</span><span class="p">.</span><span class="na">pop</span><span class="p">())</span>
+        <span class="n">assertFalse</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">}</span>
+        <span class="n">assertEquals</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="n">stack</span><span class="p">.</span><span class="na">pop</span><span class="p">())</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">stack</span><span class="p">.</span><span class="na">isEmpty</span> <span class="p">}</span>
+        <span class="n">assertFailsWith</span><span class="p">(</span><span class="n">EmptyStackException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">stack</span><span class="p">.</span><span class="na">pop</span><span class="p">()</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>

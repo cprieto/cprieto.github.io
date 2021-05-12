@@ -89,7 +89,7 @@
 <span class="cp">#include</span> <span class="cpf">&lt;array&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;exception&gt;</span><span class="cp"></span>
 
-<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">N</span><span class="o">&gt;</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">N</span><span class="o">&gt;</span>
 <span class="k">class</span> <span class="nc">FixedSizeQueue</span> <span class="p">{</span>
     <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">N</span><span class="o">&gt;</span> <span class="n">elements</span><span class="p">{};</span>
     <span class="kt">bool</span> <span class="n">isFull</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
@@ -129,7 +129,6 @@
     <span class="p">}</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>And the unit tests (using <a href="https://github.com/catchorg/Catch2">Catch2</a>) for our implementation is a little verbose but hey, it is C++ after&nbsp;all!</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#define CATCH_CONFIG_MAIN</span>
@@ -172,7 +171,6 @@
     <span class="n">REQUIRE_THROWS_WITH</span><span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="s">&quot;Queue is full&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>In the same way as with Python, the standard library in C++ has a really good and powerful implementation for <a href="https://en.cppreference.com/w/cpp/header/queue">queues</a> using an underline container, as usual, use any of those instead of this sample&nbsp;code!</p>
 <p><strong><span class="caps">PD</span>:</strong> Yes, I know we could use <a href="https://tour.golang.org/moretypes/7">slices</a> in Go or <code>std::vector</code> in C++, but that is not the point of this&nbsp;post.</p>

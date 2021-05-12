@@ -72,7 +72,6 @@
 <span class="nb">message</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>It does absolutely nothing except say &#8220;Hello world!&#8221; when generating the Makefile, and of course, your Makefile will do absolutely&nbsp;nothing.</p>
 <h3>Variables</h3>
 <p>So I have been talking only about CMake <strong>Commands</strong>. <code>add_executable</code>, <code>link_target_library</code> and <code>message</code> are <em>commands</em> in CMake; they tell CMake what to do and CMake will know how to do it. CMake has a lot of commands and all of them are documented in the <a href="http://cmake.org/cmake/help/v3.6/manual/cmake-commands.7.html">CMake documentation</a>.</p>
@@ -85,14 +84,12 @@
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span> <span class="o">${</span><span class="nv">SOURCES</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>We just created <em>a list of files</em> in our variable called <code>SOURCES</code> and then used that variable in a target.&nbsp;Easy!</p>
 <h3>Where are the header&nbsp;files?</h3>
 <p>Header files are important in C/C++ development and usually they live in a separate directory. Let&#8217;s change that in our current&nbsp;project:</p>
 <div class="highlight"><pre><span></span><code><span class="go">mkdir includes</span>
 <span class="go">mv greeter.h includes</span>
 </code></pre></div>
-
 
 <p>Of course we will need to change our CMakeLists.txt file to reflect this&nbsp;change:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.5</span><span class="p">)</span>
@@ -101,7 +98,6 @@
 <span class="nb">include_directories</span> <span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="o">}</span><span class="s">/includes</span><span class="p">)</span>
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span> <span class="o">${</span><span class="nv">SOURCES</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>As you can see, we need to use the <code>include_directories</code> command to tell CMake where to find our header&nbsp;files.</p>
 <h3>File&nbsp;globbing</h3>
@@ -112,7 +108,6 @@
 <span class="nb">file</span> <span class="p">(</span><span class="s">GLOB</span> <span class="s">SOURCES</span> <span class="s">*.c</span><span class="p">)</span>
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span> <span class="o">${</span><span class="nv">SOURCES</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p><strong>Note about globbing!</strong> : Even the CMake documentation warns us about globbing and asks us to <em>explicitly list the source files</em> instead of using globbing. This <a href="http://stackoverflow.com/questions/1027247/best-way-to-specify-sourcefiles-in-cmake">question from StackOverflow</a> explains a little more about the issue and the&nbsp;options.</p>
 <p>In conclusion, use globbing with&nbsp;caution!</p>

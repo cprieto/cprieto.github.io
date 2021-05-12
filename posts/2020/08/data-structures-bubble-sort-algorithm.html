@@ -78,7 +78,6 @@
         <span class="n">elems</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">elems</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">elems</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p>The first algorithm we are going to take a look is one of those things that you should know but you should never use, the <a href="https://en.wikipedia.org/wiki/Bubble_sort">bubble sort algorithm</a>.</p>
 <p>It is called because it will compare each element with the element next to it, if it is in different expected order they will swap and we will continue doing this until we reach the end (or beginning) of the list and then repeat until all the elements are sorted. If we start sorting from the beginning of the array, the last elements of the array will be in their correct position with each pass (or if they are sorted from end to beginning, the first elements of the list will be in the right&nbsp;order).</p>
 <table>
@@ -116,7 +115,6 @@
     <span class="n">bubble_sort</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">entry</span> <span class="o">==</span> <span class="n">expected</span>
 </code></pre></div>
-
 
 <p>Sorting is one of those really interesting problems where we can see and study the complexity and elegance (or lack of it) for some algorithms, I quite like&nbsp;them.</p>
       </section>

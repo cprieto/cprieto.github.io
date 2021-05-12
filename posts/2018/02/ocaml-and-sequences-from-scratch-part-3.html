@@ -80,7 +80,6 @@
 <span class="n">seq_map</span> <span class="o">~</span><span class="n">f</span><span class="o">:(</span><span class="k">fun</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span><span class="o">)</span> <span class="n">sample</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -104,7 +103,6 @@
 <span class="o">;;</span>
 </code></pre></div>
 
-
 <h3>The power of&nbsp;fold</h3>
 <p>The <code>fold</code> operations are called reducers and aggregators by others, the idea is <code>calculating</code> a running value through a sequence. We agregate values from a sequence with a function who takes the current value and previous value of the applied function. In some parlance it is called <em>reducers</em>.</p>
 <p>There are two versions of <code>fold</code>, the common <code>left</code> version <em>folding</em> from left to right (moving the apply function from the left to the&nbsp;right)</p>
@@ -116,7 +114,6 @@
 
 <span class="n">seq_fold_left</span> <span class="o">~</span><span class="n">f</span><span class="o">:(</span><span class="k">fun</span> <span class="n">a</span> <span class="n">b</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">)</span> <span class="o">~</span><span class="n">init</span><span class="o">:</span><span class="mi">0</span> <span class="n">sample</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -133,7 +130,6 @@
 <span class="o">;;</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -148,7 +144,6 @@
 
 <span class="n">rev_seq&#39;</span> <span class="n">sample</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -165,7 +160,6 @@
 <span class="o">;;</span>
 <span class="n">map_seq&#39;</span> <span class="o">~</span><span class="n">f</span><span class="o">:(</span><span class="k">fun</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span><span class="o">)</span> <span class="n">sample</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>

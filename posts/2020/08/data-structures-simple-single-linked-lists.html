@@ -79,7 +79,6 @@
 <span class="o">;;</span>
 </code></pre></div>
 
-
 <p>There are many different types of linked lists (in fact, I usually find more different types in literature every week) but the most common is the <a href="https://en.wikipedia.org/wiki/Linked_list">single linked list</a> where a node only points to the next node in the list or to nothing if it is the last one in the list (there are many variations of this mix, I will probably mention them in a separate post in the&nbsp;future).</p>
 <p><img alt="Simple single linked list" src="https://cprieto.com/posts/2020/08/images/linkedlist-1.png"></p>
 <p>Because implementing a linked list in a functional programming is kind of cheating for me (you saw the implementation in <a href="https://de.wikipedia.org/wiki/Objective_CAML">OCaml</a>) I will do in a more close to real language, <a href="https://golang.org/">Go</a>:</p>
@@ -121,7 +120,6 @@
     <span class="nx">list</span><span class="p">.</span><span class="nx">top</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">n</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>As you see, <em>appending</em> (adding an element at the end) with our simple list is a very expensive operation, <span class="math">\(\Theta(n)\)</span>, while <em>prepending</em> (adding an element at the beginning) is always <span class="math">\(\Theta(1)\)</span>. Yes, there are ways we can amortize this, for example using a pointer for the <em>tail</em> of the list but for now I will keep it simple to illustrate my point, in fact, to do the most basic linked list we don&#8217;t even need a separate structure (as here with <code>LinkedList</code>) because only knowing the first node is enough to go around the whole list, that way is actually really common instead of using a whole completely alternate structure, a linked list is more an implementation (data structure) than an abstract data&nbsp;type.</p>
 <p>I made the previous distinction because a common question I get all the time is &#8220;when should we implement our own data structure from scratch?&#8221; and to be honest my answer, 99% of the time, would be <strong>never</strong>, just use the data structures including in your standard libraries but there is usually that 1% that needs you to know &#8220;oh, this actually looks like a problem where I just need to point to the first element and then that will point to the next and so on because I will always only add elements at the beginning&#8221; so in your mind you know you should implement a data structure named a linked list, see? it is not in vain learning all these banal stuff, believe me, one day it will save the day&nbsp;;)</p>
@@ -170,7 +168,6 @@
     <span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p><strong><span class="caps">PD</span></strong>: I made the distinction between lists and linked lists mostly because languages like Python, in Python a linked list internally uses an <a href="http://effbot.org/pyfaq/how-are-lists-implemented.htm">an array to store the pointers to the elements</a> and not a linked list, like OCaml or&nbsp;Lisp.</p>
       </section>

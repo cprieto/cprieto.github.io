@@ -75,11 +75,9 @@
 <div class="highlight"><pre><span></span><code><span class="nb">add_library</span><span class="p">(</span><span class="s">sample</span> <span class="s">OBJECT</span> <span class="s">sample.cpp</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>And later, we can link to this library as any other library but using <code>$&lt;TARGET_OBJECT&gt;</code> instead of the plain name of the library, for&nbsp;example:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">target_library</span><span class="p">(</span><span class="s">app</span> <span class="o">$&lt;</span><span class="nv">TARGET_OBJECT:sample</span><span class="o">&gt;</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>Let&#8217;s do a full example, our library header, <code>sample.h</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Sample</span> <span class="p">{</span>
@@ -88,13 +86,11 @@
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>And now our implementation, <code>sample.cpp</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&quot;sample.h&quot;</span><span class="cp"></span>
 
-<span class="kt">int</span> <span class="n">Sample</span><span class="o">::</span><span class="n">foo</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">42</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">Sample::foo</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">42</span><span class="p">;</span> <span class="p">}</span>
 </code></pre></div>
-
 
 <p>And of course, our user for the &#8220;library&#8221;, <code>main.cpp</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
@@ -106,7 +102,6 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>As you see, nothing fancy, but let&#8217;s say that instead of listing <code>sample.cpp</code> as source for <code>app</code> you want to <em>link</em> to it as a library, but creating a library for such a simple trivial piece of code sounds overkill, that is where the object library sounds super&nbsp;useful!</p>
 <p>In your <code>CMakeLists.txt</code> file it will look something like&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">3.1</span><span class="p">)</span>
@@ -117,19 +112,16 @@
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">app</span> <span class="o">$&lt;</span><span class="nv">TARGET_OBJECTS:sample</span><span class="o">&gt;</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>And that is all, you can refer to <code>sample</code> as any other library as far as you use the expression <code>$&lt;TARGET_OBJECTS:sample&gt;</code> instead of the name of the library as you would do with a normal&nbsp;library.</p>
 <h4>Some generators are nicer than&nbsp;others</h4>
 <p>The previous approach works very well with generators like <code>Visual Studio</code> or <code>Ninja</code> but as soon as you use <code>Makefiles</code> it will fail with a very cryptic error&nbsp;message:</p>
-<div class="highlight"><pre><span></span><code><span class="err">make[2]: *** No rule to make target &#39;CMakeFiles/sample/sample.cpp.o&#39;, needed by &#39;app&#39;.  Stop.</span>
+<div class="highlight"><pre><span></span><code>make[2]: *** No rule to make target &#39;CMakeFiles/sample/sample.cpp.o&#39;, needed by &#39;app&#39;.  Stop.
 </code></pre></div>
-
 
 <p>I was extremely surprised by this, I mean, it works <em>perfectly</em> with any other generator but not with <a href="https://en.wikipedia.org/wiki/Makefile">Makefiles</a>, in fact, if you simply use something like <a href="https://ninja-build.org/">Ninja</a> instead of Makefiles it will work without any problems at all. There is no mention of this in the documentation at all, in fact, the idea that it works in some generators and not in others really gives me no clue of what is the&nbsp;problem.</p>
 <p>By pure trial and error I found a way to make this setup works (at least) with Makefiles, Ninja and Visual Studio, replacing <code>target_link_libraries</code> with <code>target_sources</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">target_sources</span><span class="p">(</span><span class="s">app</span> <span class="o">$&lt;</span><span class="nv">TARGET_OBJECTS:sample</span><span class="o">&gt;</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>I was still confused, why was it not&nbsp;working?</p>
 <h4>Sometimes, not getting an error is actually the&nbsp;error</h4>
@@ -141,7 +133,6 @@
 <div class="highlight"><pre><span></span><code><span class="nb">add_executable</span><span class="p">(</span><span class="s">app</span> <span class="s">main.cpp</span> <span class="o">$&lt;</span><span class="nv">TARGET_OBJECTS:sample</span><span class="o">&gt;</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>But since CMake 3.12 we can refer to object libraries directly as part of <code>target_link_libraries</code> without using the generator expression, in our previous case, our <code>CMakeLists.txt</code> will look like&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">3.12</span><span class="p">)</span>
 <span class="nb">project</span><span class="p">(</span><span class="s">sample_obj</span> <span class="s">LANGUAGES</span> <span class="s">CXX</span><span class="p">)</span>
@@ -150,7 +141,6 @@
 <span class="nb">add_executable</span><span class="p">(</span><span class="s">app</span> <span class="s">main.cpp</span><span class="p">)</span>
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">app</span> <span class="s">sample</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>Lesson learnt, when things are not working read the documentation again and again, until you understand what is&nbsp;happening.</p>
       </section>

@@ -72,14 +72,12 @@
       <section>
         <p><a href="https://www.numpy.org/">NumPy</a> is a very powerful mathematical library for &#8220;crunching numbers&#8221; in Python, it has functions and modules for a lot of advance and not so advance mathematical operations, including <a href="https://en.wikipedia.org/wiki/Linear_algebra">linear algebra</a>.</p>
 <p>Recently in classes we had been learning about vector and matrix operations, and most books include examples in things like <a href="https://en.wikipedia.org/wiki/MATLAB">Matlab</a> or <a href="https://en.wikipedia.org/wiki/GNU_Octave">Octave</a> so I was curious about how we can represent this in Python, so I decided to take a look and write this as a simple reminder of simple vector and basic operations in Python using NumPy. Of course I will assume you have already NumPy installed, if not, go to your closest <a href="https://docs.python.org/3/tutorial/venv.html">virtual environment</a> and install it with a simple command (depending on your platform this could take <em>a while</em>):</p>
-<div class="highlight"><pre><span></span><code><span class="err">pip install numpy</span>
+<div class="highlight"><pre><span></span><code>pip install numpy
 </code></pre></div>
-
 
 <p>Later in our scripts we just need to import NumPy, and by convention we name the import as <code>np</code></p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </code></pre></div>
-
 
 <h3>Vectors</h3>
 <p>In normal mathematical notation we declare a vector in different ways, the most common (usually) is using a vertical matrix, something like&nbsp;this:
@@ -92,7 +90,6 @@ Notice some books declare this vector using its <em>transpose</em> version, <spa
 <p>Luckily for us, declaring a vector in NumPy is&nbsp;simple:</p>
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -116,7 +113,6 @@ This can be easily done in NumPy with <code>np.array</code>, but notice we need 
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -132,7 +128,6 @@ This can be easily done in NumPy with <code>np.array</code>, but notice we need 
 <span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -146,7 +141,6 @@ array([[ 5, 10, 15],
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -158,7 +152,6 @@ array([[ 5, 10, 15],
 <p>In this case, multiplication of two matrices is <em>element wise</em> and known as <a href="https://en.wikipedia.org/wiki/Hadamard_product_(matrices)">Hadamard product</a>, the same happens with&nbsp;Vectors:</p>
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -172,7 +165,6 @@ array([[ 5, 10, 15],
 <span class="n">a</span> <span class="o">@</span> <span class="n">b</span>
 <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -188,7 +180,6 @@ array([[20, 32],
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -200,7 +191,6 @@ array([[20, 32],
 <div class="highlight"><pre><span></span><code><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
 <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -221,7 +211,6 @@ $$</div>
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -234,7 +223,6 @@ $$</div>
 <p>Or a matrix full of&nbsp;zeroes:</p>
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -249,7 +237,6 @@ $$</div>
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -262,7 +249,6 @@ $$</div>
 <p><strong>Important</strong>: Notice we pass the dimension in a <em>tuple</em>, not as a simple parameter, with the exception of <code>np.identity</code>, passing a single number will create a vector of that size, for&nbsp;example:&#8221;</p>
 <div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -277,7 +263,6 @@ $$</div>
 <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -291,7 +276,6 @@ $$</div>
 <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -303,7 +287,6 @@ $$</div>
 <div class="highlight"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">12</span><span class="p">,</span><span class="mi">23</span><span class="p">],</span> <span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="mi">62</span><span class="p">]])</span>
 <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>

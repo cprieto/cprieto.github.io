@@ -79,23 +79,20 @@
 <p>As you may already see, there are a lot of things in the same directory as our source code which are mostly generated code and are not actually relevant to our application. It could be a great idea to put the compiled artefacts in a place, the generated files in another and the source code in another&#8230; It could be so&nbsp;clean!</p>
 <p>So far what we have been doing is called <strong>in-source building</strong>; it is the default behaviour where the compiled artefacts as well as CMake generated files are located in the same directory. This is not the recommended way to use CMake, yes, it is the default because it is simple, but it should not be used <em>even in your examples</em> (well, I used because I wanted to explain other things&nbsp;first!).</p>
 <p>The alternative is called <strong>out-of-source building</strong> and there is not a way to do it from the CMakeLists.txt file! In fact, the recommended way is doing this in the command prompt (or&nbsp;console):</p>
-<div class="highlight"><pre><span></span><code><span class="err">mkdir build</span>
-<span class="err">cd build</span>
-<span class="err">cmake ..</span>
+<div class="highlight"><pre><span></span><code>mkdir build
+cd build
+cmake ..
 </code></pre></div>
-
 
 <p>In other words, create the build directory, cd to that directory and then tell to CMake to generate the files from the CMakeLists.txt file in the root directory. If you do that right now with your current project you will see the build libraries and executables together with the generated CMake files are in the <code>build</code> directory. Believe it or not, this is the way CMake recommends to do the out-of-source builds: make the build directory, cd to that directory, run CMake against the parent&nbsp;directory.</p>
 <p>There is no variable or global mechanism to do this from the CMakeLists.txt file, nope, nothing&#8230; but there is an <em>undocumented</em> set of parameters for the CMake command line to do the same, again, this is <strong>undocumented</strong> and it could break any time soon; it currently works with my version of CMake (3.6) but who knows about&nbsp;tomorrow&#8230;</p>
-<div class="highlight"><pre><span></span><code><span class="err">cmake -H. -Bbuild</span>
+<div class="highlight"><pre><span></span><code>cmake -H. -Bbuild
 </code></pre></div>
-
 
 <p>The first parameter tells you where the CMakeLists.txt file is, and the second where the build artefacts directory is. Notice that <code>-H</code> is the <em>help</em> parameter in the official CMake documentation and <code>-B</code> is not even documented. Again, this is an <em>undocumented</em> feature and it could break any time soon; handle with&nbsp;care!</p>
 <p>In both cases, to build from the new build artefacts directory you just use the build command of&nbsp;CMake:</p>
-<div class="highlight"><pre><span></span><code><span class="err">cmake --build build --clean-first</span>
+<div class="highlight"><pre><span></span><code>cmake --build build --clean-first
 </code></pre></div>
-
 
 <p>In this case, we tell CMake where the CMakeCache file is and ask it to build. I passed the option to clean the artefacts first as&nbsp;well.</p>
 <h3>Placing the&nbsp;artefacts</h3>
@@ -114,7 +111,6 @@
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span> <span class="o">${</span><span class="nv">HELLO_SOURCES</span><span class="o">}</span><span class="p">)</span>
 <span class="nb">add_library</span> <span class="p">(</span><span class="s">libhello</span> <span class="s">SHARED</span> <span class="o">${</span><span class="nv">LIBHELLO_SOURCES</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>As you can see, we produce a shared library and an executable; both of them are placed in the <code>output</code> directory. We do this just by changing the content of the variables <code>EXECUTABLE_OUTPUT_PATH</code> and <code>LIBRARY_OUTPUT_PATH</code>.</p>
 <p>If we run our CMake build again, we will have now an output directory with both files, the executable and <span class="caps">DLL</span> (or <span class="caps">SO</span> or dSYM)&#8230;&nbsp;easy!</p>

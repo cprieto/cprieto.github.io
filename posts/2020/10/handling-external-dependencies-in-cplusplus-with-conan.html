@@ -81,11 +81,9 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>We need to understand that Conan is a meta package generator, pretty much like what CMake is for building. You not only specify the library requirements but the conditions for the build and what are you going to use to build it. To understand this let&#8217;s solve the first problem, the <span class="caps">JSON</span> library requirement. Conan depends on what they call a remote repository that is a central server with package information, think about the remote repository server in <a href="https://npmjs.com">npm</a>, you can have multiple repositories and host your own company repository as well. By default Conan installs the <a href="https://conan.io/center/">Conan Center</a> repository. For search for any package containing the word &#8220;json&#8221; in its name we can issue the&nbsp;command:</p>
-<div class="highlight"><pre><span></span><code><span class="err">conan search &quot;*json&quot; -r conan-center</span>
+<div class="highlight"><pre><span></span><code>conan search &quot;*json&quot; -r conan-center
 </code></pre></div>
-
 
 <p>I found this way to find packages <em>extremely slow</em> so instead I go to the <a href="https://conan.io/center/">Conan Center</a> search page and do it&nbsp;there.</p>
 <p>We see the package we need is named <code>nlohman_json</code> and the latest version is <code>3.9.1</code>, we now create a file <code>conanfile.txt</code> with the <em>requirements</em> and <em>how are we going to build it</em> (this last part is required for conan to specify a way to include the&nbsp;libraries):</p>
@@ -95,7 +93,6 @@
 <span class="k">[generators]</span>
 <span class="na">cmake</span>
 </code></pre></div>
-
 
 <p>We specify <a href="https://cmake.org">CMake</a> as our build generator. There are <em>plenty</em> of different generators and we can specify multiple generators for the same build. In fact, there are generators where they even download and run the whole build system so you only need Conan installed in your machine. You can check the list of available generators in the <a href="https://docs.conan.io/en/latest/reference/generators.html">Conan documentation</a>.</p>
 <p>Now it is time to work in our build script. This will be <em>very similar</em> to the previous build but with a very small&nbsp;change:</p>
@@ -109,16 +106,14 @@
 <span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">main</span> <span class="o">${</span><span class="nv">CONAN_LIBS</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>Notice the line including a file that conan will <em>generate</em> for us, this file contains macros and specifications for our build files then we tell this set of macros to do the required setup and do the dependency walk. Later to link our dependencies we use the variable <code>${CONAN_LIBS}</code> in the linkage&nbsp;step.</p>
 <p>With this is enough to run the following commands in an out-of-source&nbsp;build:</p>
-<div class="highlight"><pre><span></span><code><span class="err">mkdir build</span>
-<span class="err">cd build</span>
-<span class="err">conan install ..</span>
-<span class="err">cmake ..</span>
-<span class="err">cmake --build . --clean-first</span>
+<div class="highlight"><pre><span></span><code>mkdir build
+cd build
+conan install ..
+cmake ..
+cmake --build . --clean-first
 </code></pre></div>
-
 
 <p>It is important to run <code>conan install</code> <em>before</em> running CMake, this will generate the required <code>conanbuildinfo.cmake</code> file and prepare the dependencies. We don&#8217;t need to specify an toolchain file like with&nbsp;Vcpkg.</p>
 <p>Conan is <em>extremely flexible</em> and powerful, and on top of that, their documentation is amazing (just go and check the <a href="https://docs.conan.io/en/latest/introduction.html">official Conan documentation</a>) and they even include videos and seminars about using Conan from basic users to expert&nbsp;applications.</p>

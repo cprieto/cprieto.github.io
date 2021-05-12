@@ -68,31 +68,29 @@
       <section>
         <p>We have not finished with trees yet! oh no! trees are one of the most versatil data structures out there in the wild. Last time we were taking a look at how to <em>visit</em> or <em>traverse</em> all the nodes in a tree and we saw <a href="">depth-first traversal</a>, but what if we want to visit <em>the same tree</em> as last time but from top to bottom and left to right? (in this case generating the order <code>A, B, C, D, E, F, G, H</code>). Well, this type of traversal is named <em>breadth-first traversal</em> or <em>level order</em>&nbsp;traversal.</p>
 <p>The easiest way to implement a level order traversal is using an additional data structure, a queue. The idea is simple, we start from the root and then add left and right to a queue and pops the queue until no element is present, nothing really exotic&nbsp;here:</p>
-<div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="nf">levelOrder</span><span class="p">(</span><span class="n">operation</span><span class="p">:</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">Unit</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">val</span> <span class="py">queue</span> <span class="p">=</span> <span class="n">Queue</span><span class="p">&lt;</span><span class="n">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;&gt;()</span>
-  <span class="n">queue</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
-  <span class="k">while</span> <span class="p">(!</span><span class="n">queue</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">())</span> <span class="p">{</span>
-      <span class="k">val</span> <span class="py">elem</span> <span class="p">=</span> <span class="n">queue</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
-      <span class="n">operation</span><span class="p">(</span><span class="n">elem</span><span class="p">.</span><span class="k">data</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span> <span class="nf">levelOrder</span><span class="p">(</span><span class="n">operation</span><span class="p">:</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Unit</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="nv">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">()</span>
+  <span class="n">queue</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">queue</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="kd">val</span> <span class="nv">elem</span> <span class="o">=</span> <span class="n">queue</span><span class="p">.</span><span class="na">pop</span><span class="p">()</span>
+      <span class="n">operation</span><span class="p">(</span><span class="n">elem</span><span class="p">.</span><span class="na">data</span><span class="p">)</span>
 
-      <span class="n">elem</span><span class="p">.</span><span class="n">left</span><span class="o">?.</span><span class="n">let</span> <span class="p">{</span> <span class="n">queue</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="p">}</span>
-      <span class="n">elem</span><span class="p">.</span><span class="n">right</span><span class="o">?.</span><span class="n">let</span> <span class="p">{</span> <span class="n">queue</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="p">}</span>
+      <span class="n">elem</span><span class="p">.</span><span class="na">left</span><span class="o">?.</span><span class="na">let</span> <span class="p">{</span> <span class="n">queue</span><span class="p">.</span><span class="na">push</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span> <span class="p">}</span>
+      <span class="n">elem</span><span class="p">.</span><span class="na">right</span><span class="o">?.</span><span class="na">let</span> <span class="p">{</span> <span class="n">queue</span><span class="p">.</span><span class="na">push</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span> <span class="p">}</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>As previous blog post we add this method to the <code>Node</code> class. Notice the usage of a <code>Queue</code> structure, you can use the one implemented in the <a href="">simple queue blog post</a>. As with depth-first traversal there could be variations of the order you visit the nodes but in general it will be always from top to bottom and left to&nbsp;right.</p>
 <p>This is easily tested with this simple method (you can add it to the previous unit tests for tree&nbsp;traversal):</p>
-<div class="highlight"><pre><span></span><code><span class="n">@Test</span>
-<span class="k">fun</span> <span class="nf">`lever-order traverse`</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">val</span> <span class="py">result</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">&lt;</span><span class="n">Char</span><span class="p">&gt;()</span>
-  <span class="n">root</span><span class="p">.</span><span class="n">levelOrder</span> <span class="p">{</span> <span class="n">result</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@Test</span>
+<span class="kd">fun</span> <span class="nf">`lever-order traverse`</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="nv">result</span> <span class="o">=</span> <span class="n">mutableListOf</span><span class="o">&lt;</span><span class="kt">Char</span><span class="o">&gt;</span><span class="p">()</span>
+  <span class="n">root</span><span class="p">.</span><span class="na">levelOrder</span> <span class="p">{</span> <span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span> <span class="p">}</span>
 
   <span class="n">assertEquals</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="sc">&#39;a&#39;</span><span class="p">,</span> <span class="sc">&#39;b&#39;</span><span class="p">,</span> <span class="sc">&#39;c&#39;</span><span class="p">,</span> <span class="sc">&#39;d&#39;</span><span class="p">,</span> <span class="sc">&#39;e&#39;</span><span class="p">,</span> <span class="sc">&#39;f&#39;</span><span class="p">,</span> <span class="sc">&#39;g&#39;</span><span class="p">,</span> <span class="sc">&#39;h&#39;</span><span class="p">),</span> <span class="n">result</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>A very useful usage of breath-first traversal is converting a tree into a linear structure, like an array, pretty much in the same way we are testing the traversal in our&nbsp;tests.</p>
       </section>

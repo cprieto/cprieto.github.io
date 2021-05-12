@@ -68,16 +68,15 @@
       <section>
         <p>I remember read and learning <span class="caps">ANTLR4</span> with the excelent book <a href="https://pragprog.com/book/tpantlr2/the-definitive-antlr-4-reference">The definitive <span class="caps">ANTLR4</span> reference</a> by Terence Parr, it is a good book, I highly recommend it. Well, I recently wanted to read the book again and decided to do the examples with Gradle and Kotlin and while searching in the web I found a lot of different answers and tips for writing the build file, so I was like &#8220;what is the smallest gradle build I can make for this&#8221;? so I decided to write this in case somebody ask the same question or future Cristian forgets how to do&nbsp;it.</p>
 <p>Well, Gradle requires a specific project layout, so let&#8217;s do&nbsp;that:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span>
-<span class="err">├──</span> <span class="n">build</span><span class="p">.</span><span class="n">gradle</span>
-<span class="err">└──</span> <span class="n">src</span>
-    <span class="err">└──</span> <span class="n">main</span>
-        <span class="err">├──</span> <span class="n">antlr</span>
-        <span class="err">└──</span> <span class="n">kotlin</span>
+<div class="highlight"><pre><span></span><code>.
+├── build.gradle
+└── src
+    └── main
+        ├── antlr
+        └── kotlin
 
-<span class="mi">4</span> <span class="n">directories</span><span class="p">,</span> <span class="mi">1</span> <span class="n">file</span>
+4 directories, 1 file
 </code></pre></div>
-
 
 <p>Easy, in <code>src/main/antlr</code> will be our <span class="caps">ANTLR</span> grammars and in <code>src/main/kotlin</code> <em>our</em> implementation for <span class="caps">ANTLR</span> listeners or visitors. Let&#8217;s create the smallest <code>build.gradle</code> possible for this&nbsp;layout:</p>
 <div class="highlight"><pre><span></span><code><span class="n">plugins</span> <span class="o">{</span>
@@ -94,7 +93,6 @@
 <span class="o">}</span>
 </code></pre></div>
 
-
 <p>We are using Gradle plugin <span class="caps">DSL</span> notation and the <a href="https://kotlinlang.org/docs/reference/using-gradle.html">Kotlin Gradle plugin</a> with the included <a href="https://docs.gradle.org/current/userguide/antlr_plugin.html"><span class="caps">ANTLR</span> plugin</a>, see? nothing&nbsp;fancy.</p>
 <p>When building, Gradle will generate java sources with the Lexers/Parsers and place them in a generated sources directory, I had seen a lot of post out there with scripts moving the generated sources or putting them in fancy directories, nah, we don&#8217;t want that, we want something super simple, so let&#8217;s go with the&nbsp;defaults.</p>
 <p>Let&#8217;s generate a simple grammar and tell to use a specific package for it as&nbsp;well:</p>
@@ -104,20 +102,18 @@
 <span class="x">package com.cprieto.sample;</span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="nl">hello</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hello&#39;</span><span class="w"> </span><span class="no">ID</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="nl">hello</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;hello&#39;</span><span class="w"> </span><span class="no">ID</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="nl">ID</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="x">a-zA-Z</span><span class="p">]</span><span class="o">+</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="nl">WS</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="x"> \r\n\t</span><span class="p">]</span><span class="o">+</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">skip</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 </code></pre></div>
-
 
 <p>Remember to save it in <code>src/main/antlr/com/cprieto/sample/Hello.g4</code>, We are using a package and we need to place the grammar file in the same layout we will put our source&nbsp;code.</p>
 <p>Ok, as a simple matter of test, let&#8217;s create a simple Listener for our&nbsp;parser:</p>
 <div class="highlight"><pre><span></span><code><span class="k">package</span> <span class="nn">com.cprieto.sample</span>
 
-<span class="k">class</span> <span class="nc">SampleListener</span><span class="p">:</span> <span class="n">HelloBaseListener</span><span class="p">()</span> <span class="p">{</span>
+<span class="kd">class</span> <span class="nc">SampleListener</span><span class="p">:</span> <span class="n">HelloBaseListener</span><span class="p">()</span> <span class="p">{</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>It is so simple it does nothing! but hey, it is a start! This needs to be saved in the expected Kotlin source set: <code>src/main/kotlin/com/cprieto/sample/SampleListener.kt</code></p>
 <p>If we try to compile, guess what, it will fail! This is because our Kotlin source cannot find the generated source files from the grammar by <span class="caps">ANTLR</span>, remember, the <span class="caps">ANTLR</span> plugin <em>knows</em> about the Java plugin but not about any other plugin, so we have to manually solve that, just add a line to your Gradle&nbsp;file:</p>
@@ -136,7 +132,6 @@
 
 <span class="hll"><span class="n">compileKotlin</span><span class="o">.</span><span class="na">dependsOn</span> <span class="n">generateGrammarSource</span>
 </span></code></pre></div>
-
 
 <p>Done! this is the simples gradle build file for Kotlin, it is short and concise, of course if you have more dependencies or need you can grow from&nbsp;there.</p>
       </section>

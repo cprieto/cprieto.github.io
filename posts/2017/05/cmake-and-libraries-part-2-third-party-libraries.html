@@ -88,11 +88,9 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>The instructions for compiling this example are simple, in the source directory just tell to <span class="caps">GCC</span> how to compile the app (you will need the required build components of&nbsp;course):</p>
-<div class="highlight"><pre><span></span><code><span class="err">gcc `pkg-config --cflags gtk+-3.0` -o example-0 example-0.c `pkg-config --libs gtk+-3.0`</span>
+<div class="highlight"><pre><span></span><code>gcc `pkg-config --cflags gtk+-3.0` -o example-0 example-0.c `pkg-config --libs gtk+-3.0`
 </code></pre></div>
-
 
 <p>The secret sauce here is the <a href="https://en.wikipedia.org/wiki/Pkg-config">pkg-config</a> command, it tells the compiler important things to know when compiling, like <em>where are the include files for this specific library</em> or <em>this library needs the following parameters</em>. That is basically what the <code>--cflags</code> part tells in the first command (the location of the header files and required flags) and the <code>--libs</code> just pass the parameters needed for linking the libraries. That is a classic example of building applications with third parties in Linux, no really, it is super common even for hello&nbsp;world!.</p>
 <p>How do we do the same with CMake? Well, as usual there are many ways to peel this fruit. Let&#8217;s start with the basic CMake skeleton for our&nbsp;project:</p>
@@ -105,7 +103,6 @@
 
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">HELLO_GTK_SOURCE</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>Of course this is not going to work as is, first we need to tell to CMake to use the <em>helper macros</em> for PkgConfig using the <em>package</em> for&nbsp;PkgConfig:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
@@ -120,7 +117,6 @@
 
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">HELLO_GTK_SOURCE</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>The package <code>PkgConfig</code> is included with CMake, then we use the macro <code>pkg_check_modules</code> to check for the <code>gtk+-3.0</code> library, this is the same name we will pass to the <code>pkg-config</code> command&nbsp;line.</p>
 <p>We are not ready to build yet, we have to tell to CMake where are our include directories and our libraries. The <code>PkgConfig</code> package does this with the variables <code>INCLUDE_DIRS</code> and <code>LIBRARY_DIRS</code> with <em>the prefix we specified when calling pkg_check_modules</em>, in this case, <code>GTK3</code>. Now our <code>CMakeLists.txt</code> file will look like&nbsp;this:</p>
@@ -140,7 +136,6 @@
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">HELLO_GTK_SOURCE</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>Now it is easier, we only have to tell to CMake to link against our libraries, again the <code>PkgConfig</code> package creates the <code>LIBRARIES</code> variable with the specified&nbsp;prefix:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
 <span class="nb">project</span> <span class="p">(</span><span class="s">hello_gtk</span><span class="p">)</span>
@@ -158,7 +153,6 @@
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">HELLO_GTK_SOURCE</span><span class="o">}</span><span class="p">)</span>
 <span class="hll"><span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">GTK3_LIBRARIES</span><span class="o">}</span><span class="p">)</span>
 </span></code></pre></div>
-
 
 <p>One last thing, some libraries, like <span class="caps">GTK3</span>, needs additional flags when building, for example, <code>-pthread</code> to indicate reentrancy. This is not passed immediately to the compiler with our current configuration. To do so <code>PkgConfig</code> creates an additional variable named <code>CFLAGS_OTHER</code> and we can use that variable with the command <code>add_definitions</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
@@ -178,7 +172,6 @@
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">HELLO_GTK_SOURCE</span><span class="o">}</span><span class="p">)</span>
 <span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">app</span> <span class="o">${</span><span class="nv">GTK3_LIBRARIES</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>And that is all for today, you can see more information about the <code>PkgConfig</code> package in the <a href="https://cmake.org/cmake/help/latest/module/FindPkgConfig.html">documentation</a>. There are <em>multiple</em> modules included with CMake to find many popular libraries (like <a href="https://cmake.org/cmake/help/latest/module/FindGTest.html">Google Test</a> and <a href="https://cmake.org/cmake/help/latest/module/FindOpenGL.html">OpenGL</a>), we can use third party modules as well, maybe I will explain how to use those third parties modules in the next blog post&nbsp;;)</p>
       </section>

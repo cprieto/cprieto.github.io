@@ -67,42 +67,39 @@
       </header>
       <section>
         <p>I promise this is the last sorting algorithm (for now)! and this time we have another non comparisson sorts (or well, not exactly but I will explain later). <a href="">Bucket sort</a> is pretty much as it sounds, putting things into <em>buckets</em> of data that are in an specific order. The idea is creating categorized buckets of data and then place the elements from the original collection into those buckets using a classification function, this is where it gets super tricky, a good classification function will place the elements in an evenly manner, for example the&nbsp;list:</p>
-<div class="highlight"><pre><span></span><code><span class="err">[243, 637, 371, 598, 442, 137]</span>
+<div class="highlight"><pre><span></span><code>[243, 637, 371, 598, 442, 137]
 </code></pre></div>
-
 
 <p>The values are evenly distributed and can be placed in 6 buckets using the distribution formula <span class="math">\(\lfloor\frac{x}{100}\rfloor\)</span> but if we try the same buckets with different not evenly distributed elements like this&nbsp;list:</p>
-<div class="highlight"><pre><span></span><code><span class="err">[243, 637, 271, 698, 442, 137]</span>
+<div class="highlight"><pre><span></span><code>[243, 637, 271, 698, 442, 137]
 </code></pre></div>
-
 
 <p>We will have two or more elements in the same bucket (in this case 243, 271 in bucket 2 and 637 and 698 in bucket 6). When this happens we do a simple trick, we place the elements in the same bucket and sort that small list using a simple comparisson sorter, like insert sort. This is why bucket sort is not entirely a non comparisson sort because sooner or later you will end up using a comparisson sort to sort elements in the same bucket. A simple way to calculate the correct bucket is create as many buckets as elements and then use the simple formula <span class="math">\(\lfloor\frac{x\times\mathit{length}}{\mathit{max}}\rfloor\)</span> where <span class="math">\(\mathit{length}\)</span> is the length of the collection (in our sample <span class="math">\(6\)</span>) and <span class="math">\(\mathit{max}\)</span> the max number in the collection (in our sample <span class="math">\(637\)</span>).</p>
 <p>Thanks to this the implementation is pretty&nbsp;simple:</p>
-<div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="nf">bucketSort</span><span class="p">(</span>
-    <span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;,</span>
-    <span class="n">max</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
-    <span class="n">buckets</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">MutableList</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;&gt;</span> <span class="p">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">size</span><span class="p">)</span> <span class="p">{</span> <span class="n">mutableListOf</span><span class="p">()</span> <span class="p">},</span>
-    <span class="n">position</span><span class="p">:</span> <span class="p">(</span><span class="n">Int</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">Int</span> <span class="p">=</span> <span class="p">{</span> <span class="n">x</span><span class="p">:</span> <span class="n">Int</span> <span class="p">-&gt;</span> <span class="p">(</span><span class="n">x</span> <span class="p">*</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span><span class="p">)</span> <span class="p">/</span> <span class="n">max</span> <span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span> <span class="nf">bucketSort</span><span class="p">(</span>
+    <span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">max</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span>
+    <span class="n">buckets</span><span class="p">:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">MutableList</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;&gt;</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="na">size</span><span class="p">)</span> <span class="p">{</span> <span class="n">mutableListOf</span><span class="p">()</span> <span class="p">},</span>
+    <span class="n">position</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="o">=</span> <span class="p">{</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">items</span><span class="p">.</span><span class="na">size</span><span class="p">)</span> <span class="o">/</span> <span class="n">max</span> <span class="p">}</span>
 <span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Place each element in a bucket, this depends of the type of data</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">elem</span> <span class="k">in</span> <span class="k">this</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">pos</span> <span class="p">=</span> <span class="n">position</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="p">-</span> <span class="m">1</span>
-        <span class="n">buckets</span><span class="p">[</span><span class="n">pos</span><span class="p">].</span><span class="n">add</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="kd">val</span> <span class="nv">pos</span> <span class="o">=</span> <span class="n">position</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="o">-</span> <span class="m">1</span>
+        <span class="n">buckets</span><span class="o">[</span><span class="n">pos</span><span class="o">]</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
     <span class="p">}</span>
 
     <span class="c1">// Now we relocate all the elements back</span>
-    <span class="k">var</span> <span class="py">idx</span> <span class="p">=</span> <span class="m">0</span>
+    <span class="kd">var</span> <span class="nv">idx</span> <span class="o">=</span> <span class="m">0</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">bucket</span> <span class="k">in</span> <span class="n">buckets</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">())</span> <span class="k">continue</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span> <span class="k">continue</span>
 
         <span class="c1">// We use insert sort because, well, it is small and simple</span>
-        <span class="n">bucket</span><span class="p">.</span><span class="n">insertionSort</span><span class="p">()</span>
+        <span class="n">bucket</span><span class="p">.</span><span class="na">insertionSort</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="p">(</span><span class="n">elem</span> <span class="k">in</span> <span class="n">bucket</span><span class="p">)</span> <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">++]</span> <span class="p">=</span> <span class="n">elem</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">elem</span> <span class="k">in</span> <span class="n">bucket</span><span class="p">)</span> <span class="n">items</span><span class="o">[</span><span class="n">idx</span><span class="o">++]</span> <span class="o">=</span> <span class="n">elem</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Be careful, there could be cases where all your elements or most of them end up in the same sort! that is a problem because basically your sorter is doing nothing to simplify your life and you will be probably better with another sorter. How good is our sorter? well, it depends on what is the internal sorter that we use, in our previous case we know the worse case scenario for insertion sort is <span class="math">\(\mathcal(O){n^2}\)</span> and we have to go through all the elements and buckets in the collection, so it will be around <span class="math">\(\mathcal{O}(n + k)\)</span> where <span class="math">\(k\)</span> is the worst case for the internal sorter (for insertion sort we can say the worst case will be <span class="math">\(\mathcal{O}(n + n \log{n})\)</span>). If the collection is evenly distributed it means every element is in its own bucket, so the time is reduced to <span class="math">\(\Theta(n)\)</span>.</p>
 <p>The unit tests for our sorter is similar to the previous used for radix and count sort, so feel free to copy the&nbsp;test.</p>

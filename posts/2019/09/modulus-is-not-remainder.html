@@ -87,9 +87,8 @@ $$</div>
 <p>Notice, while we use the word <em>reminder</em>, the modulus is not the remainder, <span class="math">\(-3\)</span> is the remainder while <span class="math">\(4\)</span> is the&nbsp;modulus.</p>
 <h4>And now&nbsp;computers&#8230;</h4>
 <p>Almost every programming language I had seen have the <em>modulus</em> operator, most of the time is expressed by the percentage symbol, so <code>35 % 12</code> is the same as <span class="math">\(35 \mod 12\)</span>. What about the operation against a negative&nbsp;number?</p>
-<div class="highlight"><pre><span></span><code><span class="o">-</span><span class="mi">129</span> <span class="o">%</span> <span class="mi">7</span> <span class="c1">// Returns -3, it should return 4</span>
+<div class="highlight"><pre><span></span><code><span class="o">-</span><span class="mf">129</span> <span class="o">%</span> <span class="mf">7</span> <span class="c1">// Returns -3, it should return 4</span>
 </code></pre></div>
-
 
 <p>What? This is true for JavaScript, Go, C/C++, C# (and potentially <span class="caps">CLR</span> languages like <span class="caps">VB</span> and F#), Java (and <span class="caps">JVM</span> languages like Scala, Kotlin), in fact, almost everywhere where they mention they support the <em>modulus</em> operator in reality they implement the <em>remainder</em> operator instead. Notice <em>a few languages</em> have the decency of use the right language, for example, <a href="https://elixirschool.com/en/lessons/basics/basics/#arithmetic">Elixir</a> name it remainder and not <em>mod</em>. In Ruby <code>%</code> is the remainder operator while <code>modulus</code> is the modulus&nbsp;operator.</p>
 <p>The <a href="https://en.wikipedia.org/wiki/Modulo_operation">Wikipedia page</a> has a good list and sort of explanation why this happens, but I can see in the same way as <em>homogeneous coordinates</em> everybody says both are right conceptions, my math books disagree with them&nbsp;though.</p>

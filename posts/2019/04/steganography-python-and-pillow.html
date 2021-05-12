@@ -85,7 +85,6 @@
 <span class="n">colorful</span>
 </code></pre></div>
 
-
 <p><img alt="Colorful" src="https://cprieto.com/posts/2019/04/images/colorful.png"></p>
 <p>We can read an existing image and get not only image but pixel information as&nbsp;well:</p>
 <div class="highlight"><pre><span></span><code><span class="n">baboon</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;baboon.png&#39;</span><span class="p">)</span>
@@ -94,7 +93,6 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">baboon_pixels</span><span class="p">[</span><span class="mi">312</span><span class="p">,</span> <span class="mi">216</span><span class="p">])</span>
 <span class="n">baboon</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -110,7 +108,6 @@
 <span class="n">airplane_pixels</span> <span class="o">=</span> <span class="n">airplane</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 <span class="n">airplane</span>
 </code></pre></div>
-
 
 <p><img alt="Airplane" src="https://cprieto.com/posts/2019/04/images/airplane.png"></p>
 <p>And we want to hide that image in the image of our previous baboon. How do we do this? well, remember our talk about <span class="caps">LSB</span> and <span class="caps">MSB</span>? the idea is taking the <span class="caps">MSB</span> from the image to hide and replace the <span class="caps">LSB</span> of the cover up image with them, at the end we should generate an image <em>very similar</em> to our baboon but hiding the&nbsp;airplane!</p>
@@ -133,7 +130,6 @@
 <span class="n">cover_up</span>
 </code></pre></div>
 
-
 <p><img alt="Cover up" src="https://cprieto.com/posts/2019/04/images/cover_up_baboon.png"></p>
 <p>You could argue the baboon image <em>is not exactly the same</em> as the original image, but it is a good approximation (remember, we lost color channel information in the process), but at the naked eye you cannot tell me there is an airplane hidden in the same&nbsp;image!.</p>
 <p>Let&#8217;s extract now the secret image from the cover up, the process is kind of the opposite, we know the most significant bytes of our secret are hidden in the less significant bytes of our cover up, and then we just complete the lsb with&nbsp;zeroes.</p>
@@ -151,7 +147,6 @@
         <span class="n">secret_pixels</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">sr</span><span class="p">,</span> <span class="n">sg</span><span class="p">,</span> <span class="n">sb</span><span class="p">)</span>
 <span class="n">secret</span>
 </code></pre></div>
-
 
 <p><img alt="Secret" src="https://cprieto.com/posts/2019/04/images/secret_steganography.png"></p>
 <p>There it is! This technique could be implemented to hide <em>any type of file</em> inside another, for example, I remember long time ago it was common to hide <a href="https://en.wikipedia.org/wiki/RAR_(file_format)"><span class="caps">RAR</span> files</a> inside <a href="https://en.wikipedia.org/wiki/GIF"><span class="caps">GIF</span> images</a>. Wikipedia even mention some printer manufacturers use them as a way to print and <a href="https://en.wikipedia.org/wiki/Machine_Identification_Code">identify printers by their serial number</a> for many years without anybody ever notice&nbsp;it.</p>

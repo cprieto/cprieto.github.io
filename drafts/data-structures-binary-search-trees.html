@@ -74,44 +74,41 @@
 <li>Delete a value in the tree, this is the most complicated operation, mostly because we need to make sure the &#8220;ordering&#8221; is maintained in the&nbsp;tree</li>
 </ul>
 <p>Let&#8217;s start with insert, because we need to compare elements we will make sure we restrict our generic to a comparable&nbsp;value:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">BNode</span><span class="p">&lt;</span><span class="n">T</span> <span class="p">:</span> <span class="n">Comparable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;&gt;(</span>
-    <span class="k">private</span> <span class="k">val</span> <span class="py">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
-    <span class="k">var</span> <span class="py">left</span><span class="p">:</span> <span class="n">BNode</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;?</span> <span class="p">=</span> <span class="k">null</span><span class="p">,</span>
-    <span class="k">var</span> <span class="py">right</span><span class="p">:</span> <span class="n">BNode</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;?</span> <span class="p">=</span> <span class="k">null</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">BNode</span><span class="o">&lt;</span><span class="n">T</span> <span class="p">:</span> <span class="n">Comparable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+    <span class="kd">private</span> <span class="kd">val</span> <span class="nv">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+    <span class="kd">var</span> <span class="nv">left</span><span class="p">:</span> <span class="n">BNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;?</span> <span class="o">=</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="kd">var</span> <span class="nv">right</span><span class="p">:</span> <span class="n">BNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;?</span> <span class="o">=</span> <span class="kc">null</span>
 <span class="p">)</span> <span class="p">{</span>
-  <span class="k">fun</span> <span class="nf">insert</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="p">==</span> <span class="k">data</span><span class="p">)</span> <span class="k">return</span>
+  <span class="kd">fun</span> <span class="nf">insert</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="n">data</span><span class="p">)</span> <span class="k">return</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="p">&lt;</span> <span class="k">data</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">left</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="n">left</span> <span class="p">=</span> <span class="n">BNode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">left</span><span class="o">?.</span><span class="n">insert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">left</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="n">left</span> <span class="o">=</span> <span class="n">BNode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">left</span><span class="o">?.</span><span class="na">insert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">right</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="n">right</span> <span class="p">=</span> <span class="n">BNode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">right</span><span class="o">?.</span><span class="n">insert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">right</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="n">right</span> <span class="o">=</span> <span class="n">BNode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">right</span><span class="o">?.</span><span class="na">insert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="p">}</span>
   <span class="p">}</span>
 
-  <span class="k">fun</span> <span class="nf">insert</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;)</span> <span class="p">{</span> <span class="n">values</span><span class="p">.</span><span class="n">forEach</span> <span class="p">{</span> <span class="n">insert</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="p">}</span> <span class="p">}</span>
+  <span class="kd">fun</span> <span class="nf">insert</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span> <span class="n">values</span><span class="p">.</span><span class="na">forEach</span> <span class="p">{</span> <span class="n">insert</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span> <span class="p">}</span> <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Notice the calls to each of the nodes to do the insert, they will do the same until find the correct empty place to put the value. Doing a simple insert like&nbsp;this:</p>
-<div class="highlight"><pre><span></span><code><span class="k">val</span> <span class="py">tree</span> <span class="p">=</span> <span class="n">BNode</span><span class="p">(</span><span class="m">5</span><span class="p">)</span>
-<span class="n">tree</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">6</span><span class="p">,</span> <span class="m">12</span><span class="p">,</span> <span class="m">13</span><span class="p">,</span> <span class="m">22</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span> <span class="nv">tree</span> <span class="o">=</span> <span class="n">BNode</span><span class="p">(</span><span class="m">5</span><span class="p">)</span>
+<span class="n">tree</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">6</span><span class="p">,</span> <span class="m">12</span><span class="p">,</span> <span class="m">13</span><span class="p">,</span> <span class="m">22</span><span class="p">))</span>
 </code></pre></div>
-
 
 <p>Will generate a tree with the following&nbsp;shape:</p>
 <p><img alt="tree" src="https://cprieto.com/drafts/images/tree-3.png" title="Skewed binary search tree"></p>
 <p>To search in the tree the same logic is&nbsp;applied:</p>
-<div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="nf">exists</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">):</span> <span class="n">Boolean</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span> <span class="nf">exists</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">):</span> <span class="kt">Boolean</span> <span class="p">{</span>
   <span class="k">return</span> <span class="k">when</span> <span class="p">{</span>
-    <span class="k">data</span> <span class="p">==</span> <span class="n">value</span> <span class="p">-&gt;</span> <span class="k">true</span>
-    <span class="k">data</span> <span class="p">&gt;</span> <span class="n">value</span> <span class="p">-&gt;</span> <span class="n">left</span><span class="o">?.</span><span class="n">exists</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">?:</span> <span class="k">false</span>
-    <span class="k">else</span> <span class="p">-&gt;</span> <span class="n">right</span><span class="o">?.</span><span class="n">exists</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">?:</span> <span class="k">false</span>
+    <span class="n">data</span> <span class="o">==</span> <span class="n">value</span> <span class="o">-&gt;</span> <span class="kc">true</span>
+    <span class="n">data</span> <span class="o">&gt;</span> <span class="n">value</span> <span class="o">-&gt;</span> <span class="n">left</span><span class="o">?.</span><span class="na">exists</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">?:</span> <span class="kc">false</span>
+    <span class="k">else</span> <span class="o">-&gt;</span> <span class="n">right</span><span class="o">?.</span><span class="na">exists</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">?:</span> <span class="kc">false</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Because inserting and searching are done in a simple fashing and taking into account the value both operations are extremely fast, to be precise <span class="math">\(\mathcal{O}(\log{n})\)</span> in the best case for both operations, though there is a worse case of <span class="math">\(\mathcal{O}(h)\)</span> where <span class="math">\(h\)</span> is the height of the tree (or even in very bad cases, the number of elements). This will happen if we <em>always</em> insert a value that is smaller or a set of values that are larger, that will skew the tree to the left/right and basically transform it into a linked list, removing all the advantages of a binary search&nbsp;tree.</p>
 <p>Removing an element from the tree is a little more complicated because we need to check if when removing the element we will need to rebalance the tree (remember, the smaller values should go to the left and bigger to the right), in general we have the simple cases when&nbsp;removing:</p>
@@ -119,7 +116,7 @@
 <li>The node that we have to remove is a leave, nothing to do here we just remove the tree (simplest&nbsp;case)</li>
 <li></li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="nf">delete</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span> <span class="nf">delete</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
 
 <span class="p">}</span>
 </code></pre></div>

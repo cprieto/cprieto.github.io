@@ -79,7 +79,6 @@
   <span class="o">|</span> <span class="nc">Next</span> <span class="k">of</span> <span class="k">&#39;</span><span class="n">a</span> <span class="o">*</span> <span class="k">&#39;</span><span class="n">a</span> <span class="n">seq</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -91,7 +90,6 @@
 <div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">sample</span> <span class="o">=</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nc">End</span><span class="o">)))</span> <span class="o">;;</span>
 <span class="k">let</span> <span class="n">empty</span> <span class="o">=</span> <span class="nc">End</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -115,7 +113,6 @@ val empty : 'a seq = End
 <span class="n">seq_length</span> <span class="n">empty</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -136,7 +133,6 @@ val empty : 'a seq = End
 <span class="n">seq_head</span> <span class="n">sample</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -154,7 +150,6 @@ val empty : 'a seq = End
 <span class="n">seq_tail</span> <span class="n">sample</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -169,7 +164,6 @@ val empty : 'a seq = End
 
 <span class="n">seq_cons</span> <span class="mi">0</span> <span class="n">sample</span>
 </code></pre></div>
-
 
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
@@ -191,7 +185,6 @@ val empty : 'a seq = End
 <span class="n">seq_nth</span> <span class="mi">2</span> <span class="n">sample</span>
 </code></pre></div>
 
-
 <div class="notebook_output" data-output="">
 <div class="notebook_output_text"><span>Out[*]:</span></div>
 <div class="notebook_output_code">
@@ -209,7 +202,6 @@ val empty : 'a seq = End
     <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Failure</span> <span class="s2">&quot;nth&quot;</span><span class="o">)</span>
     <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">tl</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="k">if</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">then</span> <span class="n">x</span> <span class="k">else</span> <span class="o">((</span><span class="n">nth_seq</span> <span class="o">[@</span><span class="n">tailcall</span><span class="o">])</span> <span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="n">tl</span><span class="o">)</span>
 </code></pre></div>
-
 
 <p>In this case, if that marked call is not tail recursive (the place where we suspect is not), the compiler will throw a&nbsp;warning.</p>
 <p>That is all for today, we will continue another&nbsp;day!.</p>

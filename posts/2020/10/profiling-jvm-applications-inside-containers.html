@@ -99,7 +99,6 @@
             <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">app.jar</span>
 </code></pre></div>
 
-
 <p>Of course, feel free to add as many other parameters you need, but this is the minimum I needed to do the local profiling inside a&nbsp;container.</p>
 <p>Now it is time to run the container or orchestration and start profiling, run the orchestration with <code>docker-compose up -d</code> in the directory where your <code>docker-compose.yml</code> file is and then start VisualVM and select &#8220;Add <span class="caps">JMX</span> host&#8230;&#8221; in the main menu (or the weird third icon in the <span class="caps">UI</span>):</p>
 <p><img alt="VisualVM" src="https://cprieto.com/posts/2020/10/images/visualvm.png"></p>

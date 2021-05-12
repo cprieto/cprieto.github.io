@@ -82,12 +82,10 @@
     <span class="o">&amp;&amp;</span> rm -rf /var/cache/apt/*
 </code></pre></div>
 
-
 <p>Feel free to change it to whatever you want to include in your LaTeX distribution, I prefer not to use <code>texlive-full</code> because, well, it will require to install <span class="caps">2GB</span> of packages and I don&#8217;t need them all&nbsp;(yet).</p>
 <p>Now that we have the instructions to assemble our container I build it locally <em>to avoid delay when running the whole process</em>:</p>
-<div class="highlight"><pre><span></span><code><span class="gp">$</span> docker build -t cprieto/latex .
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>docker build -t cprieto/latex .
 </code></pre></div>
-
 
 <p>Feel free to use whatever name you want for your&nbsp;image.</p>
 <p>Now we create another file, <code>devcontainer.json</code> with the instructions of how to use a container for our project&nbsp;root:</p>
@@ -103,7 +101,6 @@
   <span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>The <code>dockerFile</code> and <code>image</code> tell to VSCode to use the image we already built, if this image does not exists it will build it from scratch (and this will probably take some time). We tell it to automatically install the LaTeX Workshop extension in this container (if not, later VSCode will ask us if we want to install it or not) and opening the port 36887 from the container, we need to do this to enable the native preview used by the&nbsp;extension.</p>
 <p>And this is all! When we open the directory with our LaTeX project VSCode will just ask us if we want to do this in the container, just follow the prompts and it will be set, our project will be compiled with our container and generate our document, if you need something else installed just do it in the container image instead of your&nbsp;machine.</p>

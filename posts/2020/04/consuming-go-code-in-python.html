@@ -80,7 +80,6 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Before consuming this in Python, we need to produce an object suitable for binary distribution, in the case of MacOS and Linux this is a <a href="https://en.wikipedia.org/wiki/Library_(computing)">shared object</a> while in Windows this is a <a href="https://en.wikipedia.org/wiki/Library_(computing)#Microsoft_Windows">dynamic loading library</a>. The Go compiler can produce such thing, well, not directly the Go compiler but a helper, <a href="https://golang.org/cmd/cgo/">CGo</a>. The CGo compiler cannot generate the shared library by itself but it needs a C/C++ compiler and currently (as Go 1.14) the only supported compiler is <a href="https://gcc.gnu.org/"><span class="caps">GCC</span></a> so you need to install it if you don&#8217;t have it&nbsp;already.</p>
 <p>We need to do a few small changes to our function as&nbsp;well:</p>
 <ul>
@@ -106,11 +105,9 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>To compile this (in Windows) you only issue the following&nbsp;command:</p>
 <div class="highlight"><pre><span></span><code>go -buildmode<span class="o">=</span>c-shared -o sum.dll sum.go
 </code></pre></div>
-
 
 <p>In Linux change <code>sum.dll</code> to <code>sum.so</code> and in MacOS change it to <code>sum.dynlib</code> (<strong>Update</strong>: the difference between <em>shared libraries</em> and <em>dynamically loaded modules</em> is kind of subtle and complex in reality, as pointed out in this <a href="https://stackoverflow.com/questions/2339679/what-are-the-differences-between-so-and-dylib-on-osx">StackOverflow post</a> and this <a href="https://github.com/golang/go/issues/12700">GitHub issue</a>).</p>
 <p>Now it is time to consume it in Python, we use the included stadard library <code>ctypes</code> and <code>cdll</code> to first load the library and then consume it as any other Python&nbsp;function:</p>
@@ -119,12 +116,10 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">gosum</span><span class="o">.</span><span class="n">GSum</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span> <span class="c1"># It will print 5050</span>
 </code></pre></div>
 
-
 <p>But is this faster in Go than in Python? well, let&#8217;s implement the same in a more Pythonic&nbsp;way:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">GSum</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
-
 
 <p>And when running some benchmarks (using PyTest and Benchmark) we get surprising&nbsp;numbers:</p>
 <table>
@@ -161,7 +156,6 @@
   <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>The process to load it in Python is exactly the same (it is a <span class="caps">DLL</span> after all). To my surprise, this version was very&nbsp;fast:</p>
 <table>

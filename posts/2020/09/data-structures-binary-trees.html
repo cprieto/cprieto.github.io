@@ -71,16 +71,15 @@
 <p><img alt="tree" src="https://cprieto.com/posts/2020/09/images/tree-1.png" title="Simple binary tree">`</p>
 <p>Depending on the maximum number of children per node we have different types of trees, the simplest is a tree where each node has a maximum of 2 children (binary trees) and we will be exploring them extensively in this and upcoming blog posts. There are trees where nodes have up to three children (ternary trees) and even 4 (quaternary) and 8 (octary) trees, in general we usually talk about <span class="math">\(n\)</span>-trees but we will be limiting ourselves to binary trees for&nbsp;now.</p>
 <p>A simple way to assemble a binary tree is with a simple structure to hold the <code>data</code> and references to its <code>left</code> and <code>right</code> children, something simple like&nbsp;this:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span>
-    <span class="k">private</span> <span class="k">val</span> <span class="py">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
-    <span class="k">private</span> <span class="k">var</span> <span class="py">left</span><span class="p">:</span> <span class="n">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;?</span> <span class="p">=</span> <span class="k">null</span><span class="p">,</span>
-    <span class="k">private</span> <span class="k">var</span> <span class="py">right</span><span class="p">:</span> <span class="n">Node</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;?</span> <span class="p">=</span> <span class="k">null</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="kd">private</span> <span class="kd">val</span> <span class="nv">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+    <span class="kd">private</span> <span class="kd">var</span> <span class="nv">left</span><span class="p">:</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;?</span> <span class="o">=</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="kd">private</span> <span class="kd">var</span> <span class="nv">right</span><span class="p">:</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;?</span> <span class="o">=</span> <span class="kc">null</span>
 <span class="p">)</span>
 </code></pre></div>
 
-
 <p>And we can represent a tree like the one shown in the image directly in&nbsp;code:</p>
-<div class="highlight"><pre><span></span><code><span class="k">val</span> <span class="py">root</span> <span class="p">=</span> <span class="n">Node</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="p">,</span>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span> <span class="nv">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="p">,</span>
     <span class="n">Node</span><span class="p">(</span><span class="sc">&#39;B&#39;</span><span class="p">,</span>
         <span class="n">Node</span><span class="p">(</span><span class="sc">&#39;D&#39;</span><span class="p">,</span>
             <span class="n">Node</span><span class="p">(</span><span class="sc">&#39;H&#39;</span><span class="p">),</span>
@@ -91,7 +90,6 @@
         <span class="n">Node</span><span class="p">(</span><span class="sc">&#39;G&#39;</span><span class="p">))</span>
 <span class="p">)</span>
 </code></pre></div>
-
 
 <p>A full binary tree is a tree where <em>all the nodes</em> have two or no children at all, the tree in the example <em>is</em> a full tree. There is the concept of a <em>complete tree</em> but we will discuss that one when we see another structure related to trees, the heap. The maximum number of nodes in a full binary tree of <span class="math">\(l\)</span> levels is given by the equation <span class="math">\(2^l -1\)</span>.</p>
 <p>There are many properties of a tree that are useful when handling data, but for now try to represent a tree in your favourite language, as you see it is nothing&nbsp;fancy!</p>

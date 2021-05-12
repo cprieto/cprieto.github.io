@@ -72,13 +72,12 @@
       <section>
         <p>A few days at work we were in the middle of a refactoring of a sort of big code base, we are using Spring Boot 2.0 and Hibernate/<span class="caps">JPA</span> for database access. Because the database we connect to is a little complicated (don&#8217;t ask why), to speed up and simplify some queries, instead of using <span class="caps">JPQL</span> or <span class="caps">JPA</span> generated methods we decided to go and write the native <span class="caps">SQL</span>.</p>
 <p>Currently, our <span class="caps">JPA</span> Repositories look something like this (of course this is a fictional&nbsp;domain):</p>
-<div class="highlight"><pre><span></span><code><span class="k">interface</span> <span class="nc">FruitRepository</span><span class="p">:</span> <span class="n">JpaRepository</span><span class="p">&lt;</span><span class="n">Fruit</span><span class="p">,</span> <span class="n">Long</span><span class="p">&gt;</span> <span class="p">{</span>
-    <span class="n">@Query</span><span class="p">(</span><span class="s">&quot;SELECT f.id, CONCAT(&#39;delicious &#39;, f.name), f.color FROM fruit WHERE f.name = :name&quot;</span><span class="p">,</span> 
-        <span class="n">nativeQuery</span> <span class="p">=</span> <span class="k">true</span><span class="p">)</span>
-    <span class="k">fun</span> <span class="nf">getDeliciousFruit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">String</span><span class="p">):</span> <span class="n">Fruit</span>
+<div class="highlight"><pre><span></span><code><span class="kd">interface</span> <span class="nc">FruitRepository</span><span class="p">:</span> <span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Fruit</span><span class="p">,</span> <span class="kt">Long</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;SELECT f.id, CONCAT(&#39;delicious &#39;, f.name), f.color FROM fruit WHERE f.name = :name&quot;</span><span class="p">,</span> 
+        <span class="n">nativeQuery</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span>
+    <span class="kd">fun</span> <span class="nf">getDeliciousFruit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">):</span> <span class="n">Fruit</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>There is nothing wrong with this query, it works, but just for a moment imagine such query with 10 or 15 lines length! immediately your eyes will roll and see a lot of <em>noise</em> around the method (I personally don&#8217;t like mixing both, especially when the native <span class="caps">SQL</span> is really big), immediately the following question was&nbsp;raised:</p>
 <blockquote>
@@ -104,15 +103,13 @@
 <span class="nt">&lt;/entity-mappings&gt;</span>
 </code></pre></div>
 
-
 <p>Now you should change your <span class="caps">JPA</span> repository to something&nbsp;thinner:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// NOTE: native queries in orm.xml</span>
-<span class="k">interface</span> <span class="nc">FruitRepository</span><span class="p">:</span> <span class="n">JpaRepository</span><span class="p">&lt;</span><span class="n">Fruit</span><span class="p">,</span> <span class="n">Long</span><span class="p">&gt;</span> <span class="p">{</span>
-    <span class="n">@Query</span><span class="p">(</span><span class="n">nativeQuery</span> <span class="p">=</span> <span class="k">true</span><span class="p">)</span>
-    <span class="k">fun</span> <span class="nf">getDeliciousFruit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">String</span><span class="p">):</span> <span class="n">Fruit</span>
+<span class="kd">interface</span> <span class="nc">FruitRepository</span><span class="p">:</span> <span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Fruit</span><span class="p">,</span> <span class="kt">Long</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">@Query</span><span class="p">(</span><span class="n">nativeQuery</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span>
+    <span class="kd">fun</span> <span class="nf">getDeliciousFruit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">):</span> <span class="n">Fruit</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Voila! it&nbsp;works!</p>
 <p>Something important to notice is the name of the query. To allow Spring <span class="caps">JPA</span> to automatically detect the query name the format should be <code>Entity.queryMethodName</code> and <span class="caps">NOT</span> <code>Repository.queryMethodName</code> and with Entity it refers to the return class specified by the repository method <span class="caps">AND</span> the <code>result-class</code> in your <code>orm.xml</code>, in native queries we have to specify the return type explicitly because it is impossible for your <span class="caps">JPA</span> engine to know what type will it&nbsp;return.</p>

@@ -80,44 +80,42 @@
 <li>Go through all the elements in the copy of the array, if the contained number is greater to 1, place the element and repeat until the number of elements is&nbsp;zero</li>
 </ul>
 <p>In code is easy to do in Kotlin, contrary to the previous implementations, we will use a mutable list of integers to simplify the&nbsp;implementation:</p>
-<div class="highlight"><pre><span></span><code><span class="k">fun</span> <span class="nf">countSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;,</span> <span class="n">max</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">val</span> <span class="py">counter</span> <span class="p">=</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;(</span><span class="n">max</span> <span class="p">+</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span> <span class="m">0</span> <span class="p">}</span> <span class="c1">// This is because we need an array containing up to max</span>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span> <span class="nf">countSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">MutableList</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">max</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="nv">counter</span> <span class="o">=</span> <span class="n">Array</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">max</span> <span class="o">+</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span> <span class="m">0</span> <span class="p">}</span> <span class="c1">// This is because we need an array containing up to max</span>
 
-    <span class="n">items</span><span class="p">.</span><span class="n">forEach</span> <span class="p">{</span> <span class="n">counter</span><span class="p">[</span><span class="n">it</span><span class="p">]++</span> <span class="p">}</span>
+    <span class="n">items</span><span class="p">.</span><span class="na">forEach</span> <span class="p">{</span> <span class="n">counter</span><span class="o">[</span><span class="nb">it</span><span class="o">]++</span> <span class="p">}</span>
 
-    <span class="k">var</span> <span class="py">pos</span> <span class="p">=</span> <span class="m">0</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">idx</span> <span class="k">in</span> <span class="n">counter</span><span class="p">.</span><span class="n">indices</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">while</span> <span class="p">(</span><span class="n">counter</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="p">&gt;</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
-            <span class="n">items</span><span class="p">[</span><span class="n">pos</span><span class="p">++]</span> <span class="p">=</span> <span class="n">idx</span>
-            <span class="n">counter</span><span class="p">[</span><span class="n">idx</span><span class="p">]--</span>
+    <span class="kd">var</span> <span class="nv">pos</span> <span class="o">=</span> <span class="m">0</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">idx</span> <span class="k">in</span> <span class="n">counter</span><span class="p">.</span><span class="na">indices</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">counter</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">items</span><span class="o">[</span><span class="n">pos</span><span class="o">++]</span> <span class="o">=</span> <span class="n">idx</span>
+            <span class="n">counter</span><span class="o">[</span><span class="n">idx</span><span class="o">]--</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>This, of course, requires a different&nbsp;test:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="nn">kotlin.test.*</span>
 
-<span class="k">class</span> <span class="nc">CountSortTests</span> <span class="p">{</span>
-    <span class="k">private</span> <span class="k">val</span> <span class="py">expected</span> <span class="p">=</span> <span class="n">listOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
+<span class="kd">class</span> <span class="nc">CountSortTests</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kd">val</span> <span class="nv">expected</span> <span class="o">=</span> <span class="n">listOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`It sorts a list of integers`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`It sorts a list of integers`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">items</span> <span class="o">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
         <span class="n">countSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
         <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
     <span class="p">}</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`It does nothing in an already sorted list of integers`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">expected</span><span class="p">.</span><span class="n">toMutableList</span><span class="p">()</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`It does nothing in an already sorted list of integers`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">items</span> <span class="o">=</span> <span class="n">expected</span><span class="p">.</span><span class="na">toMutableList</span><span class="p">()</span>
         <span class="n">countSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
         <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Check the code and you will see we have to go through the list just <em>twice</em>, in other words, the time performance would be something like <span class="math">\(T(n) = 2nC_a + C_b\)</span> that can be represented with a case of <span class="math">\(\Theta(n)\)</span>, there is no worst or best case, we will always have to go through all the elements in the list (that is why is good to use <span class="math">\(\Theta\)</span> here for time performance notation). If you think about this algorithm you will quickly realise that it can be used to <em>remove repeated elements</em> and generate a new shorter list with unique elements, all of this at <span class="math">\(\Theta(n)\)</span> speed ;) try to modify the algorithm to return a sorted list of unique elements instead of just sorting them in&nbsp;place.</p>
 <p>This is one of the few algorithms that you will probably have to implement by yourself, mostly because the logic regarding enumerating the elements and placing them in the correct place or order in the temporary&nbsp;container.</p>

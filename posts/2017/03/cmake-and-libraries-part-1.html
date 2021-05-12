@@ -69,18 +69,17 @@
         <p>I must tell you the truth, not all applications out there are as simple as a <em>hello world</em>; yes, I know, shocking right?! So far we have been doing simple CMake files to produce a simple application with a few files. Today let&#8217;s try to cover a little more complicated scenario with an application depending and producing libraries; it will be&nbsp;fun!</p>
 <h3>The&nbsp;project</h3>
 <p>Let&#8217;s start with our project&nbsp;structure:</p>
-<div class="highlight"><pre><span></span><code><span class="err">.</span>
-<span class="err">├── CMakeLists.txt</span>
-<span class="err">├── hello_app</span>
-<span class="err">│   ├── CMakeLists.txt</span>
-<span class="err">│   └── src</span>
-<span class="err">├── libgreeter</span>
-<span class="err">│   ├── CMakeLists.txt</span>
-<span class="err">│   ├── includes</span>
-<span class="err">│   └── src</span>
-<span class="err">└── output</span>
+<div class="highlight"><pre><span></span><code>.
+├── CMakeLists.txt
+├── hello_app
+│   ├── CMakeLists.txt
+│   └── src
+├── libgreeter
+│   ├── CMakeLists.txt
+│   ├── includes
+│   └── src
+└── output
 </code></pre></div>
-
 
 <p>We will put our library <code>libgreeter</code> (the greatest hello library out there!), its source in the <code>src</code> directory and its <em>header</em> files in the <code>includes</code> directory. Our executable application will live in the <code>hello_app</code> directory and its source in the <code>src</code> folder, hello_app depends on libgreeter (it will be statically linked) and we will compile a static and shared library for libgreeter. Finally, we will place the output of everything in the <code>output</code> directory and <a href="https://cprieto.com/posts/2016/10/cmake-out-of-source-build.html"><em>out of source build</em></a> in the <code>build</code> folder. Notice we have a <em>root</em> <code>CMakeLists.txt</code> file and a corresponding file for the library and the &#8220;main&#8221; program. This is to make our build process much more modular and maintainable, yes, we can make all the build with just <em>one</em> CMake list file but I <em>wouldn&#8217;t recommend</em> that (me and almost everybody else in the&nbsp;internet).</p>
 <p>The code for <code>greeter.h</code> header library in the <code>libgreeter/includes</code> directory is pretty&nbsp;simple:</p>
@@ -92,7 +91,6 @@
 <span class="cp">#endif</span>
 </code></pre></div>
 
-
 <p>Its implementation lives in <code>libgreeter/src/greeter.c</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&quot;greeter.h&quot;</span><span class="cp"></span>
@@ -101,7 +99,6 @@
     <span class="n">printf</span><span class="p">(</span><span class="s">&quot;hello %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Can we put the header and the source in the same directory for the greeter library? Yes, you can! However, because we are expecting our amazing library to be used by other programs or libraries we decide to make those header public and place them apart. This is a very common layout for libraries and projects in&nbsp;CMake.</p>
 <p>The <code>CMakeLists.txt</code> file for our greeter library (not the root list file) is the typical library list&nbsp;file:</p>
@@ -117,7 +114,6 @@
 <span class="nb">add_library</span> <span class="p">(</span><span class="s">greeter_static</span> <span class="s">STATIC</span> <span class="o">${</span><span class="nv">GREETER_SOURCE</span><span class="o">}</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>Notice the usage of <code>CMAKE_CURRENT_SOURCE_DIR</code> to point to the <em>current directory where this CMakeLists.txt file is located</em>; if we don&#8217;t do that it will point to the directory of the root&nbsp;project.</p>
 <p>Let&#8217;s move to the <em>root</em> <code>CMakeLists.txt</code>; it is a little different to what we have written so&nbsp;far:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
@@ -128,14 +124,12 @@
 <span class="nb">add_subdirectory</span> <span class="p">(</span><span class="s">libgreeter</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>The <code>add_subdirectory</code> line tells CMake to include that directory project as part of the build, like a cascade project. I like&nbsp;that.</p>
 <p>We are nearly done, let&#8217;s test if we are building the library at least. In the root project directory do the classic out of source&nbsp;build:</p>
 <div class="highlight"><pre><span></span><code>mkdir build<span class="p">;</span> <span class="nb">cd</span> build
 cmake ..
 cmake --build . --clean-first
 </code></pre></div>
-
 
 <p>Done, you should see a dynamic and static library binary in the <code>output</code> directory.</p>
 <h3>The&nbsp;application</h3>
@@ -146,7 +140,6 @@ cmake --build . --clean-first
     <span class="n">say_hello_to</span> <span class="p">(</span><span class="s">&quot;cristian&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Now it is time to define <code>hello_app/CMakeLists.txt</code> file:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
@@ -159,7 +152,6 @@ cmake --build . --clean-first
 <span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">hello_app</span> <span class="s">greeter</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>Let&#8217;s change the <em>root</em> <code>CMakeLists.txt</code> file, now it will look like&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
 <span class="nb">project</span> <span class="p">(</span><span class="s">hello</span> <span class="s">VERSION</span> <span class="s">1.0</span><span class="p">)</span>
@@ -170,7 +162,6 @@ cmake --build . --clean-first
 <span class="nb">add_subdirectory</span> <span class="p">(</span><span class="s">greeter</span><span class="p">)</span>
 <span class="nb">add_subdirectory</span> <span class="p">(</span><span class="s">hello_app</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>If you try to run this as is <strong>it won&#8217;t work</strong>. We are including <code>greeter.h</code> but that file it is not in our source tree. We could probably add an <code>include_directories</code> pointing to the directory where the <code>greeter.h</code> is located but that would be a killer in our pursuit of modularization. The secret is adding <em>one line</em> to our <code>libgreeter/CMakeLists.txt</code> file, it should now look like&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.6</span><span class="p">)</span>
@@ -186,7 +177,6 @@ cmake --build . --clean-first
 
 <span class="nb">target_include_directories</span> <span class="p">(</span><span class="s">greeter</span> <span class="s">PUBLIC</span> <span class="o">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="o">}</span><span class="s">/includes</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>See the last line? It basically tells to CMake &#8220;hey, this directory I am putting here is a public include headers directory, pass that info to everybody else in the&nbsp;project&#8221;.</p>
 <p>Now try to build the whole project again&#8230; You will see the executable <code>hello_app</code>, a static library and a dynamic library for the greeter project as&nbsp;well.</p>

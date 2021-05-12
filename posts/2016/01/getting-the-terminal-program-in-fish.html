@@ -72,12 +72,10 @@
 <div class="highlight"><pre><span></span><code>ps -p <span class="k">$(</span>ps -p <span class="nv">$$</span> -o <span class="nv">ppid</span><span class="o">=</span><span class="k">)</span> -o <span class="nv">args</span><span class="o">=</span>
 </code></pre></div>
 
-
 <p>First, we need to understand what the script does: <code>$$</code>, which is pretty awesome, returns the <span class="caps">PID</span> of the current process (in this case, the terminal process) and well, <code>ps</code> is the standard <a href="http://www.linfo.org/ps.html">process status command</a> with arguments to return the process id of its parent. Easy,&nbsp;right?</p>
 <p>Well, Fish has no notion of <code>$$</code>, but the equivalent is our friend <code>%self</code>. Another big difference is how to group operations. In Bash you use <code>$()</code>, but in Fish you just use a simple parenthesis. So at the end the equivalent command is&nbsp;just:</p>
 <div class="highlight"><pre><span></span><code>ps -p <span class="o">(</span>ps -p %self -o <span class="nv">ppid</span><span class="o">=)</span> -o <span class="nv">args</span><span class="o">=</span>
 </code></pre></div>
-
 
 <p>Nice! Wait&#8230; If you run this command in Linux using something like <a href="https://en.wikipedia.org/wiki/GNOME_Terminal">Gnome terminal</a> or <a href="https://www.kde.org/applications/system/konsole/">Konsole</a> it will work, and it is awesome but guess what, in MacOSX it doesn&#8217;t work, it will just return <code>login -fp blah</code> instead of the terminal name&#8230; bummer! Well, that is a <em>feature</em> in MacOSX, but luckily you can just query an environment variable, <code>TERM_PROGRAM</code>, and that will give you the answer you are looking&nbsp;for!</p>
 <p>Now, we just add a few other things, like removing the application path and extension if present, and voila! there you have the full script! (You can get the script from my <a href="https://gist.github.com/cprieto/88d239a50ec345e95f0f">Github gist</a>)</p>
@@ -90,7 +88,6 @@
   <span class="k">end</span>
 <span class="k">end</span>
 </code></pre></div>
-
 
 <p>See? Fish is&nbsp;awesome!</p>
       </section>

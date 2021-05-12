@@ -91,23 +91,19 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>As you see, nothing really complicated, just a simple program to show how to use <em>any</em> other external library. Now let&#8217;s search for the <span class="caps">JSON</span> library in <code>vcpkg</code> using the <code>search</code> command:</p>
 <div class="highlight"><pre><span></span><code>vcpkg search nlohmann
 </code></pre></div>
 
-
 <p>We found the library in <span class="caps">VCPKG</span>:</p>
-<div class="highlight"><pre><span></span><code><span class="err">json-schema-valid... 2.1.0            This is a C++ library for validating JSON documents based on a JSON Schema. Th...</span>
-<span class="err">nlohmann-fifo-map    2018.05.07-1     a FIFO-ordered associative container for C++</span>
-<span class="err">nlohmann-json        3.9.1            JSON for Modern C++</span>
+<div class="highlight"><pre><span></span><code><span class="nv">json</span><span class="o">-</span><span class="nv">schema</span><span class="o">-</span><span class="nv">valid</span>... <span class="mi">2</span>.<span class="mi">1</span>.<span class="mi">0</span>            <span class="nv">This</span> <span class="nv">is</span> <span class="nv">a</span> <span class="nv">C</span><span class="o">++</span> <span class="nv">library</span> <span class="k">for</span> <span class="nv">validating</span> <span class="nv">JSON</span> <span class="nv">documents</span> <span class="nv">based</span> <span class="nv">on</span> <span class="nv">a</span> <span class="nv">JSON</span> <span class="nv">Schema</span>. <span class="nv">Th</span>...
+<span class="nv">nlohmann</span><span class="o">-</span><span class="nv">fifo</span><span class="o">-</span><span class="nv">map</span>    <span class="mi">2018</span>.<span class="mi">05</span>.<span class="mi">07</span><span class="o">-</span><span class="mi">1</span>     <span class="nv">a</span> <span class="nv">FIFO</span><span class="o">-</span><span class="nv">ordered</span> <span class="nv">associative</span> <span class="nv">container</span> <span class="k">for</span> <span class="nv">C</span><span class="o">++</span>
+<span class="nv">nlohmann</span><span class="o">-</span><span class="nv">json</span>        <span class="mi">3</span>.<span class="mi">9</span>.<span class="mi">1</span>            <span class="nv">JSON</span> <span class="k">for</span> <span class="nv">Modern</span> <span class="nv">C</span><span class="o">++</span>
 </code></pre></div>
-
 
 <p>It is time to install it, we do this with the <code>install</code> command:</p>
 <div class="highlight"><pre><span></span><code>vcpkg install nlohmann-json
 </code></pre></div>
-
 
 <p>If you look at the bottom, after installing the package you will see the following&nbsp;message:</p>
 <div class="highlight"><pre><span></span><code>The package nlohmann-json:x86-windows provides CMake targets:
@@ -115,7 +111,6 @@
     find_package<span class="o">(</span>nlohmann_json CONFIG REQUIRED<span class="o">)</span>
     target_link_libraries<span class="o">(</span>main PRIVATE nlohmann_json nlohmann_json::nlohmann_json<span class="o">)</span>
 </code></pre></div>
-
 
 <p>And that will be all&#8230; Not really, now we need to write our <a href="https://cprieto.com/tag/cmake.html">CMake</a> build file (<code>CMakeLists.txt</code>) and add those lines for our&nbsp;dependencies:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.10</span><span class="p">)</span>
@@ -127,13 +122,11 @@
 <span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">main</span> <span class="s">PRIVATE</span> <span class="s">nlohmann_json</span> <span class="s">nlohmann_json::nlohmann_json</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>And now it is time to build, as usual, let&#8217;s do an <em>out-of-source</em> build with CMake, but this time, we need to pass the path for the special file <code>vcpkg.cmake</code> coming in the vcpkg <em>installation</em>&nbsp;directory:</p>
 <div class="highlight"><pre><span></span><code>mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
 cmake .. <span class="s2">&quot;-DCMAKE_TOOLCHAIN_FILE=d:\code\vcpkg\scripts\buildsystems\vcpkg.cmake&quot;</span>
 cmake --build . --clean-first
 </code></pre></div>
-
 
 <p>If you did the previous steps in a macOS or Linux machine (or in a Windows 32 machine) you will have the <code>main</code> executable build and ready to run, but in Windows 64 it will tell you the package is not there or something regarding not finding the package nlohmann_json (the package you needed to install)&#8230; What is happening? I thought this was cross&nbsp;platform?</p>
 <h4>The problem building in&nbsp;Windows</h4>
@@ -141,17 +134,14 @@ cmake --build . --clean-first
 <div class="highlight"><pre><span></span><code>cmake .. <span class="s2">&quot;-DCMAKE_TOOLCHAIN_FILE=d:\code\vcpkg\scripts\buildsystems\vcpkg.cmake&quot;</span> -A Win32
 </code></pre></div>
 
-
 <p>What if I want the library and executable as a 64 bit application? well, you just have to tell to Vcpkg that you need to install the 64 bit of the library instead of whatever it decides to install, this platform specification is for more than just your <span class="caps">CPU</span> architecture but includes the compiler, operating system and type of library (static/dynamic). You can see the supported triplets using <code>vcpkg help triplets</code>. Meanwhile we just tell to Vcpkg to install the Win64 library for nlohmann/json for our&nbsp;example:</p>
 <div class="highlight"><pre><span></span><code>vcpkg install nlohman-json:x64-windows
 </code></pre></div>
-
 
 <p>Now we can compile as both 32 and 64 bit just passing the correct parameter to CMake and it won&#8217;t&nbsp;fail!</p>
 <p>If you write code in Windows and you are going to develop applications <em>only</em> for 64 Windows then you can pass the parameter <code>win64</code> when building Vcpkg (in the bootstrap&nbsp;script):</p>
 <div class="highlight"><pre><span></span><code>bootstrap-vcpkg.bat -win64
 </code></pre></div>
-
 
 <p>And now it will fetch the x64-windows triplet by default when installing any&nbsp;libraries.</p>
 <p><strong><span class="caps">UPDATE</span></strong>: This actually does not work and it doesn&#8217;t matter if Vcpkg is compiled for x64 in Windows. By default, in Windows, the build architecture will be <em>always</em> x86 and if you want to install a package for x64 you have to always specify the architecture triplet in the name or using the <code>--triplet</code> parameter. Another option is using the environment variable <code>VCPKG_DEFAULT_TRIPLET=x64-windows</code> to tell to Vcpkg to always use x64, go figure! There is <a href="https://github.com/microsoft/vcpkg/issues/1254">a closed issue</a> with this&nbsp;problem.</p>

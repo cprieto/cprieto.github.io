@@ -73,96 +73,88 @@
 <p>Sort the list <code>[613, 218, 350, 157, 108, 457]</code> using radix&nbsp;sort</p>
 </blockquote>
 <p>Well, we know we have up to 3 digits and the radix is 10, we will sort from right to left. First we need to create an empty array of size <code>radix</code> and fill it with&nbsp;zeroes:</p>
-<div class="highlight"><pre><span></span><code><span class="err">[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]</span>
+<div class="highlight"><pre><span></span><code>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 </code></pre></div>
-
 
 <p>Now we go from left to right with the first digit and place it in the correct place in the radix array (remember how counting sort&nbsp;works):</p>
-<div class="highlight"><pre><span></span><code><span class="err">[1, 0, 0, 1, 0, 0, 0, 2, 2, 0]</span>
+<div class="highlight"><pre><span></span><code>[1, 0, 0, 1, 0, 0, 0, 2, 2, 0]
 </code></pre></div>
-
 
 <p>This is where it is a little different, we start a cummulative sum on each digit with the previous element, so the array becomes something like this (soon you will see where is the&nbsp;magic):</p>
-<div class="highlight"><pre><span></span><code><span class="err">[1, 1, 1, 2, 2, 2, 2, 4, 6, 6]</span>
+<div class="highlight"><pre><span></span><code>[1, 1, 1, 2, 2, 2, 2, 4, 6, 6]
 </code></pre></div>
-
 
 <p>We are ready to place our elements in the original array, for this we need a temporary array to place the new located elements and this time we examine again each element but this time from right to left, starting with <code>457</code> (current digit: 7), if we check the position 7 in the radix array we see it has number 4, we place that element in the index 4 - 1 of the array (we substract one because in our cases indices in arrays and list starts at 0, not&nbsp;1):</p>
-<div class="highlight"><pre><span></span><code><span class="err">[0, 0, 0, 457, 0, 0]</span>
+<div class="highlight"><pre><span></span><code>[0, 0, 0, 457, 0, 0]
 </code></pre></div>
-
 
 <p>We substract one in the radix array for that&nbsp;element:</p>
-<div class="highlight"><pre><span></span><code><span class="err">[1, 1, 1, 2, 2, 2, 2, 3, 6, 6]</span>
+<div class="highlight"><pre><span></span><code>[1, 1, 1, 2, 2, 2, 2, 3, 6, 6]
 </code></pre></div>
-
 
 <p>And we continue with the next, <code>108</code>, this one needs to go in the 5 position of the array (6 - 1 =&nbsp;5):</p>
-<div class="highlight"><pre><span></span><code><span class="err">[0, 0, 0, 457, 0, 108]</span>
+<div class="highlight"><pre><span></span><code>[0, 0, 0, 457, 0, 108]
 </code></pre></div>
-
 
 <p>And we continue until we finished with the array and repeat the same process with the next&nbsp;element.</p>
 <p>We can implement this as an <em>in-place</em> sorter but this will make our sorter <a href="https://en.wikipedia.org/wiki/Sorting_algorithm#Stability"><em>unstable</em></a> so for simplicity I will go with a different sort mechanism and instead of implement it returning always a new list, this give us a big advantage as well, we can implement this algorithm as <em>recursive</em> (we will use arrays to simplify the operation, but you get the&nbsp;gist):</p>
-<div class="highlight"><pre><span></span><code><span class="k">tailrec</span> <span class="k">fun</span> <span class="nf">radixSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;,</span> <span class="n">digits</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span> <span class="n">current</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span><span class="p">):</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="kd">tailrec</span> <span class="kd">fun</span> <span class="nf">radixSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">digits</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="n">current</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="m">0</span><span class="p">):</span> <span class="n">Array</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span> <span class="p">{</span>
   <span class="c1">// This is the base case</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="p">==</span> <span class="n">digits</span><span class="p">)</span> <span class="k">return</span> <span class="n">items</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="o">==</span> <span class="n">digits</span><span class="p">)</span> <span class="k">return</span> <span class="n">items</span>
 
-  <span class="k">val</span> <span class="py">results</span> <span class="p">=</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;(</span><span class="n">items</span><span class="p">.</span><span class="n">size</span><span class="p">)</span> <span class="p">{</span> <span class="m">0</span> <span class="p">}</span>
-  <span class="k">val</span> <span class="py">locations</span> <span class="p">=</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;(</span><span class="m">10</span><span class="p">)</span> <span class="p">{</span> <span class="m">0</span> <span class="p">}</span>
+  <span class="kd">val</span> <span class="nv">results</span> <span class="o">=</span> <span class="n">Array</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="na">size</span><span class="p">)</span> <span class="p">{</span> <span class="m">0</span> <span class="p">}</span>
+  <span class="kd">val</span> <span class="nv">locations</span> <span class="o">=</span> <span class="n">Array</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">(</span><span class="m">10</span><span class="p">)</span> <span class="p">{</span> <span class="m">0</span> <span class="p">}</span>
 
-  <span class="k">val</span> <span class="py">power</span> <span class="p">=</span> <span class="m">10.0</span><span class="p">.</span><span class="n">pow</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+  <span class="kd">val</span> <span class="nv">power</span> <span class="o">=</span> <span class="m">10.0</span><span class="p">.</span><span class="na">pow</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
 
   <span class="c1">// We do this to avoid repeating the same operation</span>
-  <span class="k">val</span> <span class="py">position</span> <span class="p">=</span> <span class="p">{</span> <span class="n">x</span><span class="p">:</span> <span class="n">Int</span> <span class="p">-&gt;</span> <span class="p">((</span><span class="n">x</span> <span class="p">/</span> <span class="n">power</span><span class="p">)</span> <span class="p">%</span> <span class="m">10</span><span class="p">).</span><span class="n">toInt</span><span class="p">()</span> <span class="p">}</span>
+  <span class="kd">val</span> <span class="nv">position</span> <span class="o">=</span> <span class="p">{</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">-&gt;</span> <span class="p">((</span><span class="n">x</span> <span class="o">/</span> <span class="n">power</span><span class="p">)</span> <span class="o">%</span> <span class="m">10</span><span class="p">).</span><span class="na">toInt</span><span class="p">()</span> <span class="p">}</span>
 
   <span class="c1">// Normal counting sort</span>
   <span class="k">for</span> <span class="p">(</span><span class="n">elem</span> <span class="k">in</span> <span class="n">items</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">val</span> <span class="py">pos</span> <span class="p">=</span> <span class="n">position</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-    <span class="n">locations</span><span class="p">[</span><span class="n">pos</span><span class="p">]++</span>
+    <span class="kd">val</span> <span class="nv">pos</span> <span class="o">=</span> <span class="n">position</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+    <span class="n">locations</span><span class="o">[</span><span class="n">pos</span><span class="o">]++</span>
   <span class="p">}</span>
 
   <span class="c1">// This is the accumulative number for each location</span>
-  <span class="k">for</span> <span class="p">(</span><span class="n">idx</span> <span class="k">in</span> <span class="m">1</span> <span class="n">until</span> <span class="n">locations</span><span class="p">.</span><span class="n">size</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">locations</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="p">+=</span> <span class="n">locations</span><span class="p">[</span><span class="n">idx</span> <span class="p">-</span> <span class="m">1</span><span class="p">]</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">idx</span> <span class="k">in</span> <span class="m">1</span> <span class="n">until</span> <span class="n">locations</span><span class="p">.</span><span class="na">size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">locations</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span> <span class="o">+=</span> <span class="n">locations</span><span class="o">[</span><span class="n">idx</span> <span class="o">-</span> <span class="m">1</span><span class="o">]</span>
   <span class="p">}</span>
 
   <span class="c1">// Now we place each element in the correct place in the result</span>
-  <span class="k">for</span> <span class="p">(</span><span class="n">idx</span> <span class="k">in</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span> <span class="p">-</span> <span class="m">1</span> <span class="n">downTo</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">val</span> <span class="py">elem</span> <span class="p">=</span> <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-    <span class="k">val</span> <span class="py">pos</span> <span class="p">=</span> <span class="n">position</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">idx</span> <span class="k">in</span> <span class="n">items</span><span class="p">.</span><span class="na">size</span> <span class="o">-</span> <span class="m">1</span> <span class="n">downTo</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="nv">elem</span> <span class="o">=</span> <span class="n">items</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span>
+    <span class="kd">val</span> <span class="nv">pos</span> <span class="o">=</span> <span class="n">position</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
 
-    <span class="k">val</span> <span class="py">loc</span> <span class="p">=</span> <span class="p">(</span><span class="n">locations</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="p">-</span> <span class="m">1</span><span class="p">).</span><span class="n">also</span> <span class="p">{</span> <span class="n">locations</span><span class="p">[</span><span class="n">pos</span><span class="p">]--</span> <span class="p">}</span>
-    <span class="n">results</span><span class="p">[</span><span class="n">loc</span><span class="p">]</span> <span class="p">=</span> <span class="n">elem</span>
+    <span class="kd">val</span> <span class="nv">loc</span> <span class="o">=</span> <span class="p">(</span><span class="n">locations</span><span class="o">[</span><span class="n">pos</span><span class="o">]</span> <span class="o">-</span> <span class="m">1</span><span class="p">).</span><span class="na">also</span> <span class="p">{</span> <span class="n">locations</span><span class="o">[</span><span class="n">pos</span><span class="o">]--</span> <span class="p">}</span>
+    <span class="n">results</span><span class="o">[</span><span class="n">loc</span><span class="o">]</span> <span class="o">=</span> <span class="n">elem</span>
   <span class="p">}</span>
 
   <span class="c1">// recursive call</span>
-  <span class="k">return</span> <span class="n">radixSort</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">digits</span><span class="p">,</span> <span class="n">current</span> <span class="p">+</span> <span class="m">1</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">radixSort</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">digits</span><span class="p">,</span> <span class="n">current</span> <span class="o">+</span> <span class="m">1</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Our sorter is even <em>tail recursive</em>!&nbsp;yay!</p>
 <p>The test for our sorter is pretty&nbsp;simple:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">RadixSortTests</span> <span class="p">{</span>
-    <span class="k">private</span> <span class="k">val</span> <span class="py">expected</span> <span class="p">=</span> <span class="n">listOf</span><span class="p">(</span><span class="m">108</span><span class="p">,</span> <span class="m">157</span><span class="p">,</span> <span class="m">218</span><span class="p">,</span> <span class="m">350</span><span class="p">,</span> <span class="m">457</span><span class="p">,</span> <span class="m">613</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">RadixSortTests</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kd">val</span> <span class="nv">expected</span> <span class="o">=</span> <span class="n">listOf</span><span class="p">(</span><span class="m">108</span><span class="p">,</span> <span class="m">157</span><span class="p">,</span> <span class="m">218</span><span class="p">,</span> <span class="m">350</span><span class="p">,</span> <span class="m">457</span><span class="p">,</span> <span class="m">613</span><span class="p">)</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`It sorts a list of integers`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">613</span><span class="p">,</span> <span class="m">218</span><span class="p">,</span> <span class="m">350</span><span class="p">,</span> <span class="m">157</span><span class="p">,</span> <span class="m">108</span><span class="p">,</span> <span class="m">457</span><span class="p">)</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`It sorts a list of integers`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">items</span> <span class="o">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">613</span><span class="p">,</span> <span class="m">218</span><span class="p">,</span> <span class="m">350</span><span class="p">,</span> <span class="m">157</span><span class="p">,</span> <span class="m">108</span><span class="p">,</span> <span class="m">457</span><span class="p">)</span>
         <span class="n">radixSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
         <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
     <span class="p">}</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`If the list is already sorted do nothing`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">expected</span><span class="p">.</span><span class="n">toMutableList</span><span class="p">()</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`If the list is already sorted do nothing`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">items</span> <span class="o">=</span> <span class="n">expected</span><span class="p">.</span><span class="na">toMutableList</span><span class="p">()</span>
         <span class="n">radixSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
         <span class="n">assertEquals</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Ok, how good is our sorter? if you examine the code, we basically have to go through every element (<span class="math">\(n\)</span>) the amount of <em>digits</em> (<span class="math">\(d\)</span>) and <em>radix</em> (<span class="math">\(r\)</span>) times the amount of digits, so it will behave something like this: <span class="math">\(\Theta(dn + dr)\)</span> or <span class="math">\(\Theta(d(n + r))\)</span> if you&nbsp;prefer.</p>
 <p>This sorter is still really fast compared to any comparisson sort and it is fantastic for sorting lists, strings, in fact anything that you can think as a collection or that can be represented with a radix. For example, you could use it to sort genetic sequences where the <em>radix</em> is 4 (because you only have 4 bases) or binary strings where your radix is 2, with a little of work this can be used to sort decimal numbers as&nbsp;well!.</p>

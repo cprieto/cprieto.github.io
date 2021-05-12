@@ -104,7 +104,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p>see? nothing fancy. A simple test for our queue would look like&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">unittest</span>
 
@@ -139,7 +138,6 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaisesRegex</span><span class="p">(</span><span class="n">AssertError</span><span class="p">,</span> <span class="s1">&#39;Queue is empty&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">peek</span><span class="p">()</span>
 </code></pre></div>
-
 
 <p>I won&#8217;t recommend to implement your own queue in Python <em>at least that you know why and what are you doing it</em>. Python <em>already</em> has a not one but many general and specialized queue classes living in the <a href="https://docs.python.org/3/library/queue.html?highlight=queue#module-queue"><code>queue</code></a> package in the standard library, in fact, it offers asynchronous specialized queues as well in the <a href="https://docs.python.org/3/library/asyncio-queue.html?highlight=queue#asyncio.Queue"><code>asyncio</code></a> package, use&nbsp;those.</p>
       </section>

@@ -83,7 +83,6 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>As you see, something simple, we use the <code>thread</code> header in the standard library introduced in the C++11 standard, let&#8217;s build a simple <code>CMakeLists.txt</code> to build with CMake using&nbsp;C++17:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">3.15</span><span class="p">)</span>
 <span class="nb">project</span><span class="p">(</span><span class="s">hello</span><span class="p">)</span>
@@ -94,12 +93,10 @@
 <span class="nb">add_executable</span><span class="p">(</span><span class="s">hello</span> <span class="s">main.cpp</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>As usual, we build with the typical <code>cmake</code> and <code>cmake --build .</code> as usual (remember to do this in an out-of-source directory!) and guess what, it builds without any problems! (in Windows and&nbsp;macOS).</p>
 <p>But if you try to build the same sample in Linux we have a&nbsp;surprise!</p>
-<div class="highlight"><pre><span></span><code><span class="err">main.cpp:(.text+0xd9): undefined reference to `pthread_create&#39;</span>
+<div class="highlight"><pre><span></span><code>main.cpp:(.text+0xd9): undefined reference to `pthread_create&#39;
 </code></pre></div>
-
 
 <p>Wow, an error! it cannot find the <code>pthread</code> library when linking. I was actually expecting something like that but it didn&#8217;t fail at all in macOS and Windows, why? because in macOS and Windows you don&#8217;t require an external library for threading (so it is included already) while in Linux (and probably FreeBSD) you will need to specify a threading library to use. Knowing this we change the CMakeLists.txt file to&nbsp;this:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">3.15</span><span class="p">)</span>
@@ -113,7 +110,6 @@
 <span class="nb">add_executable</span><span class="p">(</span><span class="s">hello</span> <span class="s">main.cpp</span><span class="p">)</span>
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">hello</span> <span class="s">Threads::Threads</span><span class="p">)</span>
 </code></pre></div>
-
 
 <p>Done, if we try to compile in Linux it will just work! in macOS it will pass the <code>-pthread</code> parameter to <span class="caps">LLVM</span> and it will be ignored while in Windows it will just tell you <code>pthreads.h</code> is not found but CMake will find a Threads library anyway, compiling without&nbsp;problems!</p>
       </section>
@@ -134,6 +130,7 @@
   <div class="twelve columns">
     <nav>
       <ul>
+          <li><a href="https://cprieto.com/posts/2021/03/simpler-cmake-with-conan.html" rel="prev" title="Simpler CMake with Conan">Next post</a></li>
           <li><a href="https://cprieto.com/posts/2020/11/using-visual-studio-code-as-your-latex-environment.html" rel="next" title="Using Visual Studio Code as your LaTeX environment">Previous post</a></li>
       </ul>
     </nav>

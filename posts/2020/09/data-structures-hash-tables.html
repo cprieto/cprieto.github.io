@@ -72,119 +72,114 @@
 <p>We can represent a hash table with a simple array of length <span class="math">\(n\)</span>, and use a simple formula <span class="math">\(k = n \mod l\)</span> to calculate the place in the array (<span class="math">\(k\)</span>) of length <span class="math">\(l\)</span>. In reality hash functions are a lot more complex than this and calculate an effective hash is not an easy task. If you had used or coded in .Net or Java before, you are probably aware that every object has a <em>hash</em> function of itself (<code>GetHashCode</code> and <code>hashCode</code> in .Net and Java), this is to know what would be the correct hash code to place the element in a hash table. With this simple formula placing the value <span class="math">\(12\)</span> in a hash table with an internal length of <span class="math">\(7\)</span> would be in the index <span class="math">\(5 \equiv 12 \pmod 7\)</span>. We know if we need to look for the value again we just calculate the hash and check if it is in that&nbsp;&#8220;bucket&#8221;.</p>
 <p>But what would happen if there is already another value in the same bucket? for example, 19 and 12 have the same modulo (<span class="math">\(19 \pmod 7 \equiv 12 \pmod 7\)</span>)? This will lead to what we call <em>a collision</em> and we have to option to <em>resolve</em> such collision. There are many ways to do this and the easiest is simply not solving it and failing if there is an element in the hash table&nbsp;already.</p>
 <p>To simplify the development, we can create a base class for hash tables and implement the &#8220;no collision&#8221; hash&nbsp;table:</p>
-<div class="highlight"><pre><span></span><code><span class="k">abstract</span> <span class="k">class</span> <span class="nc">Hash</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">protected</span> <span class="k">open</span> <span class="k">var</span> <span class="py">buckets</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">?&gt;</span> <span class="p">=</span> <span class="n">arrayOfNulls</span><span class="p">(</span><span class="m">7</span><span class="p">)</span>
-    <span class="k">protected</span> <span class="k">open</span> <span class="k">fun</span> <span class="nf">hash</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Int</span><span class="p">):</span> <span class="n">Int</span> <span class="p">=</span> <span class="n">value</span> <span class="p">%</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span>
+<div class="highlight"><pre><span></span><code><span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Hash</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">protected</span> <span class="kd">open</span> <span class="kd">var</span> <span class="nv">buckets</span><span class="p">:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="kt">Int?</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">arrayOfNulls</span><span class="p">(</span><span class="m">7</span><span class="p">)</span>
+    <span class="kd">protected</span> <span class="kd">open</span> <span class="kd">fun</span> <span class="nf">hash</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">):</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">value</span> <span class="o">%</span> <span class="n">buckets</span><span class="p">.</span><span class="na">size</span>
 
-    <span class="k">abstract</span> <span class="k">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span>
+    <span class="kd">abstract</span> <span class="kd">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span>
 
-    <span class="k">open</span> <span class="k">fun</span> <span class="nf">exists</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Int</span><span class="p">):</span> <span class="n">Boolean</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">key</span> <span class="p">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">==</span> <span class="n">value</span>
+    <span class="kd">open</span> <span class="kd">fun</span> <span class="nf">exists</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">):</span> <span class="kt">Boolean</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">key</span> <span class="o">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">==</span> <span class="n">value</span>
     <span class="p">}</span>
 
-    <span class="k">val</span> <span class="py">size</span><span class="p">:</span> <span class="n">Int</span>
-        <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span>
+    <span class="kd">val</span> <span class="nv">size</span><span class="p">:</span> <span class="kt">Int</span>
+        <span class="k">get</span><span class="p">()</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">.</span><span class="na">size</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Because we don&#8217;t allow collisions, we simply throw an&nbsp;exception:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">HashCollisionException</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">String</span><span class="p">):</span> <span class="n">Exception</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">HashCollisionException</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="kt">String</span><span class="p">):</span> <span class="n">Exception</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">CollisionHash</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">7</span><span class="p">):</span> <span class="n">Hash</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">override</span> <span class="k">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">key</span> <span class="p">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">!=</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">throw</span> <span class="n">HashCollisionException</span><span class="p">(</span><span class="s">&quot;The value $value produces a collision in the hash&quot;</span><span class="p">)</span>
-        <span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">=</span> <span class="n">value</span>
+<span class="kd">class</span> <span class="nc">CollisionHash</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="m">7</span><span class="p">):</span> <span class="n">Hash</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">override</span> <span class="kd">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">key</span> <span class="o">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">!=</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">throw</span> <span class="n">HashCollisionException</span><span class="p">(</span><span class="s">&quot;The value </span><span class="si">$</span><span class="n">value</span><span class="s"> produces a collision in the hash&quot;</span><span class="p">)</span>
+        <span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Simple to test as&nbsp;well:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">CollisionHashTests</span> <span class="p">{</span>
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`In an empty hash nothing wrong happens`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">hash</span> <span class="p">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">CollisionHashTests</span> <span class="p">{</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`In an empty hash nothing wrong happens`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">hash</span> <span class="o">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
 
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">2</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">2</span><span class="p">)</span> <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`If the bucket is already occupied we throw`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">hash</span> <span class="p">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`If the bucket is already occupied we throw`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">hash</span> <span class="o">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
 
         <span class="c1">// 19 produces the same hash as 12</span>
-        <span class="n">assertFailsWith</span><span class="p">&lt;</span><span class="n">HashCollisionException</span><span class="p">&gt;</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">19</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertFailsWith</span><span class="o">&lt;</span><span class="n">HashCollisionException</span><span class="o">&gt;</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">19</span><span class="p">)</span> <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`If the bucket has already the same element nothing happens`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">hash</span> <span class="p">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`If the bucket has already the same element nothing happens`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">hash</span> <span class="o">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
 
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>While this is the easiest to implement it is as well the most unpractical to use, I mean, we will end up with a very small hash table that basically cannot keep more than just a small bunch of elements. Another collision resolution technique is <em>extend and rehash</em> and it is pretty much as the name says, you <em>extend</em> the inner container and then rehash all the elements and repeat until there are no collisions, this is one of the most used collision resolution in simple hash&nbsp;tables:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ExtendHash</span><span class="p">(</span><span class="k">val</span> <span class="py">growRate</span><span class="p">:</span> <span class="n">Double</span> <span class="p">=</span> <span class="m">1.5</span><span class="p">):</span> <span class="n">Hash</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">private</span> <span class="k">fun</span> <span class="nf">rehash</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">newSize</span> <span class="p">=</span> <span class="p">(</span><span class="n">size</span> <span class="p">*</span> <span class="n">growRate</span><span class="p">).</span><span class="n">toInt</span><span class="p">()</span>
-        <span class="k">val</span> <span class="py">items</span> <span class="p">=</span> <span class="n">buckets</span><span class="p">.</span><span class="n">copyOf</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">ExtendHash</span><span class="p">(</span><span class="kd">val</span> <span class="nv">growRate</span><span class="p">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">):</span> <span class="n">Hash</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kd">fun</span> <span class="nf">rehash</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">newSize</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">growRate</span><span class="p">).</span><span class="na">toInt</span><span class="p">()</span>
+        <span class="kd">val</span> <span class="nv">items</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">.</span><span class="na">copyOf</span><span class="p">()</span>
 
-        <span class="n">buckets</span> <span class="p">=</span> <span class="n">arrayOfNulls</span><span class="p">(</span><span class="n">newSize</span><span class="p">)</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">elem</span> <span class="k">in</span> <span class="n">items</span><span class="p">.</span><span class="n">filterNotNull</span><span class="p">())</span> <span class="n">add</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+        <span class="n">buckets</span> <span class="o">=</span> <span class="n">arrayOfNulls</span><span class="p">(</span><span class="n">newSize</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">elem</span> <span class="k">in</span> <span class="n">items</span><span class="p">.</span><span class="na">filterNotNull</span><span class="p">())</span> <span class="n">add</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
     <span class="p">}</span>
 
-    <span class="k">override</span> <span class="k">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">key</span> <span class="p">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">!=</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">override</span> <span class="kd">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">key</span> <span class="o">=</span> <span class="n">hash</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">!=</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">rehash</span><span class="p">()</span>
             <span class="n">add</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="p">}</span>
-        <span class="k">else</span> <span class="n">buckets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="p">=</span> <span class="n">value</span>
+        <span class="k">else</span> <span class="n">buckets</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>The tests are not really that&nbsp;complicated:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">ExtendHashTests</span> <span class="p">{</span>
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`In an empty hash nothing wrong happens`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">hash</span> <span class="p">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span> <span class="nc">ExtendHashTests</span> <span class="p">{</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`In an empty hash nothing wrong happens`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">hash</span> <span class="o">=</span> <span class="n">CollisionHash</span><span class="p">()</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
 
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">2</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">2</span><span class="p">)</span> <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="n">@Test</span>
-    <span class="k">fun</span> <span class="nf">`If the bucket is already occupied we extend and rehash`</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">val</span> <span class="py">hash</span> <span class="p">=</span> <span class="n">ExtendHash</span><span class="p">()</span>
-        <span class="k">val</span> <span class="py">initial</span> <span class="p">=</span> <span class="n">hash</span><span class="p">.</span><span class="n">size</span>
+    <span class="nd">@Test</span>
+    <span class="kd">fun</span> <span class="nf">`If the bucket is already occupied we extend and rehash`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="nv">hash</span> <span class="o">=</span> <span class="n">ExtendHash</span><span class="p">()</span>
+        <span class="kd">val</span> <span class="nv">initial</span> <span class="o">=</span> <span class="n">hash</span><span class="p">.</span><span class="na">size</span>
 
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
-        <span class="n">hash</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="m">19</span><span class="p">)</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">12</span><span class="p">)</span>
+        <span class="n">hash</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="m">19</span><span class="p">)</span>
 
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
-        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="m">19</span><span class="p">)</span> <span class="p">}</span>
-        <span class="n">assertEquals</span><span class="p">((</span><span class="n">initial</span> <span class="p">*</span> <span class="n">hash</span><span class="p">.</span><span class="n">growRate</span><span class="p">).</span><span class="n">toInt</span><span class="p">(),</span> <span class="n">hash</span><span class="p">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">12</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertTrue</span> <span class="p">{</span> <span class="n">hash</span><span class="p">.</span><span class="na">exists</span><span class="p">(</span><span class="m">19</span><span class="p">)</span> <span class="p">}</span>
+        <span class="n">assertEquals</span><span class="p">((</span><span class="n">initial</span> <span class="o">*</span> <span class="n">hash</span><span class="p">.</span><span class="na">growRate</span><span class="p">).</span><span class="na">toInt</span><span class="p">(),</span> <span class="n">hash</span><span class="p">.</span><span class="na">size</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>There is <em>another</em> conflic resolution technique (in fact it is a whole group) named <em>probing</em>, the idea is that if the bucket is already take you search for adjacent empty buckets and place the element there. For the search process you do the same, you see if the element is in the bucket and if not you search the adjacent elements to see if it is located there. There are many different algorithms for probing, for example linear probing where we check in linear fashion until we reach the end (and shows the error) or find an available slot. I won&#8217;t use much of my time writing a case around linear probing, I think you can write your own implementation with what you know now&nbsp;:)</p>
 <p>A very common collision resolution algorithm is using <em>separate chaining</em>, in this idea we have a linked list in each bucket and we simply append to that linked list if we have already elements in that list. For searching we just search in that bucket linked list. This strategy won&#8217;t require extending the hash but it will involve a sequential search if we have too many elements in one sole&nbsp;bucket.</p>

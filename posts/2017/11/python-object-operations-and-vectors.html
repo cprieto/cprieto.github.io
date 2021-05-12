@@ -86,7 +86,6 @@ $$</div>
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Vector </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
 </code></pre></div>
 
-
 <h4>Adding and substracting&nbsp;vectors</h4>
 <p>This is the easiest operation, basically it is mathematically described&nbsp;as:</p>
 <div class="math">$$
@@ -110,7 +109,6 @@ $$</div>
     <span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>But to be honest, we can use one of the <a href="https://docs.python.org/3/reference/datamodel.html">Python special methods</a> so it will look more natural to do something like <code>Vector(1, 2, 3) + Vector(4, 5, 6)</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
 
@@ -131,7 +129,6 @@ $$</div>
   <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n">TVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TVector</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
 </code></pre></div>
-
 
 <h4>Scaling a&nbsp;Vector</h4>
 <p>The operation of a Vector and a real number is called <em>scaling</em>, it is&nbsp;simple:</p>
@@ -165,13 +162,11 @@ $$</div>
   <span class="fm">__rmul__</span> <span class="o">=</span> <span class="fm">__mul__</span>
 </code></pre></div>
 
-
 <h4>Equality</h4>
 <p>Vector are like matrices, they are equal if all the members are the same, in Python this is&nbsp;easy:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
   <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span>
 </code></pre></div>
-
 
 <h4>Length or&nbsp;magnitude</h4>
 <p>This is represented in mathematical notation by the vector name around bars (<span class="math">\(|\ \mathbf{v}\ |\)</span>) and it is basically defined&nbsp;as:</p>
@@ -184,12 +179,10 @@ $$</div>
   <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 </code></pre></div>
 
-
 <p>But Python has as well the operator <code>abs</code> so it will allow something like <code>abs(Vector(1, 2, 3))</code> and this make sense to me. Let&#8217;s implement that special&nbsp;method:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
   <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
 </code></pre></div>
-
 
 <h4>Unit&nbsp;vector</h4>
 <p>Vectors are usually used to express direction, but compare vector direction is easier if we ignore the length or <em>normalize</em> the length of the vector to 1. This &#8220;special&#8221; vector is named <em>a unit vector</em> and there is only one unit vector per vector. In mathematics the unit vector is expressed as <em>hat vector</em> (<span class="math">\(\hat{v}\)</span>) and it is equal to the vector divided by the&nbsp;length.</p>
@@ -205,7 +198,6 @@ $$</div>
   <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
 </code></pre></div>
 
-
 <p>We don&#8217;t need to implement the <code>__rtruediv__</code> operation, it doesn&#8217;t make sense to divide a number by a&nbsp;vector.</p>
 <h4>Dot&nbsp;product</h4>
 <p>The <a href="">dot product</a> of two vectors is basically one of the more important operations in vector maths, it is described&nbsp;as:</p>
@@ -219,12 +211,10 @@ $$</div>
   <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">z</span>
 </code></pre></div>
 
-
 <p>I really don&#8217;t like doing things like <code>Vector(1, 2, 3).dot(Vector(4, 5, 6))</code> but gladly in Python 3 we have a dot product or matrix&nbsp;multiplication:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
   <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">z</span>
 </code></pre></div>
-
 
 <p>Now we can do <code>Vector(1, 2, 3) @ Vector(4, 5, 6)</code>.</p>
 <h4>How does it look&nbsp;like?</h4>
@@ -242,7 +232,7 @@ $$</div>
     <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
 
   <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;&lt;Vector {self.x}, {self.y}, {self.z}&gt;&#39;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Vector </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
 
   <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n">TVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TVector</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
@@ -272,7 +262,7 @@ $$</div>
   <span class="k">def</span> <span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
 
-  <span class="k">def</span> <span class="nf">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+  <span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">z</span>
 </code></pre></div>
       </section>

@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>IDisposable Thoughts - CMake and&nbsp;Threads</title>
-  <meta name="description" content="I really love the mix between CMake and Conan to handle my C++ builds with dependencies and I had talked in the past about it, but what if I tell you, there is a better version to handle our dependencies and CMake with Conan? Well, strap in! Let’s start …" />
+  <title>IDisposable Thoughts - Simpler CMake with&nbsp;Conan</title>
+  <meta name="description" content="I had already written about using Conan and CMake to handle your C++ dependencies and that is a setup I had used for a while now. Recently, while working in a few things with the Boost library, I found the cracks in this setup, for example, this setup does not …" />
   <meta name="author" content="Cristian Prieto" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Pelican" />
   <meta property="og:locale" content="en" />
-  <meta property="og:title" content="CMake and Threads" />
+  <meta property="og:title" content="Simpler CMake with Conan" />
   <meta property="og:type" content="blog">
   <meta property="og:url" content="https://cprieto.com/posts/2021/03/simpler-cmake-with-conan.html" />
   <meta property="og:sitename" content="IDisposable Thoughts" />
@@ -26,8 +26,8 @@
 
 <meta name="twitter:creator" content="@cprieto">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="CMake and Threads">
-<meta name="twitter:image" content="https://cprieto.com/images/threads.jpg">
+<meta name="twitter:title" content="Simpler CMake with Conan">
+<meta name="twitter:image" content="https://cprieto.com/images/dependencies.jpg">
 
   <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -59,7 +59,7 @@
   <div class="twelve columns">
     <article>
       <header>
-        <h2>CMake and Threads</h2>
+        <h2>Simpler CMake with Conan</h2>
         <div class="meta">
           <span class="u-helper"></span>
           <a rel="author" href="https://cprieto.com/about.html">
@@ -70,54 +70,49 @@
         </div>
       </header>
       <section>
-        <p>I really love the mix between CMake and Conan to handle my C++ builds with dependencies and I had talked in the past about it, but what if I tell you, there is a better version to handle our dependencies and CMake with Conan? Well, strap&nbsp;in!</p>
-<p>Let&#8217;s start with the previous&nbsp;example:</p>
-<div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
-
-<span class="k">using</span> <span class="n">json</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">auto</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">&quot;{ </span><span class="se">\&quot;</span><span class="s">name</span><span class="se">\&quot;</span><span class="s">: </span><span class="se">\&quot;</span><span class="s">cristian</span><span class="se">\&quot;</span><span class="s"> }&quot;</span><span class="p">);</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;His name is: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">entry</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-
-
-<p>And well, our <code>conanfile.txt</code> is simple enough, using <a href="">nlohmann json</a> as a&nbsp;dependencies:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[requirements]</span>
+        <p>I had already written about using <a href="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-conan.html">Conan and CMake</a> to handle your C++ dependencies and that is a setup I had used for a while now. Recently, while working in a few things with the <a href="https://www.boost.org/">Boost</a> library, I found the cracks in this setup, for example, this setup does not support handling components, something really useful when using&nbsp;Boost.</p>
+<p>While asking around, I realised while this is the way most documentation is written, it is not the preferred way to use dependencies with Conan and CMake, it is not that we have to change much but the generator, instead of using the <code>cmake</code> generator, we should use the <code>cmake_find_package</code> generator. This generator will create files named <code>FindXXX.cmake</code> where <code>XXX</code> is the dependency we are&nbsp;included.</p>
+<p>Let&#8217;s use the example from the previous blog post, but instead changing the generator to&nbsp;use:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[requires]</span>
 <span class="na">nlohmann_json/3.9.1</span>
 
 <span class="k">[generators]</span>
-<span class="na">cmake</span>
+<span class="na">cmake_find_package</span>
 </code></pre></div>
 
-
-<p>And well, an even simpler <code>CMakeLists.txt</code> :</p>
-<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.10</span><span class="p">)</span>
+<p>Now, we need to remove from CMake the previous setup and use, instead, the native <code>find_package</code> facility, now created thanks to&nbsp;Conan:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.15</span><span class="p">)</span>
 <span class="nb">project</span> <span class="p">(</span><span class="s">sample</span><span class="p">)</span>
 
-<span class="nb">include</span><span class="p">(</span><span class="o">${</span><span class="nv">CMAKE_BINARY_DIR</span><span class="o">}</span><span class="s">/conanbuildinfo.cmake</span><span class="p">)</span>
-<span class="nb">conan_basic_setup</span><span class="p">()</span>
-
-<span class="nb">add_executable</span> <span class="p">(</span><span class="s">main</span> <span class="s">main.cpp</span><span class="p">)</span>
-<span class="nb">target_link_library</span> <span class="p">(</span><span class="s">main</span> <span class="o">${</span><span class="nv">CONAN_LIBS</span><span class="o">}</span><span class="p">)</span>
-</code></pre></div>
-
-
-<p>There are many problems with this installation, it depends a lot of you knowing what to link and calling <code>conan_basic_setup</code>. Someone helped me to <em>improve</em> my CMake with Conan, and instead of using the <code>cmake</code> generator, using another generator: <code>cmake_find_package</code> allows us to use the <code>find_package</code> command in CMake to find the dependencies directly (and this is very useful, because most of the documentation you read out there is using <code>find_package</code>), this generator will create files named <code>FindXXXX.cmake</code> where <code>XXXX</code> is the name of the dependency. Our file will look like&nbsp;this:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.10</span><span class="p">)</span>
-<span class="nb">project</span> <span class="p">(</span><span class="s">sample</span><span class="p">)</span>
-
-<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_MODULE_PATH</span> <span class="o">${</span><span class="nv">CMAKE_BINARY_DIR</span><span class="o">}</span><span class="p">)</span>
 <span class="nb">find_package</span><span class="p">(</span><span class="s">nlohmann_json</span> <span class="s">REQUIRED</span><span class="p">)</span>
 
 <span class="nb">add_executable</span> <span class="p">(</span><span class="s">main</span> <span class="s">main.cpp</span><span class="p">)</span>
-<span class="nb">target_link_library</span> <span class="p">(</span><span class="s">main</span> <span class="s">nlohmann_json::nlohmann_json</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">main</span> <span class="s">nlohmann_json::nlohmann_json</span><span class="p">)</span>
 </code></pre></div>
 
+<p>Notice the usage of <code>nlohmann_json::nlohmann_json</code>  in the dependencies, this is the name and component of your&nbsp;dependency.</p>
+<p>Let&#8217;s try to install and compile&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code>mkdir build &amp;&amp; cd build
+conan install ..
+cmake ..
+</code></pre></div>
 
-<p>Why the <code>${CMAKE_BINARY_DIR}</code>? </p>
+<p>This will faill with a message about <code>Findnlohmann_json.cmake</code> not found in <code>CMAKE_MODULE_PATH</code>. That is weird, isn&#8217;t it? I mean, if we check that file is in the build directory, what is happening? Well, it is exactly that, the file is in the build directory and not where your CMake expects the file to live, we can fix this easily <em>appending</em> the file to our module&nbsp;path:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span> <span class="s">3.15</span><span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span><span class="s">sample</span><span class="p">)</span>
+
+<span class="nb">list</span><span class="p">(</span><span class="s">APPEND</span> <span class="s">CMAKE_MODULE_PATH</span> <span class="o">${</span><span class="nv">CMAKE_BINARY_DIR</span><span class="o">}</span><span class="p">)</span>
+<span class="nb">find_package</span><span class="p">(</span><span class="s">nlohmann_json</span> <span class="s">REQUIRED</span><span class="p">)</span>
+
+<span class="nb">add_executable</span> <span class="p">(</span><span class="s">main</span> <span class="s">main.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">main</span> <span class="s">nlohmann_json::nlohmann_json</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Try running the same commands again, voila! it works! now it is time to compile with the usual&nbsp;command:</p>
+<div class="highlight"><pre><span></span><code>cmake --build . --clean-first
+</code></pre></div>
+
+<p>Nice, now we have not only a simpler setup with Conan but we can use things like components as well. Another good advantage is that almost every documentation out there about using CMake with dependencies use <code>find_package</code> so basically we can reuse it,&nbsp;win-win!</p>
       </section>
     </article>
   </div>
@@ -136,6 +131,7 @@
   <div class="twelve columns">
     <nav>
       <ul>
+          <li><a href="https://cprieto.com/posts/2021/05/the-vector-class-constructors-and-templates.html" rel="prev" title="The vector class, constructors and templates">Next post</a></li>
           <li><a href="https://cprieto.com/posts/2021/03/cmake-and-threads.html" rel="next" title="CMake and Threads">Previous post</a></li>
       </ul>
     </nav>
