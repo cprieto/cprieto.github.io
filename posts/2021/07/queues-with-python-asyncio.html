@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>IDisposable Thoughts - queues with Python&nbsp;asyncio</title>
-  <meta name="description" content="I really love asynchronous programming and the support for asynchronous programming structures out there in modern languages (like Python, Go, Rust, Javascript, even modern C++!) is amazing, though the biggest problem with async programming is that is so easy (thanks to the support I mentioned before) that you tend to …" />
+  <meta name="description" content="I really love asynchronous programming, and the support for asynchronous programming structures out there in modern languages is amazing (even C++20 has coroutines now!), though I personally think the biggest problem with async programming is that is so easy to use (thanks to the support I mentioned before) and …" />
   <meta name="author" content="Cristian Prieto" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Pelican" />
@@ -70,7 +70,7 @@
         </div>
       </header>
       <section>
-        <p>I really love asynchronous programming and the support for asynchronous programming structures out there in modern languages (like Python, Go, Rust, Javascript, even modern C++!) is amazing, though the biggest problem with <em>async</em> programming is that is so easy (thanks to the support I mentioned before) that you tend to believe you are an expert on it and just sprinkle it over everywhere without fully understand how it works and what is going to happen, this is specially problematic with <a href="https://en.wikipedia.org/wiki/Event_loop">event loop</a> based approaches (like the one by default in Python), I had been guilty as hell of that, especially in the beginning of support for tasks and <code>async/await</code> in C# many years&nbsp;ago.</p>
+        <p>I really love asynchronous programming, and the support for asynchronous programming structures out there in modern languages is amazing (even C++20 has coroutines now!), though I personally think the biggest problem with <em>async</em> programming is that is so easy to use (thanks to the support I mentioned before) and you tend to believe you are an expert on it and just sprinkle it over everywhere without fully understand how it works and what is going to happen, this is specially problematic with <a href="https://en.wikipedia.org/wiki/Event_loop">event loop</a> based approaches (like the one by default in&nbsp;Python).</p>
 <p>I like to think that when you learn a language, more than just learning the <em>keywords</em> and <em>constructs</em> of the language, you should put effort and energy in understanding <em>the idea</em> behind the language, why is there? what is trying to solve? and maybe you won&#8217;t use the language in production but if you take the time to understand the <a href="https://en.wikipedia.org/wiki/Programming_paradigm">language paradigm</a> I am pretty sure you will get ideas and constructs that you can easily adapt or learn faster in your day to day programming&nbsp;language.</p>
 <p>A few years ago I started using <a href="https://docs.python.org/3/library/asyncio.html">Python asyncio</a>, and a very common problem appeared, especially when you create a lot of <em>background coroutines</em>:</p>
 <blockquote>
