@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - CMake and object&nbsp;libraries</title>
+  <meta name="description" content="I recently discovered CMake support for Object Libraries, those are, in simple words, not “real” libraries generating a .lib, .so or .dll files but temporary libraries based in Object files. I find this very useful for supporting different build targets that depends in common code but I don’t need …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="CMake and object libraries" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2020/06/cmake-and-object-libraries.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CMake and object libraries">
+<meta name="twitter:image" content="https://cprieto.com/images/library.jpg">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>CMake and object libraries</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-06-23T00:00:00+02:00">23 June 2020</time>
+           on <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/build.html">build</a>          <span class="readtime">3 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>I recently discovered <a href="https://cmake.org">CMake</a> support for <a href="https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#object-libraries">Object Libraries</a>, those are, in simple words, not &#8220;<em>real</em>&#8221; libraries generating a <code>.lib</code>, <code>.so</code> or <code>.dll</code> files but <em>temporary</em> libraries based in <a href="https://en.wikipedia.org/wiki/Object_file">Object files</a>. I find this very useful for supporting different build targets that depends in common code but I don&#8217;t need to generate a <em>library</em> at&nbsp;all.</p>
+<p>Object libraries can easily be created like any other library using the <code>add_library</code> parameter, but passing the <code>OBJECT</code> option:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">add_library</span><span class="p">(</span><span class="s">sample</span><span class="w"> </span><span class="s">OBJECT</span><span class="w"> </span><span class="s">sample.cpp</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And later, we can link to this library as any other library but using <code>$&lt;TARGET_OBJECT&gt;</code> instead of the plain name of the library, for&nbsp;example:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">target_library</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="o">$&lt;</span><span class="nv">TARGET_OBJECT:sample</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Let&#8217;s do a full example, our library header, <code>sample.h</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Sample</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
+
+<p>And now our implementation, <code>sample.cpp</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;sample.h&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">Sample::foo</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>And of course, our user for the &#8220;library&#8221;, <code>main.cpp</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;sample.h&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">Sample</span><span class="w"> </span><span class="n">a</span><span class="p">{};</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">foo</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>As you see, nothing fancy, but let&#8217;s say that instead of listing <code>sample.cpp</code> as source for <code>app</code> you want to <em>link</em> to it as a library, but creating a library for such a simple trivial piece of code sounds overkill, that is where the object library sounds super&nbsp;useful!</p>
+<p>In your <code>CMakeLists.txt</code> file it will look something like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">3.1</span><span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span><span class="s">sample_obj</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">CXX</span><span class="p">)</span>
+
+<span class="nb">add_library</span><span class="p">(</span><span class="s">sample</span><span class="w"> </span><span class="s">OBJECT</span><span class="w"> </span><span class="s">sample.cpp</span><span class="p">)</span>
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="s">main.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="o">$&lt;</span><span class="nv">TARGET_OBJECTS:sample</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And that is all, you can refer to <code>sample</code> as any other library as far as you use the expression <code>$&lt;TARGET_OBJECTS:sample&gt;</code> instead of the name of the library as you would do with a normal&nbsp;library.</p>
+<h4>Some generators are nicer than&nbsp;others</h4>
+<p>The previous approach works very well with generators like <code>Visual Studio</code> or <code>Ninja</code> but as soon as you use <code>Makefiles</code> it will fail with a very cryptic error&nbsp;message:</p>
+<div class="highlight"><pre><span></span><code>make[2]: *** No rule to make target &#39;CMakeFiles/sample/sample.cpp.o&#39;, needed by &#39;app&#39;.  Stop.
+</code></pre></div>
+
+<p>I was extremely surprised by this, I mean, it works <em>perfectly</em> with any other generator but not with <a href="https://en.wikipedia.org/wiki/Makefile">Makefiles</a>, in fact, if you simply use something like <a href="https://ninja-build.org/">Ninja</a> instead of Makefiles it will work without any problems at all. There is no mention of this in the documentation at all, in fact, the idea that it works in some generators and not in others really gives me no clue of what is the&nbsp;problem.</p>
+<p>By pure trial and error I found a way to make this setup works (at least) with Makefiles, Ninja and Visual Studio, replacing <code>target_link_libraries</code> with <code>target_sources</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">target_sources</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="o">$&lt;</span><span class="nv">TARGET_OBJECTS:sample</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>I was still confused, why was it not&nbsp;working?</p>
+<h4>Sometimes, not getting an error is actually the&nbsp;error</h4>
+<p>Having a chat with the CMake community I found my mistake, <code>$&lt;TARGET_OBJECTS&gt;</code> was never designed to be used with <code>target_link_libraries</code> in that way. Checking the documentation carefully it is very&nbsp;clear:</p>
+<blockquote>
+<p>The <code>OBJECT</code> library type defines a non-archival collection of object files resulting from compiling the given source files.  <em>The object files collection may be used as source inputs to other targets</em>:</p>
+</blockquote>
+<p>And that is why it works using <code>target_sources</code>, the idea was never linking it directly as I was using it but use it in the same way you will declare sources, in my previous case would be enough to&nbsp;say:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">add_executable</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="s">main.cpp</span><span class="w"> </span><span class="o">$&lt;</span><span class="nv">TARGET_OBJECTS:sample</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>But since CMake 3.12 we can refer to object libraries directly as part of <code>target_link_libraries</code> without using the generator expression, in our previous case, our <code>CMakeLists.txt</code> will look like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">3.12</span><span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span><span class="s">sample_obj</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">CXX</span><span class="p">)</span>
+
+<span class="nb">add_library</span><span class="p">(</span><span class="s">sample</span><span class="w"> </span><span class="s">OBJECT</span><span class="w"> </span><span class="s">sample.cpp</span><span class="p">)</span>
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="s">main.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">app</span><span class="w"> </span><span class="s">sample</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Lesson learnt, when things are not working read the documentation again and again, until you understand what is&nbsp;happening.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2020/08/data-structures-simple-queue-in-python.html" rel="prev" title="Data structures, a simple queue in Python">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/04/consuming-go-code-in-python.html" rel="next" title="Consuming Go code in Python">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

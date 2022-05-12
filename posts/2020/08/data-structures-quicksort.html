@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Data structures,&nbsp;Quicksort</title>
+  <meta name="description" content="Now it is time for the sorting algorithm that a lot of people says once you know it you don’t need anything else (that is not really true in practice but who am I to judge them?), the venerable Quicksort. This algorithm, discovered by Sir Tony Hoare, is so …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Data structures, Quicksort" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2020/08/data-structures-quicksort.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Data structures, Quicksort</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-08-27T00:00:00+02:00">27 August 2020</time>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">7 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>Now it is time for the sorting algorithm that a lot of people says once you know it you don&#8217;t need anything else (that is not really true in practice but who am I to judge them?), the venerable <a href="https://en.wikipedia.org/wiki/Quicksort">Quicksort</a>. This algorithm, discovered by <a href="https://en.wikipedia.org/wiki/Tony_Hoare">Sir Tony Hoare</a>, is so effective that many of the default sorting algorithm in the standard library use it, a good example, that is why <code>qsort</code> exists in the C standard&nbsp;library.</p>
+<p>This algorithm is the typical <a href="https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm"><em>divide and conquer</em></a> type of person, it basically picks an element (which is called <em>pivot</em>) and place all the elements greater than him in the right, and those lesser than him in the left, once this is done, you pick another element in the left and in the right and apply the same algorithm recursively until you end up with a sorted&nbsp;collection.</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="nf">quicksort</span><span class="p">(</span>items, low, high<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">low</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">high</span><span class="w"> </span><span class="n">then</span><span class="w"></span>
+<span class="w">    </span><span class="n">pivot</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nb">partition</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">quicksort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">quicksort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</code></pre></div>
+
+<p>As you see this is very a recursive and very simple algorithm but there is one part that is cleverly hidden in the pseudocode, the partition algorithm. The partition algorithm is basically the one that makes all the hardcore work, it picks an element (this is actually more complex that it sounds), in fact, without the partition function our sorting is useless. This function needs to get the pivot element and then place all the elements greater than it to the right or lesser than it to the&nbsp;left.</p>
+<p>Let&#8217;s start implementing the core of the recursive function in Kotlin, we will discuss more about the partition function later, there are many options to see&nbsp;there!</p>
+<div class="highlight"><pre><span></span><code><span class="kd">tailrec</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="n">Comparable</span><span class="err">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="err">&gt; </span><span class="nf">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="p">.</span><span class="na">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">low</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="w">  </span><span class="kd">val</span><span class="w"> </span><span class="nv">pivot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>If you don&#8217;t care about memory one easy way to do this is just <em>generating an array of the same size as the original</em> and start filling it putting the smaller elements in the left and the greater elements in the right and placing the pivot in the space left after the operation, then simply copy the array into the original array and done. The problem I see with this approach is the use of memory, we need to create a temporary array as big as the current array being processed and for me that is a waste of space! Can we do a swap in place? yes we can, for example, if we use the first element as pivot the pseudocode will be something like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="nf">partition</span><span class="p">(</span>items, low, high<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">p</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="n">low</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nb">i</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">low</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">hi</span><span class="w"> </span><span class="n">do</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">j</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="n">then</span><span class="w"></span>
+<span class="w">      </span><span class="n">swap</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">j</span><span class="p">],</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">i</span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="w">  </span><span class="k">end</span><span class="w"></span>
+<span class="w">  </span><span class="n">swap</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="n">low</span><span class="p">],</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">i</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</code></pre></div>
+
+<p>Apparently there are problems when chosing the first element as the pivot value (as a mention before, this is the secret sauce with quicksort, chosing the right pivot value) because when the elements are already (or nearly) sorted we have to do a lot of work, <a href="https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)">Sedgewick</a> and others advice to instead use the <em>last element</em> in the list (in reality he says we should use the median of the first, last and middle but that is too long to see for a short blog post). Knowing this we can change and adapt our partition function&nbsp;pseudocode:</p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="nf">partition</span><span class="p">(</span>items, low, high<span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">p</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="n">high</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="nb">i</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">low</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">high</span><span class="w"> </span><span class="n">do</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">j</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="n">then</span><span class="w"></span>
+<span class="w">      </span><span class="n">swap</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">j</span><span class="p">],</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">i</span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="w">  </span><span class="k">end</span><span class="w"></span>
+<span class="w">  </span><span class="n">swap</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="n">high</span><span class="p">],</span><span class="w"> </span><span class="n">items</span><span class="p">[</span><span class="nb">i</span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">i</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</code></pre></div>
+
+<p>As you see not many things changes and that is good, we just took care of the indices in the first partition versus the second. I know it is difficult to see the move and swaps of elements but I will highly advice to write the code in something that you feel comfortable with and place a log or print at the end of the loop displaying the current status of the list, you will then see what elements move and the values of <span class="math">\(i\)</span> and <span class="math">\(j\)</span>, low tech but&nbsp;effective!</p>
+<p>Knowing this implementing the partition function in Kotlin is easy, let&#8217;s do the partition function as an inner function (to reduce the space in the&nbsp;post):</p>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span><span class="w"> </span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="n">Comparable</span><span class="err">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="err">&gt; </span><span class="nf">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="p">.</span><span class="na">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">fun</span><span class="w"> </span><span class="nf">partition</span><span class="p">(</span><span class="n">low</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">high</span><span class="o">]</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">low</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="n">until</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">items</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">current</span><span class="p">)</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">items</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span><span class="p">.</span><span class="na">also</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">j</span><span class="o">]</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// This is how you do the a,b = b, a in Kotlin</span><span class="w"></span>
+<span class="w">        </span><span class="n">idx</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="m">1</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">items</span><span class="o">[</span><span class="n">high</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span><span class="p">.</span><span class="na">also</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">items</span><span class="o">[</span><span class="n">high</span><span class="o">]</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">idx</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">low</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="w">  </span><span class="kd">val</span><span class="w"> </span><span class="nv">pivot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">partition</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">low</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">  </span><span class="n">quickSort</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">high</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Yes, I admit the code in Kotlin looks &#8220;weird&#8221; but you can test it with the same unit tests we have for all our sorting examples, in fact, a good idea will be to pass the <code>partition</code> function as a parameter (with a sensitive default) and implement both partition schemas (or try some other from the Wikipedia page) and create unit tests around&nbsp;them.</p>
+<p>Why all of this mess? well, quick sort is, how I say this, <strong>quick</strong>! and it gets us a worst case of <span class="math">\(\mathcal{O}(n^2)\)</span> (not different than all the other <em>comparisson algorithms</em>) but in the best case we get up to <span class="math">\(\mathcal{O}(n \log{n})\)</span> or <span class="math">\(\mathcal{O}(n)\)</span> (depending on the partition function) no matter the size of your collection. There is one specific case when quicksort is as slow as any other sorting algorithm by comparisson (<span class="math">\(\mathcal{O}(n^2)\)</span>), when we have a collection with very few repeated elements, for example something like this: <code>[1, 1, 5, 1, 12, 12, 12, 5, 5, 5, 5, 1, 12, 1, 12, 1, 1, 12, 1, 5]</code>, can you spot&nbsp;why?</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Comparisson</th>
+<th>Swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best case (using good pivot)</td>
+<td><span class="math">\(\mathcal{O}(n)\)</span></td>
+<td><span class="math">\(\mathcal{O}(n \log{n})\)</span></td>
+</tr>
+<tr>
+<td>Worst case (a lot of repeated elements)</td>
+<td><span class="math">\(\mathcal{O}(n^2)\)</span></td>
+<td><span class="math">\(\mathcal{O}(n^2)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>This is why is so important to <em>at least</em> know your sorting algorithms, not a single algorithm applies to every situation. We will see more of this in the upcoming blog posts (we will continue with sorting for a&nbsp;while). </p>
+<p>Runnable snippet for this code: <a href="https://pl.kotl.in/3fXRcrTqB">https://pl.kotl.in/3fXRcrTqB</a></p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2020/09/data-structures-merge-sort.html" rel="prev" title="Data structures, Merge sort">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/08/data-structures-insertion-sort-algorithm.html" rel="next" title="Data structures, Insertion sort algorithm">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

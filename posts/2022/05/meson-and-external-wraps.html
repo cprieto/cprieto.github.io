@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Meson and external&nbsp;wraps</title>
+  <meta name="description" content="Ok, last time I mentioned how to include wraps from the wrapdb into a meson build and it was all happy! But what if the dependency we need is not in the wrap database? Well, as many other things in engineering, it depends, the most simplest case (what I am …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Meson and external wraps" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2022/05/meson-and-external-wraps.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Meson and external wraps</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2022-05-13T00:00:00+02:00">13 May 2022</time>
+           on <a rel="tag" href="/tag/meson.html">meson</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>, <a rel="tag" href="/tag/building.html">building</a>          <span class="readtime">2 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>Ok, <a href="https://cprieto.com/posts/2022/05/meson-and-dependencies.html">last time</a> I mentioned how to include wraps from the wrapdb into a meson build and it was all happy! But what if the dependency we need is <strong>not</strong> in the wrap&nbsp;database?</p>
+<p>Well, as many other things in engineering, <em>it depends</em>, the most simplest case (what I am going to document today) is when the dependency is &#8220;somewhere&#8221; and is using Meson too. Let&#8217;s take a simple case, there is a test library for C, <a href="https://github.com/Snaipe/Criterion">Criterion</a>, in the repository we can see they are using Meson (see that <code>meson.build</code> file?) so is perfect for our&nbsp;case!</p>
+<p>Let&#8217;s start with our simple test&nbsp;project:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;criterion/criterion.h&gt;</span><span class="cp"></span>
+
+<span class="n">Test</span><span class="p">(</span><span class="n">simple</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">cr_assert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Hello world&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Ok, time for the simplest build&nbsp;file:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;test_criterion&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;c&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="n">criterion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dependency</span><span class="p">(</span><span class="s">&#39;criterion&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="nb">executable</span><span class="p">(</span><span class="s">&#39;test_criterion&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;test.c&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">criterion</span><span class="p">])</span><span class="w"></span>
+</code></pre></div>
+
+<p>Ok, we will create our own wrap file to define Criterion as a dependency, we will grab the version 2.4.1 from the repository using Git, use a recursive cloning (Criterion uses Git submodules) with a simple depth of 1 (we don&#8217;t need the whole&nbsp;history).</p>
+<div class="highlight"><pre><span></span><code><span class="k">[wrap-git]</span><span class="w"></span>
+<span class="na">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://github.com/Snaipe/Criterion.git</span><span class="w"></span>
+<span class="na">revision</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">v2.4.1</span><span class="w"></span>
+<span class="na">depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
+<span class="na">clone-recursive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+
+<span class="k">[provide]</span><span class="w"></span>
+<span class="na">criterion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">criterion</span><span class="w"></span>
+</code></pre></div>
+
+<p>Where that last part comes from? well, if we look at the file <code>src/meson.build</code> we will see this&nbsp;fragment:</p>
+<div class="highlight"><pre><span></span><code><span class="n">criterion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">declare_dependency</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="nb">include_directories</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">criterion_api</span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="n">dependencies</span><span class="p">:</span><span class="w"> </span><span class="n">deps</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">link_with</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">libcriterion</span><span class="p">])</span><span class="w"></span>
+</code></pre></div>
+
+<p>Telling us this build exports a dependency named <code>criterion</code>, we just say this library provides a dependency named criterion and we will use it under the name criterion (<code>my_dep = proj_dep</code>).</p>
+<p>Done! on <code>meson build</code> it will grab Criterion and all its dependencies (including any wraps defined by Criterion) and with <code>meson compile -C build</code> we should see our <code>test_criterion</code> executable.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2022/05/meson-and-dependencies.html" rel="next" title="Meson and dependencies">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

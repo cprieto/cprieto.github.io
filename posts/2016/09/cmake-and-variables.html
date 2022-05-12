@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - CMake and&nbsp;variables</title>
+  <meta name="description" content="Yeah, it is me again with more CMake! You remember my last blog post? When I told you it was the simplest CMake file possible? Well, I lied. In fact, if we just want to print Hello world in CMake we just need to do something like this: # we just …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="CMake and variables" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2016/09/cmake-and-variables.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>CMake and variables</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2016-09-10T00:00:00+02:00">10 September 2016</time>
+           on <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/build.html">build</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">2 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>Yeah, it is me again with more&nbsp;CMake!</p>
+<p>You remember my last blog post? When I told you it was the <a href="https://cprieto.com/posts/2016/09/the-simplest-cmake-possible.html">simplest CMake file possible</a>? Well, I lied. In fact, if we just want to print <em>Hello world</em> in CMake we just need to do something like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="c"># we just print hello world</span>
+<span class="nb">message</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>It does absolutely nothing except say &#8220;Hello world!&#8221; when generating the Makefile, and of course, your Makefile will do absolutely&nbsp;nothing.</p>
+<h3>Variables</h3>
+<p>So I have been talking only about CMake <strong>Commands</strong>. <code>add_executable</code>, <code>link_target_library</code> and <code>message</code> are <em>commands</em> in CMake; they tell CMake what to do and CMake will know how to do it. CMake has a lot of commands and all of them are documented in the <a href="http://cmake.org/cmake/help/v3.6/manual/cmake-commands.7.html">CMake documentation</a>.</p>
+<p>As in every modern scripting &#8220;language&#8221;, CMake has <em>variables</em> too. Some of those variables are <em>special</em> and provide special information to CMake, like the directory path where the sources are, the place where we put the compiled executables and libraries, etc. The same as commands, there are a lot of <a href="https://cmake.org/Wiki/CMake_Useful_Variables">useful variables</a> listed in the CMake wiki and&nbsp;documentation.</p>
+<h4>Setting&nbsp;variables</h4>
+<p>Setting a variable in CMake is really easy; you just need the command <code>set</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.5</span><span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span><span class="s">CMakeVariables</span><span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span><span class="s">SOURCES</span><span class="w"> </span><span class="s">hello.c</span><span class="w"> </span><span class="s">greeter.c</span><span class="p">)</span>
+<span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span><span class="w"> </span><span class="o">${</span><span class="nv">SOURCES</span><span class="o">}</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We just created <em>a list of files</em> in our variable called <code>SOURCES</code> and then used that variable in a target.&nbsp;Easy!</p>
+<h3>Where are the header&nbsp;files?</h3>
+<p>Header files are important in C/C++ development and usually they live in a separate directory. Let&#8217;s change that in our current&nbsp;project:</p>
+<div class="highlight"><pre><span></span><code><span class="go">mkdir includes</span>
+<span class="go">mv greeter.h includes</span>
+</code></pre></div>
+
+<p>Of course we will need to change our CMakeLists.txt file to reflect this&nbsp;change:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.5</span><span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span><span class="s">CMakeVariables</span><span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span><span class="s">SOURCES</span><span class="w"> </span><span class="s">hello.c</span><span class="w"> </span><span class="s">greeter.c</span><span class="p">)</span>
+<span class="nb">include_directories</span> <span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="o">}</span><span class="s">/includes</span><span class="p">)</span>
+<span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span><span class="w"> </span><span class="o">${</span><span class="nv">SOURCES</span><span class="o">}</span><span class="p">)</span>
+</code></pre></div>
+
+<p>As you can see, we need to use the <code>include_directories</code> command to tell CMake where to find our header&nbsp;files.</p>
+<h3>File&nbsp;globbing</h3>
+<p>Instead of creating a variable with a explicit list of source files we can &#8220;glob&#8221; them together using an expression and assign the created list to a variable. This is done with the <a href="https://cmake.org/cmake/help/v3.6/command/file.html?highlight=glob#file"><code>file</code></a>&nbsp;command:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.5</span><span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span><span class="s">CMakeVariables</span><span class="p">)</span>
+<span class="nb">include_directories</span> <span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="o">}</span><span class="p">)</span>
+<span class="nb">file</span> <span class="p">(</span><span class="s">GLOB</span><span class="w"> </span><span class="s">SOURCES</span><span class="w"> </span><span class="s">*.c</span><span class="p">)</span>
+<span class="nb">add_executable</span> <span class="p">(</span><span class="s">hello</span><span class="w"> </span><span class="o">${</span><span class="nv">SOURCES</span><span class="o">}</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Note about globbing!</strong> : Even the CMake documentation warns us about globbing and asks us to <em>explicitly list the source files</em> instead of using globbing. This <a href="http://stackoverflow.com/questions/1027247/best-way-to-specify-sourcefiles-in-cmake">question from StackOverflow</a> explains a little more about the issue and the&nbsp;options.</p>
+<p>In conclusion, use globbing with&nbsp;caution!</p>
+<p>Well, now we know about variables in CMake and file globbing, but we still have a few other things to explore in CMake, so I will see you soon with another short blog&nbsp;post!</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2016/10/cmake-out-of-source-build.html" rel="prev" title="CMake and out-of-source build">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2016/09/the-simplest-cmake-possible.html" rel="next" title="The simplest CMake possible">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

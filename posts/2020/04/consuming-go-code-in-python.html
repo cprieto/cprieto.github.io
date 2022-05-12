@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Consuming Go code in&nbsp;Python</title>
+  <meta name="description" content="We love Python, it is an amazing language for almost everything out there. One of the problems that I always heard from people out there is but Python is dynamic and that makes it slow and, well, that statement is usually half true. The performance implications of code in Python …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Consuming Go code in Python" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2020/04/consuming-go-code-in-python.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Consuming Go code in Python">
+<meta name="twitter:image" content="https://cprieto.com/images/books.jpg">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Consuming Go code in Python</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-04-23T00:00:00+02:00">23 April 2020</time>
+           on <a rel="tag" href="/tag/programming.html">programming</a>, <a rel="tag" href="/tag/python.html">python</a>, <a rel="tag" href="/tag/go.html">go</a>          <span class="readtime">5 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>We love <a href="https://www.python.org/">Python</a>, it is an amazing language for <em>almost</em> everything out there. One of the problems that I always heard from people out there is <em>but Python is dynamic and that makes it slow</em> and, well, that statement is usually <em>half true</em>. The performance implications of code in Python is not something I want to cover in this blog post, but instead how to use Python with something completely different, like <a href="https://golang.org/">Go</a>. If you are reading this blog post you probably already know what is Go and Python but just in case, Go is a very popular open source static language created by Google to replace the aging C language. It is <em>sometimes</em> faster than Python and it is very common in certain companies to have a mix between Python and Go language (or any other static&nbsp;language).</p>
+<p>Let&#8217;s say you already have a super fancy algorithm written in Go but you need to consume that in a Python script. What I had seen so far is people rewriting the whole algorithm to Python to make it work and usually it results in a not very optimal algorithm (it is slow). What if we can just use the code in Go inside Python?. The simple example you will see out there is the simple formula to sum a sequence by <a href="https://hsm.stackexchange.com/questions/384/did-gauss-find-the-formula-for-123-ldotsn-2n-1n-in-elementary-school">Gauss</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">GSum</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">i</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Before consuming this in Python, we need to produce an object suitable for binary distribution, in the case of MacOS and Linux this is a <a href="https://en.wikipedia.org/wiki/Library_(computing)">shared object</a> while in Windows this is a <a href="https://en.wikipedia.org/wiki/Library_(computing)#Microsoft_Windows">dynamic loading library</a>. The Go compiler can produce such thing, well, not directly the Go compiler but a helper, <a href="https://golang.org/cmd/cgo/">CGo</a>. The CGo compiler cannot generate the shared library by itself but it needs a C/C++ compiler and currently (as Go 1.14) the only supported compiler is <a href="https://gcc.gnu.org/"><span class="caps">GCC</span></a> so you need to install it if you don&#8217;t have it&nbsp;already.</p>
+<p>We need to do a few small changes to our function as&nbsp;well:</p>
+<ul>
+<li>Your function needs to be in the <code>main</code> package</li>
+<li>Your function needs to have a <code>main</code> function, even if that one is&nbsp;empty</li>
+<li>Your function needs to import the &#8220;C&#8221; Go&nbsp;library</li>
+<li>You need to mark your function as <code>export</code></li>
+</ul>
+<p>Let&#8217;s say our function is saved in the file <code>sum.go</code>, the content of the file would look like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"></span>
+
+<span class="c1">//export GSum</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">GSum</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">i</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>To compile this (in Windows) you only issue the following&nbsp;command:</p>
+<div class="highlight"><pre><span></span><code>go -buildmode<span class="o">=</span>c-shared -o sum.dll sum.go
+</code></pre></div>
+
+<p>In Linux change <code>sum.dll</code> to <code>sum.so</code> and in MacOS change it to <code>sum.dynlib</code> (<strong>Update</strong>: the difference between <em>shared libraries</em> and <em>dynamically loaded modules</em> is kind of subtle and complex in reality, as pointed out in this <a href="https://stackoverflow.com/questions/2339679/what-are-the-differences-between-so-and-dylib-on-osx">StackOverflow post</a> and this <a href="https://github.com/golang/go/issues/12700">GitHub issue</a>).</p>
+<p>Now it is time to consume it in Python, we use the included stadard library <code>ctypes</code> and <code>cdll</code> to first load the library and then consume it as any other Python&nbsp;function:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="n">cdll</span>
+<span class="n">gosum</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="s1">&#39;./sum.dll&#39;</span><span class="p">)</span> <span class="c1"># or sum.so depending on your OS</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gosum</span><span class="o">.</span><span class="n">GSum</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span> <span class="c1"># It will print 5050</span>
+</code></pre></div>
+
+<p>But is this faster in Go than in Python? well, let&#8217;s implement the same in a more Pythonic&nbsp;way:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">GSum</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+</code></pre></div>
+
+<p>And when running some benchmarks (using PyTest and Benchmark) we get surprising&nbsp;numbers:</p>
+<table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>Min</th>
+<th>Max</th>
+<th>Median</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>1.0200</td>
+<td>16.9200</td>
+<td>1.0552</td>
+</tr>
+<tr>
+<td>Go lib</td>
+<td>2.000</td>
+<td>36.300</td>
+<td>2.2095</td>
+</tr>
+</tbody>
+</table>
+<p>As you may see, using the Go implementation (as a dynamic link library) is a lot slower than using the pure Python code. This <strong>is not</strong> because Python is faster than Go but because the problem we are trying to solve makes no sense to do it in Go in that way. Every time we call the external function in Python we use resources to consume the dynamic object and that affects the&nbsp;performance.</p>
+<p>To see if that was the case I decided to write the same function in plain C and export it as a <span class="caps">DLL</span> in&nbsp;Windows:</p>
+<div class="highlight"><pre><span></span><code><span class="kr">__declspec</span><span class="p">(</span><span class="n">dllexport</span><span class="p">)</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">gsum</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>The process to load it in Python is exactly the same (it is a <span class="caps">DLL</span> after all). To my surprise, this version was very&nbsp;fast:</p>
+<table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>Min</th>
+<th>Max</th>
+<th>Median</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>1000</td>
+<td>16580</td>
+<td>1067.1030</td>
+</tr>
+<tr>
+<td>Go lib</td>
+<td>2100</td>
+<td>59900</td>
+<td>2335.6452</td>
+</tr>
+<tr>
+<td>C lib</td>
+<td>580</td>
+<td>9660</td>
+<td>595.2079</td>
+</tr>
+</tbody>
+</table>
+<p>Contrary to what most people probably think, while Go creates a binary executable file, it runs inside a runtime with a garbage collector, so I think this is something that is slowing down the&nbsp;implementation. </p>
+<p><strong>Lesson learned</strong>: Think twice before using dynamic load libraries from languages like Go in Python if your purpose is to gain speed in the execution of your algorithm, do your benchmarks <em>before</em> writing your conclusions in&nbsp;stone.</p>
+<p>There are more about interoperability between Python and dynamic load libraries in other languages, a topic that I will be probably exploring in a next blog&nbsp;post.</p>
+<p><strong><span class="caps">NOTE</span></strong>: Just for completeness this is my benchmark tests (<code>benchmark_gsum.py</code>) in Python. To use it remember to install <a href="https://docs.pytest.org/en/latest/"><code>pytest</code></a> and <a href="https://github.com/ionelmc/pytest-benchmark"><code>pytest-benchmark</code></a>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="n">cdll</span>
+
+<span class="n">gosum</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="s1">&#39;./sum.dll&#39;</span><span class="p">)</span>
+<span class="n">cgsum</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="s1">&#39;./cgsum/Debug/cgsum.dll&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">GSum</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">test_python_gsum</span><span class="p">(</span><span class="n">benchmark</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">GSum</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5050</span>
+
+<span class="k">def</span> <span class="nf">test_go_gsum</span><span class="p">(</span><span class="n">benchmark</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">gosum</span><span class="o">.</span><span class="n">GSum</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5050</span>
+
+<span class="k">def</span> <span class="nf">test_c_gsum</span><span class="p">(</span><span class="n">benchmark</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">benchmark</span><span class="p">(</span><span class="n">cgsum</span><span class="o">.</span><span class="n">gsum</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5050</span>
+</code></pre></div>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2020/06/cmake-and-object-libraries.html" rel="prev" title="CMake and object libraries">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2019/10/spring-jpa-native-queries-in-resources.html" rel="next" title="Spring Boot, JPA and native queries in resources">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

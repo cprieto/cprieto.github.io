@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - The vector class, constructors and&nbsp;templates</title>
+  <meta name="description" content="While reading the fantastic book Foundations of Game Engine Development, Volume 1: Mathematics by Dr. Eric Lengyel and working through his examples I found the venerable vector3d class, a simple class to handle 3D vectors. I decided to try something different and write a slightly different version of the 3D …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="The vector class, constructors and templates" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2021/05/the-vector-class-constructors-and-templates.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The vector class, constructors and templates">
+<meta name="twitter:image" content="https://cprieto.com/images/templates.png">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>The vector class, constructors and templates</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2021-05-12T00:00:00+02:00">12 May 2021</time>
+           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">7 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>While reading the fantastic book <a href="https://foundationsofgameenginedev.com/#fged1">Foundations of Game Engine Development, Volume 1: Mathematics</a> by <a href="http://terathon.com/lengyel/">Dr. Eric Lengyel</a> and working through his examples I found the venerable <code>vector3d</code> class, a simple class to handle 3D vectors. I decided to try something different and write a slightly different version of the 3D vector class in C++, for my surprise it was not as trivial as I initially thought so I decided to write a short blog post series about my adventures in the land of modern&nbsp;C++.</p>
+<h3>A better&nbsp;constructor</h3>
+<p>​
+The first change I did was to support arbitrary length of vectors, so instead of using a &#8220;fix it all&#8221; <code>vector3d</code> class I can use a variable length vector. To simplify its implementation I decided to use a <code>std::array</code> container internally so our simple class will look like this:&nbsp;​</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">vector</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span><span class="w"> </span><span class="n">elems</span><span class="p">;</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">  </span><span class="n">vector</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>​
+What if I want to specify the values in the constructor? for example, I would love to do something like this:&nbsp;​</p>
+<div class="highlight"><pre><span></span><code>vector&lt;3&gt; v{1, 2, 3};
+</code></pre></div>
+
+<p>​
+My first impulse was create a constructor using an <code>std::initializer_list</code> :&nbsp;​</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+<p>​
+But this will kind of mess with our internal <code>std::array</code> and I really don&#8217;t want to change the container to a component like <code>std::vector</code> and there is no challenge doing this, it will be to easy so I decided to take a different path.
+​
+What if I use something like <a href="https://eli.thegreenplace.net/2014/variadic-templates-in-c/">variadic template arguments?</a>&nbsp;​</p>
+<h3>Use a template they said, it will be fun they&nbsp;said&#8230;</h3>
+<p>Let&#8217;s try to implement a variadic template to solve our constructor&nbsp;problem:</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">vector</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span><span class="w"> </span><span class="n">elems</span><span class="p">;</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">vector</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{{</span><span class="n">args</span><span class="p">...}}</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>And just like nothing we have our simplest case working! Though, you could notice a few problems, what if I pass more than 3 arguments in a <code>vector&lt;3&gt;</code>? what if I pass&nbsp;2?</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span><span class="w">  </span><span class="c1">// Works!</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span><span class="w">  </span><span class="c1">// Oops, this should fail</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span><span class="w"> </span><span class="c1">// This should fail too!</span>
+</code></pre></div>
+
+<p>We could try to check the length of arguments and throw an exception, simple,&nbsp;right?</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{{</span><span class="n">args</span><span class="p">...}}</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Args</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">invalid_argument</span><span class="p">(</span><span class="s">&quot;oops!&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>This does the job but at what cost? the exception and error was thrown <em>at running time</em> and this is not really what we are trying to do. If you think about that, we already have <em>enough information</em> to know if we are using the constructor correctly (the vector size) so we could fail <em>at compile time</em> and not waiting to fail at running time. One simple way to achieve the same at compile time is our old friend <a href="https://en.cppreference.com/w/cpp/language/static_assert"><code>static_assert</code></a>, let&#8217;s change the constructor a&nbsp;little:</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{{</span><span class="n">args</span><span class="p">...}}</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Args</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">N</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>It works and now when trying to compile our compiler will scream back at us saying we are breaking the assertion, the size of our passed arguments is not the same as the nontype template&nbsp;argument.</p>
+<h3>Can we do&nbsp;better?</h3>
+<p>I started thinking how can we do this better? I mean, it is nice for having a compiler telling us we are trying to cut our limbs but can you be a little more explicit when telling me I am doing it wrong? I approached some C++ experts and they gave me an idea! What if, listen to me, we <em>enable</em> that constructor <em>only if</em> we pass the correct number of arguments to it?. This sounds magical but thanks to the magic of templates is possible to do it with our pal <a href="https://en.cppreference.com/w/cpp/types/enable_if"><code>std::enable_if</code></a> and its&nbsp;friends.</p>
+<p>I am not going to bore you with the details (check the reference and I will give you a few readings at the end) but we can simplify our constructor to something like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">std</span><span class="o">::</span><span class="n">enable_if_v</span><span class="o">&lt;</span><span class="p">(</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Args</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="o">&gt;*</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{{</span><span class="n">args</span><span class="p">...}}</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Yes, it looks like a weird template definition but we are basically saying to enable a type <em>only if</em> the condition <code>sizeof...(Args) == N</code>, if this condition is not met the template is disabled and our constructor is never there. In an <span class="caps">IDE</span> like CLion the effect of this is amazing, now we get the error directly in the instance and not in the template, telling us there is no constructor to satisfy our&nbsp;demands!</p>
+<h3>The perils of convertible&nbsp;types</h3>
+<p>Are we done yet? what happens when we pass float parameters and integer parameters? they should just work,&nbsp;right?</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">{</span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">};</span><span class="w"> </span><span class="c1">// It works</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span><span class="w"> </span><span class="c1">// It should work but it doesn&#39;t!</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">}</span><span class="w"> </span><span class="c1">// Why are you not working?!</span>
+</code></pre></div>
+
+<p>I must confess I tried for a while to solve this problem and then a good user in the C++ slack channel point me the&nbsp;obvious:</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">std</span><span class="o">::</span><span class="n">enable_if_v</span><span class="o">&lt;</span><span class="p">(</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Args</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="o">&gt;*</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...}</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Nice! now it will work with all of our previous&nbsp;examples!</p>
+<p>Let&#8217;s try something&nbsp;risky:</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p">};</span><span class="w"> </span><span class="c1">// This should fail</span>
+</code></pre></div>
+
+<p>Well, this fails but not where we wanted it to fail! Our new shiny constructor is doing its job but not really, it is being enabled because we are passing two parameters but it should make sure those parameters <em>can be</em> casted to a <code>float</code>. Looking around I saw many solutions but thanks to C++17 new <a href="https://www.fluentcpp.com/2021/04/30/how-to-implement-stdconjunction-and-stddisjunction-in-c11/"><code>std::conjuction_v</code></a> we can stop worrying about using some hacks and use it&nbsp;directly:</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">enable_if_t</span><span class="o">&lt;</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Args</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">conjunction_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_convertible</span><span class="o">&lt;</span><span class="n">Args</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;</span><span class="p">...</span><span class="o">&gt;&gt;*</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...}</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+</code></pre></div>
+
+<p>This looks like a mouthfull in the constructor, so maybe it will be a good idea to simplify it a&nbsp;little:</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">vector_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">enable_if_t</span><span class="o">&lt;</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">conjunction_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_convertible</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;</span><span class="p">...</span><span class="o">&gt;&gt;</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">vector</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">&gt;</span><span class="w"> </span><span class="n">elems</span><span class="p">;</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">vector</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="p">,</span><span class="w"> </span><span class="n">vector_t</span><span class="o">&lt;</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">Args</span><span class="p">...</span><span class="o">&gt;*</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">elems</span><span class="p">{</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...}</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
+
+<p>And there you go, our nice vector class acts as we planned! You could add a few more additions to this template, for example, extend the template to use a type that is not <code>float</code> in case you know you want <em>only</em> vectors to contain integers, for&nbsp;example.</p>
+<h3>You want to know&nbsp;more?</h3>
+<p>I cannot stress enough how helpful has been the <a href="https://cppalliance.org/slack/">C++ Slack channel</a> community, they really rock and they are amazing helping and answering questions to newbies like me. I heavily encourage you to reach them and participate in the channel if you are into C++ and all of that. Another amazing guide for templates has been the great book <a href="https://www.google.de/books/edition/C++_Templates/PM0lYAAACAAJ">C++ Templates, The complete guide</a> by David Vandevoorde, this book has amazing content about how templates work and goes deep into implementation details, it is a must read if you are learning or already an expert in&nbsp;C++.</p>
+<p>Now, if you want to know the history about templates and how did we get where we are right now I cannot recommend <a href="https://dl.acm.org/doi/book/10.5555/2643027">From Mathematics to Generic Programming</a> by Alexander Stepanov, such an amazing book, not only for C++ developers but for anyone who wants to know more about generics and templates in&nbsp;general.</p>
+<p><a href="https://en.cppreference.com/w/cpp/20">C++20</a> is out and one of the nice things is the addition of <a href="https://www.modernescpp.com/index.php/c-20-concepts-the-details">concepts</a>, these are template constraints, very similar to those found in languages like C# and Java and this is going to be something that will really improve metaprogramming and solving similar problems like this constructor but with less code and more help from the compiler, maybe soon I will rewrite my vector class to be C++20 aware, who&nbsp;knows!</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2021/05/the-vector-class-structured-binding.html" rel="prev" title="The vector class, structured binding">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2021/03/simpler-cmake-with-conan.html" rel="next" title="Simpler CMake with Conan">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

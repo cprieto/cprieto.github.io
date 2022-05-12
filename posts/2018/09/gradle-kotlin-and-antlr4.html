@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Gradle, Kotlin and <span class="caps">ANTLR4</span></title>
+  <meta name="description" content="I remember read and learning ANTLR4 with the excelent book The definitive ANTLR4 reference by Terence Parr, it is a good book, I highly recommend it. Well, I recently wanted to read the book again and decided to do the examples with Gradle and Kotlin and while searching in the …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Gradle, Kotlin and ANTLR4" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2018/09/gradle-kotlin-and-antlr4.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Gradle, Kotlin and ANTLR4</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2018-09-13T00:00:00+02:00">13 September 2018</time>
+           on <a rel="tag" href="/tag/programming.html">programming</a>, <a rel="tag" href="/tag/compilers.html">compilers</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>          <span class="readtime">3 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>I remember read and learning <span class="caps">ANTLR4</span> with the excelent book <a href="https://pragprog.com/book/tpantlr2/the-definitive-antlr-4-reference">The definitive <span class="caps">ANTLR4</span> reference</a> by Terence Parr, it is a good book, I highly recommend it. Well, I recently wanted to read the book again and decided to do the examples with Gradle and Kotlin and while searching in the web I found a lot of different answers and tips for writing the build file, so I was like &#8220;what is the smallest gradle build I can make for this&#8221;? so I decided to write this in case somebody ask the same question or future Cristian forgets how to do&nbsp;it.</p>
+<p>Well, Gradle requires a specific project layout, so let&#8217;s do&nbsp;that:</p>
+<div class="highlight"><pre><span></span><code>.
+├── build.gradle
+└── src
+    └── main
+        ├── antlr
+        └── kotlin
+
+4 directories, 1 file
+</code></pre></div>
+
+<p>Easy, in <code>src/main/antlr</code> will be our <span class="caps">ANTLR</span> grammars and in <code>src/main/kotlin</code> <em>our</em> implementation for <span class="caps">ANTLR</span> listeners or visitors. Let&#8217;s create the smallest <code>build.gradle</code> possible for this&nbsp;layout:</p>
+<div class="highlight"><pre><span></span><code><span class="n">plugins</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="s1">&#39;antlr&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="s1">&#39;org.jetbrains.kotlin.jvm&#39;</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s1">&#39;1.2.61&#39;</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+
+<span class="n">repositories</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">mavenCentral</span><span class="o">()</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">antlr</span><span class="w"> </span><span class="s1">&#39;org.antlr:antlr4:4.7.1&#39;</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>We are using Gradle plugin <span class="caps">DSL</span> notation and the <a href="https://kotlinlang.org/docs/reference/using-gradle.html">Kotlin Gradle plugin</a> with the included <a href="https://docs.gradle.org/current/userguide/antlr_plugin.html"><span class="caps">ANTLR</span> plugin</a>, see? nothing&nbsp;fancy.</p>
+<p>When building, Gradle will generate java sources with the Lexers/Parsers and place them in a generated sources directory, I had seen a lot of post out there with scripts moving the generated sources or putting them in fancy directories, nah, we don&#8217;t want that, we want something super simple, so let&#8217;s go with the&nbsp;defaults.</p>
+<p>Let&#8217;s generate a simple grammar and tell to use a specific package for it as&nbsp;well:</p>
+<div class="highlight"><pre><span></span><code><span class="k">grammar</span><span class="w"> </span><span class="nc">Hello</span><span class="p">;</span><span class="w"></span>
+
+<span class="nl">@header</span><span class="w"> </span><span class="p">{</span><span class="x"></span>
+<span class="x">package com.cprieto.sample;</span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="nl">hello</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;hello&#39;</span><span class="w"> </span><span class="no">ID</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="nl">ID</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="x">a-zA-Z</span><span class="p">]</span><span class="o">+</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="nl">WS</span><span class="w">   </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="x"> \r\n\t</span><span class="p">]</span><span class="o">+</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nv">skip</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+
+<p>Remember to save it in <code>src/main/antlr/com/cprieto/sample/Hello.g4</code>, We are using a package and we need to place the grammar file in the same layout we will put our source&nbsp;code.</p>
+<p>Ok, as a simple matter of test, let&#8217;s create a simple Listener for our&nbsp;parser:</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">com.cprieto.sample</span><span class="w"></span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">SampleListener</span><span class="p">:</span><span class="w"> </span><span class="n">HelloBaseListener</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>It is so simple it does nothing! but hey, it is a start! This needs to be saved in the expected Kotlin source set: <code>src/main/kotlin/com/cprieto/sample/SampleListener.kt</code></p>
+<p>If we try to compile, guess what, it will fail! This is because our Kotlin source cannot find the generated source files from the grammar by <span class="caps">ANTLR</span>, remember, the <span class="caps">ANTLR</span> plugin <em>knows</em> about the Java plugin but not about any other plugin, so we have to manually solve that, just add a line to your Gradle&nbsp;file:</p>
+<div class="highlight"><pre><span></span><code><span class="n">plugins</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="s1">&#39;antlr&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="s1">&#39;org.jetbrains.kotlin.jvm&#39;</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s1">&#39;1.2.61&#39;</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+
+<span class="n">repositories</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">mavenCentral</span><span class="o">()</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">antlr</span><span class="w"> </span><span class="s1">&#39;org.antlr:antlr4:4.7.1&#39;</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
+
+<span class="hll"><span class="n">compileKotlin</span><span class="o">.</span><span class="na">dependsOn</span><span class="w"> </span><span class="n">generateGrammarSource</span><span class="w"></span>
+</span></code></pre></div>
+
+<p>Done! this is the simples gradle build file for Kotlin, it is short and concise, of course if you have more dependencies or need you can grow from&nbsp;there.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2019/02/testing-sqlalchemy-with-sqlite-in-memory-and-schemas.html" rel="prev" title="Testing SQLAlchemy with SQLite in memory and schemas">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-3.html" rel="next" title="OCaml and sequences from scratch, part 3">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Data structures, simple single linked lists using&nbsp;Go</title>
+  <meta name="description" content="We already talked about queues and how to implement them using arrays and “lists” so I think I should expand a little more about why we do the differentiation between arrays (or vectors) and lists. A big difference between linked lists (not list, I will clarify later why) and vectors …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Data structures, simple single linked lists using Go" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2020/08/data-structures-simple-single-linked-lists.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Data structures, simple single linked lists using Go">
+<meta name="twitter:image" content="https://cprieto.com/images/linkedlist-1.png">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Data structures, simple single linked lists using Go</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-08-14T00:00:00+02:00">14 August 2020</time>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/go.html">go</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">6 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>We already talked about queues and how to implement them using arrays and &#8220;lists&#8221; so I think I should expand a little more about why we do the differentiation between arrays (or vectors) and&nbsp;lists.</p>
+<p>A big difference between linked lists (not list, I will clarify later why) and vectors or arrays is the memory usage. In an array (or vector) we allocate the whole size of the array in the moment we create the array, for example, if we create an array of integers with 10 members we will immediately allocate a continous block of memory of a size of 10 integers. This makes arrays difficult to scale if we are adding or removing elements constantly, if we decide we will have a max of 100 elements but most of the time we contain only 15 we are <em>wasting</em> 85 element size spaces in nothing but if we decide to store more than 100 elements then we will have to <em>resize</em> the array and that will require request another chunk of memory and then relocate all the elements to their new addresses, not a really nice thing to be taken care&nbsp;of.</p>
+<p>A work around for this is using a linked list, in its simplest form it is just a node that points to the next node, if you read my blog post about <a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-1.html">implementing lists in OCaml from scratch</a> it is simple to do in a functional language like&nbsp;OCaml:</p>
+<div class="highlight"><pre><span></span><code><span class="k">type</span> <span class="k">&#39;</span><span class="n">a</span> <span class="n">seq</span> <span class="o">=</span> 
+  <span class="o">|</span> <span class="nc">End</span>
+  <span class="o">|</span> <span class="nc">Next</span> <span class="k">of</span> <span class="k">&#39;</span><span class="n">a</span> <span class="o">*</span> <span class="n">a&#39;</span> <span class="n">seq</span>
+<span class="o">;;</span>
+</code></pre></div>
+
+<p>There are many different types of linked lists (in fact, I usually find more different types in literature every week) but the most common is the <a href="https://en.wikipedia.org/wiki/Linked_list">single linked list</a> where a node only points to the next node in the list or to nothing if it is the last one in the list (there are many variations of this mix, I will probably mention them in a separate post in the&nbsp;future).</p>
+<p><img alt="Simple single linked list" src="https://cprieto.com/posts/2020/08/images/linkedlist-1.png"></p>
+<p>Because implementing a linked list in a functional programming is kind of cheating for me (you saw the implementation in <a href="https://de.wikipedia.org/wiki/Objective_CAML">OCaml</a>) I will do in a more close to real language, <a href="https://golang.org/">Go</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">node</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">data</span><span class="w"> </span><span class="kt">string</span><span class="w"></span>
+<span class="w">    </span><span class="nx">next</span><span class="w"> </span><span class="o">*</span><span class="nx">node</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">LinkedList</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">top</span><span class="w"> </span><span class="o">*</span><span class="nx">node</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">list</span><span class="w"> </span><span class="o">*</span><span class="nx">LinkedList</span><span class="p">)</span><span class="w"> </span><span class="nx">IsEmpty</span><span class="p">()</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">list</span><span class="w"> </span><span class="o">*</span><span class="nx">LinkedList</span><span class="p">)</span><span class="w"> </span><span class="nx">Append</span><span class="p">(</span><span class="nx">element</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">n</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">node</span><span class="p">{</span><span class="nx">data</span><span class="p">:</span><span class="w"> </span><span class="nx">element</span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">n</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">current</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">current</span><span class="p">.</span><span class="nx">next</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">current</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">current</span><span class="p">.</span><span class="nx">next</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">current</span><span class="p">.</span><span class="nx">next</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">n</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">list</span><span class="w"> </span><span class="o">*</span><span class="nx">LinkedList</span><span class="p">)</span><span class="w"> </span><span class="nx">Prepend</span><span class="p">(</span><span class="nx">element</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">n</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">node</span><span class="p">{</span><span class="nx">data</span><span class="p">:</span><span class="w"> </span><span class="nx">element</span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">n</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">n</span><span class="p">.</span><span class="nx">next</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"></span>
+<span class="w">    </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">n</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>As you see, <em>appending</em> (adding an element at the end) with our simple list is a very expensive operation, <span class="math">\(\Theta(n)\)</span>, while <em>prepending</em> (adding an element at the beginning) is always <span class="math">\(\Theta(1)\)</span>. Yes, there are ways we can amortize this, for example using a pointer for the <em>tail</em> of the list but for now I will keep it simple to illustrate my point, in fact, to do the most basic linked list we don&#8217;t even need a separate structure (as here with <code>LinkedList</code>) because only knowing the first node is enough to go around the whole list, that way is actually really common instead of using a whole completely alternate structure, a linked list is more an implementation (data structure) than an abstract data&nbsp;type.</p>
+<p>I made the previous distinction because a common question I get all the time is &#8220;when should we implement our own data structure from scratch?&#8221; and to be honest my answer, 99% of the time, would be <strong>never</strong>, just use the data structures including in your standard libraries but there is usually that 1% that needs you to know &#8220;oh, this actually looks like a problem where I just need to point to the first element and then that will point to the next and so on because I will always only add elements at the beginning&#8221; so in your mind you know you should implement a data structure named a linked list, see? it is not in vain learning all these banal stuff, believe me, one day it will save the day&nbsp;;)</p>
+<p>As usual I leave you here with the test implementation, I just used here the <a href="https://github.com/stretchr/testify">testify</a> external library because honestly, I dislike how verbose unit tests are in Go. I leave to you to implement the remove and search operations (spoiler alert, it will be a <span class="math">\(\mathcal{O}(n)\)</span>&nbsp;operation).</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;testing&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;github.com/stretchr/testify/assert&quot;</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">TestEmptyList</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">list</span><span class="w"> </span><span class="nx">LinkedList</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">True</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">IsEmpty</span><span class="p">())</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">TestEmptyListAppendOneItem</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">list</span><span class="w"> </span><span class="nx">LinkedList</span><span class="w"></span>
+<span class="w">    </span><span class="nx">list</span><span class="p">.</span><span class="nx">Append</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">NotNil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">False</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">IsEmpty</span><span class="p">())</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">TestListAppendsAtTheEnd</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">list</span><span class="w"> </span><span class="nx">LinkedList</span><span class="w"></span>
+<span class="w">    </span><span class="nx">list</span><span class="p">.</span><span class="nx">Append</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">list</span><span class="p">.</span><span class="nx">Append</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">NotNil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">TestListPrependsAtTheBeginning</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">list</span><span class="w"> </span><span class="nx">LinkedList</span><span class="w"></span>
+<span class="w">    </span><span class="nx">list</span><span class="p">.</span><span class="nx">Append</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">list</span><span class="p">.</span><span class="nx">Prepend</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">NotNil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">.</span><span class="nx">top</span><span class="p">.</span><span class="nx">next</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p><strong><span class="caps">PD</span></strong>: I made the distinction between lists and linked lists mostly because languages like Python, in Python a linked list internally uses an <a href="http://effbot.org/pyfaq/how-are-lists-implemented.htm">an array to store the pointers to the elements</a> and not a linked list, like OCaml or&nbsp;Lisp.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2020/08/data-structures-the-humble-stack.html" rel="prev" title="Data structures, the humble Stack">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/08/data-structures-queue-using-arrays.html" rel="next" title="Data structures, a queue using arrays in C++">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

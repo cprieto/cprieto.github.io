@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Handling external dependencies in C/C++ with&nbsp;Vcpkg</title>
+  <meta name="description" content="If you had been developing software for a while, you already know the advantages of using a good package manager for your dependencies, every Javascript developer knows about npm, Java developers have Maven and .Net developers (last time I checked) still use Nuget, what about C/C++ developers? how do …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Handling external dependencies in C/C++ with Vcpkg" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-vcpkg.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Handling external dependencies in C/C++ with Vcpkg</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-10-12T00:00:00+02:00">12 October 2020</time>
+           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/c.html">c</a>, <a rel="tag" href="/tag/build.html">build</a>, <a rel="tag" href="/tag/cmake.html">cmake</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>          <span class="readtime">6 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>If you had been developing software for a while, you already know the advantages of using a good package manager for your dependencies, every Javascript developer knows about <a href="https://npmjs.com">npm</a>, Java developers have <a href="https://maven.apache.org">Maven</a> and .Net developers (last time I checked) still use <a href="https://www.nuget.org/">Nuget</a>, what about C/C++ developers? how do we handle external libraries and&nbsp;dependencies?</p>
+<p>Well, in the native world of C/C++ things are a little different (mostly because historical reasons). C/C++ are a different &#8220;beast&#8221; and there are many factors and reasons it is really hard to develop a standard and common package manager for them because you have to deal with a library or libraries that have different settings and configurations for different operating systems, architectures, release types and even compilers! (yes, while we have standards compilers sometimes add specific extensions that are not compatible between them, generating different binaries). It is not as easy as just download the package and their dependencies and that is all, you have to deal with a lot of other factors when compiling a C/C++ program, hence the difficulty of creating a common, easy to use and compatible package&nbsp;manager.</p>
+<p>That does not mean we had not tried, there are out there a plethora of package manager attempts in the C/C++ world (as many as build systems) and some of them have more success than others. One I recently discovered and started using is <a href="https://github.com/microsoft/vcpkg">vcpkg</a>, by Microsoft, a multiplatform and open source package manager designed with versatility in mind. I struggled a little when starting learning how to use it so I decided to write a simple post about using it from scratch so I don&#8217;t forget next time I need&nbsp;it.</p>
+<h3>Installation</h3>
+<p>This is, in my opinion, the first big pain point in using Vcpkg, there is no simple installer, no <a href="https://chocolatey.org">Chocolatey</a> or <a href="https://scoop.sh">Scoop</a> in Windows or any <a href="https://brew.sh/">Homebrew</a> recipe in macOS (and yes, before you ask, no packages for Linux distros). The &#8220;way&#8221; you have to install Vcpkg is the &#8220;old way&#8221;, you have to clone the repository and set its path in your executable path to use it&#8230; Yes, the problem it promises to solve is not really a problem they solved for&nbsp;themselves&#8230;</p>
+<ul>
+<li>First we clone the repository: <code>git clone https://github.com/microsoft/vcpkg.git d:\code\vcpkg</code></li>
+<li>Now we need to <em>build</em> the tool for our <span class="caps">OS</span>, yes, after all you are going to do C/C++ development in your&nbsp;machine!</li>
+<li>There is a bootstrap script (<code>bootstrap-vcpkg.bat</code> or <code>bootstrap-vcpkg.sh</code> if you are in Windows or macOS/Linux). The script will tell you if you need to install any required&nbsp;dependency</li>
+<li>Now that the building for the tool finished, you need to add it to your executable path, do this as you are used to in your operating system, I am pretty sure I don&#8217;t have to tell you how to do this if you are reading this blog&nbsp;post</li>
+<li>The previous step is very important, somehow vcpkg depends and assume it is in your executable path. I had tried using temporary paths and path replacement and it simple does not&nbsp;work!</li>
+</ul>
+<h3>Using&nbsp;dependencies</h3>
+<p>Let&#8217;s do something simple. I use <a href="https://en.wikipedia.org/wiki/JSON"><span class="caps">JSON</span></a> in a fair amount at my work, so let&#8217;s do a simple program using the popular <a href="https://github.com/nlohmann/json">nlohmann/json</a> library for parsing it in C++, it will be a simple C++ program (you can try with plain C and your favourite <span class="caps">JSON</span> library as&nbsp;well):</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="s">&quot;{ </span><span class="se">\&quot;</span><span class="s">name</span><span class="se">\&quot;</span><span class="s">: </span><span class="se">\&quot;</span><span class="s">cristian</span><span class="se">\&quot;</span><span class="s"> }&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;His name is: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">entry</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>As you see, nothing really complicated, just a simple program to show how to use <em>any</em> other external library. Now let&#8217;s search for the <span class="caps">JSON</span> library in <code>vcpkg</code> using the <code>search</code> command:</p>
+<div class="highlight"><pre><span></span><code>vcpkg search nlohmann
+</code></pre></div>
+
+<p>We found the library in <span class="caps">VCPKG</span>:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">json</span><span class="o">-</span><span class="nv">schema</span><span class="o">-</span><span class="nv">valid</span>... <span class="mi">2</span>.<span class="mi">1</span>.<span class="mi">0</span>            <span class="nv">This</span> <span class="nv">is</span> <span class="nv">a</span> <span class="nv">C</span><span class="o">++</span> <span class="nv">library</span> <span class="k">for</span> <span class="nv">validating</span> <span class="nv">JSON</span> <span class="nv">documents</span> <span class="nv">based</span> <span class="nv">on</span> <span class="nv">a</span> <span class="nv">JSON</span> <span class="nv">Schema</span>. <span class="nv">Th</span>...
+<span class="nv">nlohmann</span><span class="o">-</span><span class="nv">fifo</span><span class="o">-</span><span class="nv">map</span>    <span class="mi">2018</span>.<span class="mi">05</span>.<span class="mi">07</span><span class="o">-</span><span class="mi">1</span>     <span class="nv">a</span> <span class="nv">FIFO</span><span class="o">-</span><span class="nv">ordered</span> <span class="nv">associative</span> <span class="nv">container</span> <span class="k">for</span> <span class="nv">C</span><span class="o">++</span>
+<span class="nv">nlohmann</span><span class="o">-</span><span class="nv">json</span>        <span class="mi">3</span>.<span class="mi">9</span>.<span class="mi">1</span>            <span class="nv">JSON</span> <span class="k">for</span> <span class="nv">Modern</span> <span class="nv">C</span><span class="o">++</span>
+</code></pre></div>
+
+<p>It is time to install it, we do this with the <code>install</code> command:</p>
+<div class="highlight"><pre><span></span><code>vcpkg install nlohmann-json
+</code></pre></div>
+
+<p>If you look at the bottom, after installing the package you will see the following&nbsp;message:</p>
+<div class="highlight"><pre><span></span><code>The package nlohmann-json:x86-windows provides CMake targets:
+
+    find_package<span class="o">(</span>nlohmann_json CONFIG REQUIRED<span class="o">)</span>
+    target_link_libraries<span class="o">(</span>main PRIVATE nlohmann_json nlohmann_json::nlohmann_json<span class="o">)</span>
+</code></pre></div>
+
+<p>And that will be all&#8230; Not really, now we need to write our <a href="https://cprieto.com/tag/cmake.html">CMake</a> build file (<code>CMakeLists.txt</code>) and add those lines for our&nbsp;dependencies:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.10</span><span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span><span class="s">sample</span><span class="p">)</span>
+
+<span class="nb">find_package</span> <span class="p">(</span><span class="s">nlohmann_json</span><span class="w"> </span><span class="s">CONFIG</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+
+<span class="nb">add_executable</span> <span class="p">(</span><span class="s">main</span><span class="w"> </span><span class="s">main.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span><span class="s">main</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">nlohmann_json</span><span class="w"> </span><span class="s">nlohmann_json::nlohmann_json</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And now it is time to build, as usual, let&#8217;s do an <em>out-of-source</em> build with CMake, but this time, we need to pass the path for the special file <code>vcpkg.cmake</code> coming in the vcpkg <em>installation</em>&nbsp;directory:</p>
+<div class="highlight"><pre><span></span><code>mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+cmake .. <span class="s2">&quot;-DCMAKE_TOOLCHAIN_FILE=d:\code\vcpkg\scripts\buildsystems\vcpkg.cmake&quot;</span>
+cmake --build . --clean-first
+</code></pre></div>
+
+<p>If you did the previous steps in a macOS or Linux machine (or in a Windows 32 machine) you will have the <code>main</code> executable build and ready to run, but in Windows 64 it will tell you the package is not there or something regarding not finding the package nlohmann_json (the package you needed to install)&#8230; What is happening? I thought this was cross&nbsp;platform?</p>
+<h4>The problem building in&nbsp;Windows</h4>
+<p>Well, it is not in their tutorial but I found the problem is the platform you compiled Vcpkg in Windows, by default it is compiled for 32 bit architecture in Windows and <em>every package</em> you install will be installed for that platform. If you try to compile the previous example telling CMake to use 32 bit instead of 64 bit (using Visual Studio 2019) it will just&nbsp;work:</p>
+<div class="highlight"><pre><span></span><code>cmake .. <span class="s2">&quot;-DCMAKE_TOOLCHAIN_FILE=d:\code\vcpkg\scripts\buildsystems\vcpkg.cmake&quot;</span> -A Win32
+</code></pre></div>
+
+<p>What if I want the library and executable as a 64 bit application? well, you just have to tell to Vcpkg that you need to install the 64 bit of the library instead of whatever it decides to install, this platform specification is for more than just your <span class="caps">CPU</span> architecture but includes the compiler, operating system and type of library (static/dynamic). You can see the supported triplets using <code>vcpkg help triplets</code>. Meanwhile we just tell to Vcpkg to install the Win64 library for nlohmann/json for our&nbsp;example:</p>
+<div class="highlight"><pre><span></span><code>vcpkg install nlohman-json:x64-windows
+</code></pre></div>
+
+<p>Now we can compile as both 32 and 64 bit just passing the correct parameter to CMake and it won&#8217;t&nbsp;fail!</p>
+<p>If you write code in Windows and you are going to develop applications <em>only</em> for 64 Windows then you can pass the parameter <code>win64</code> when building Vcpkg (in the bootstrap&nbsp;script):</p>
+<div class="highlight"><pre><span></span><code>bootstrap-vcpkg.bat -win64
+</code></pre></div>
+
+<p>And now it will fetch the x64-windows triplet by default when installing any&nbsp;libraries.</p>
+<p><strong><span class="caps">UPDATE</span></strong>: This actually does not work and it doesn&#8217;t matter if Vcpkg is compiled for x64 in Windows. By default, in Windows, the build architecture will be <em>always</em> x86 and if you want to install a package for x64 you have to always specify the architecture triplet in the name or using the <code>--triplet</code> parameter. Another option is using the environment variable <code>VCPKG_DEFAULT_TRIPLET=x64-windows</code> to tell to Vcpkg to always use x64, go figure! There is <a href="https://github.com/microsoft/vcpkg/issues/1254">a closed issue</a> with this&nbsp;problem.</p>
+<h3>Is that&nbsp;all?</h3>
+<p>Well, not really, there are many additional commands and use cases for Vcpkg, it is pretty mature and widely used and more libraries are constantly added to the repertoire. The documentation is <em>ok</em> and while is made by Microsoft it is clearly not centered around the Microsoft world. I really wish their setup and installation use cases feel a little less &#8220;hacky&#8221; but I see a lot of improvements in the&nbsp;tooling.</p>
+<p>Is this the only package manager I should use for C/C++? not really, in big projects you will probably end up with a mix of them. There is another really good package manager out there, <a href="https://conan.io/">Conan</a>, but I will talk about it and how to use it in another blog post in the near&nbsp;future.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-conan.html" rel="prev" title="Handling external dependencies in C/C++ with Conan">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/10/profiling-jvm-applications-inside-containers.html" rel="next" title="Profiling JVM applications inside containers">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

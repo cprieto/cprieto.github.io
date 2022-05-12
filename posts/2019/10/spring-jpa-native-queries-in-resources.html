@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Spring Boot, <span class="caps">JPA</span> and native queries in&nbsp;resources</title>
+  <meta name="description" content="A few days at work we were in the middle of a refactoring of a sort of big code base, we are using Spring Boot 2.0 and Hibernate/JPA for database access. Because the database we connect to is a little complicated (don’t ask why), to speed up …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Spring Boot, JPA and native queries in resources" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2019/10/spring-jpa-native-queries-in-resources.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Spring Boot, JPA and native queries in resources">
+<meta name="twitter:image" content="https://cprieto.com/images/pear_leaf.jpg">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Spring Boot, JPA and native queries in resources</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2019-10-04T00:00:00+02:00">04 October 2019</time>
+           on <a rel="tag" href="/tag/programming.html">programming</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/java.html">java</a>, <a rel="tag" href="/tag/spring.html">spring</a>          <span class="readtime">3 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>A few days at work we were in the middle of a refactoring of a sort of big code base, we are using Spring Boot 2.0 and Hibernate/<span class="caps">JPA</span> for database access. Because the database we connect to is a little complicated (don&#8217;t ask why), to speed up and simplify some queries, instead of using <span class="caps">JPQL</span> or <span class="caps">JPA</span> generated methods we decided to go and write the native <span class="caps">SQL</span>.</p>
+<p>Currently, our <span class="caps">JPA</span> Repositories look something like this (of course this is a fictional&nbsp;domain):</p>
+<div class="highlight"><pre><span></span><code><span class="kd">interface</span><span class="w"> </span><span class="nc">FruitRepository</span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Fruit</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;SELECT f.id, CONCAT(&#39;delicious &#39;, f.name), f.color FROM fruit WHERE f.name = :name&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">        </span><span class="n">nativeQuery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getDeliciousFruit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">Fruit</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>There is nothing wrong with this query, it works, but just for a moment imagine such query with 10 or 15 lines length! immediately your eyes will roll and see a lot of <em>noise</em> around the method (I personally don&#8217;t like mixing both, especially when the native <span class="caps">SQL</span> is really big), immediately the following question was&nbsp;raised:</p>
+<blockquote>
+<p>Can we place the native <span class="caps">SQL</span> outside in a resource file or something like&nbsp;that?</p>
+</blockquote>
+<p>The answer, of course, is yes, and it is very easy if you are using Spring Boot and <span class="caps">JPA</span>!</p>
+<p>The first step is create a new file named <code>orm.xml</code> in your <code>resources/META-INF</code> directory (the full path would be <code>resources/META-INF/orml.xml</code>), this is very important. Inside this file we place the native query in the following format (notice the <code>CDATA</code> to allow line breaks and long&nbsp;queries):</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;entity-mappings</span>
+        <span class="na">xmlns=</span><span class="s">&quot;http://java.sun.com/xml/ns/persistence/orm&quot;</span>
+        <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+        <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd&quot;</span>
+        <span class="na">version=</span><span class="s">&quot;2.0&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;named-native-query</span> <span class="na">name=</span><span class="s">&quot;Fruit.getDeliciousFruit&quot;</span> <span class="na">result-class=</span><span class="s">&quot;com.example.Fruit&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;query&gt;</span>
+            <span class="cp">&lt;![CDATA[</span>
+<span class="cp">                SELECT f.id, CONCAT(&#39;delicious &#39;, f.name), f.color</span>
+<span class="cp">                FROM FRUIT</span>
+<span class="cp">                WHERE f.name = :name</span>
+<span class="cp">            ]]&gt;</span>
+        <span class="nt">&lt;/query&gt;</span>
+    <span class="nt">&lt;/named-native-query&gt;</span>
+<span class="nt">&lt;/entity-mappings&gt;</span>
+</code></pre></div>
+
+<p>Now you should change your <span class="caps">JPA</span> repository to something&nbsp;thinner:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// NOTE: native queries in orm.xml</span><span class="w"></span>
+<span class="kd">interface</span><span class="w"> </span><span class="nc">FruitRepository</span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Fruit</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="n">nativeQuery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getDeliciousFruit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">Fruit</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Voila! it&nbsp;works!</p>
+<p>Something important to notice is the name of the query. To allow Spring <span class="caps">JPA</span> to automatically detect the query name the format should be <code>Entity.queryMethodName</code> and <span class="caps">NOT</span> <code>Repository.queryMethodName</code> and with Entity it refers to the return class specified by the repository method <span class="caps">AND</span> the <code>result-class</code> in your <code>orm.xml</code>, in native queries we have to specify the return type explicitly because it is impossible for your <span class="caps">JPA</span> engine to know what type will it&nbsp;return.</p>
+<p>I am pretty sure this question has been raised before but for some reason my Google abilities were failing or I found a way using a third party library, in my heart I knew there was a way to do it in <span class="caps">JPA</span>&nbsp;;)</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2020/04/consuming-go-code-in-python.html" rel="prev" title="Consuming Go code in Python">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2019/09/modulus-is-not-remainder.html" rel="next" title="Modulus is not Remainder">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

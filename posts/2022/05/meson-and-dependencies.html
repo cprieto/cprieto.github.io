@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Meson and&nbsp;dependencies</title>
+  <meta name="description" content="I know meson has been out for a while but last time I checked, support was very rudimentary and it didn’t fit my workflow for what I wanted to do. Well, apparently times had changed and now is a pretty awesome build system, supported by a wide range of …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Meson and dependencies" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2022/05/meson-and-dependencies.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Meson and dependencies</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2022-05-11T00:00:00+02:00">11 May 2022</time>
+           on <a rel="tag" href="/tag/c.html">c++</a>, <a rel="tag" href="/tag/native.html">native</a>, <a rel="tag" href="/tag/programming.html">programming</a>, <a rel="tag" href="/tag/meson.html">meson</a>, <a rel="tag" href="/tag/building.html">building</a>          <span class="readtime">3 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>I know <a href="https://mesonbuild.com/index.html">meson</a> has been out for a while but last time I checked, support was very rudimentary and it didn&#8217;t fit my workflow for what I wanted to do. Well, apparently times had changed and now is a pretty awesome build system, supported by a wide range of projects (especially in Linux) and many IDEs and editors (for example, <a href="https://wanzenbug.xyz/clion-meson-compiledb/">CLion</a> and <a href="https://marketplace.visualstudio.com/items?itemName=mesonbuild.mesonbuild">Visual Studio Code</a>). I don&#8217;t even need to explain how to build with Meson, the documentation is <em>amazing</em> and so easy to follow, you can be productive building your project in no&nbsp;time!</p>
+<p>For my workflow I am more interested in <em>integrating a project using Meson</em> with dependencies you can grab somewhere else, I mean, your project rarely lives in isolation and depends on other libraries, installed or not in your machine, so how dows Meson would fit in those scenarios?. I did a few experiments and went through the documentation but a few papercuts were done, so I decided to put it in a simple post so I can remember in the&nbsp;future.</p>
+<h4>Meson and&nbsp;wraps</h4>
+<p>Meson has the concept of <a href="https://mesonbuild.com/Subprojects.html">subprojects</a>, that is, you can componetize your main project in smaller Meson projects and that is all, later you handle those dependencies in your main project as is they were part of your project. With <em>external</em> projects, you know, those living in GitHub or some other place, you have what Meson calls <a href="https://mesonbuild.com/Wrap-dependency-system-manual.html">wraps</a> which basically is just a small file with metadata about how to grab your project and instructions about exported dependencies. Meson offers a database of existing <em>wraps</em> (known as <a href="https://mesonbuild.com/Using-the-WrapDB.html">wrapdb</a>) and tooling to easy the&nbsp;process.</p>
+<p>Let&#8217;s take a simple example from <a href="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-conan.html">handling dependencies with Conan</a> blog&nbsp;post:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">{ &quot;name&quot;: &quot;cristian&quot; }</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;His name is: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">entry</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>We need the excelent NLohmann <span class="caps">JSON</span> library, and affortunately they are listed in the WrapDB (the library actually offers a CMakeLists and Meson build files), so to include this as a wrap dependency we just type in the command line (you need to have the <code>subprojects</code> directory&nbsp;created):</p>
+<div class="highlight"><pre><span></span><code>meson wrap install nlohmann_json
+</code></pre></div>
+
+<p>This will install a very small <code>.wrap</code> file telling us things like where to get the source code and, more importantly, what is the name of the exported dependencies, in this case <code>nlohmann_json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[wrap-file]</span><span class="w"></span>
+<span class="na">directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">nlohmann_json-3.10.5</span><span class="w"></span>
+<span class="na">lead_directory_missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">source_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://github.com/nlohmann/json/releases/download/v3.10.5/include.zip</span><span class="w"></span>
+<span class="na">source_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">nlohmann_json-3.10.5.zip</span><span class="w"></span>
+<span class="na">source_hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">b94997df68856753b72f0d7a3703b7d484d4745c567f3584ef97c96c25a5798e</span><span class="w"></span>
+
+<span class="k">[provide]</span><span class="w"></span>
+<span class="na">nlohmann_json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">nlohmann_json_dep</span><span class="w"></span>
+</code></pre></div>
+
+<p>In our <code>meson.build</code> file we just add this as a dependency, as any other dependency (as described in the <a href="https://mesonbuild.com/Dependencies.html">dependency</a> segment in the&nbsp;documentation):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;hello_cristian&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="n">nlohman_json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dependency</span><span class="p">(</span><span class="s">&#39;nlohmann_json&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="nb">executable</span><span class="p">(</span><span class="s">&#39;demo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;main.cpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">nlohman_json</span><span class="p">])</span><span class="w"></span>
+</code></pre></div>
+
+<p>Done! this will build nicely in Windows and Linux!. In macOS you will probably have some weird syntax errors, this is mostly because you need C++11 or higher to use this <span class="caps">JSON</span> library, that is no problem, just set the required parameters in your Meson file if we are running in&nbsp;macOS:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;hello_cristian&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="k">if</span><span class="w"> </span><span class="vm">build_machine</span><span class="p">.</span><span class="n">system</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&#39;darwin&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">add_project_arguments</span><span class="p">(</span><span class="s">&#39;-std=c++17&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">language</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&#39;cpp&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="k">endif</span><span class="w"></span>
+
+<span class="n">nlohman_json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dependency</span><span class="p">(</span><span class="s">&#39;nlohmann_json&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="nb">executable</span><span class="p">(</span><span class="s">&#39;demo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;main.cpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">nlohman_json</span><span class="p">])</span><span class="w"></span>
+</code></pre></div>
+
+<p>You can get as creative as you want with the <code>if</code> statement, but just with that simple example you see how nice our build file looks&nbsp;like!</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2022/05/meson-and-external-wraps.html" rel="prev" title="Meson and external wraps">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2021/07/queues-with-python-asyncio.html" rel="next" title="queues with Python asyncio">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

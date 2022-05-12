@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - OCaml and sequences from scratch, part&nbsp;2</title>
+  <meta name="description" content="This is the second part of my series about simple sequences in OCaml from scratch, the first part is here. We are going to explore a few more complex but not difficult list (or our own definition, seq) functions, they will be our building blocks for (hopefully) future blog posts …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="OCaml and sequences from scratch, part 2" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-2.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OCaml and sequences from scratch, part 2">
+<meta name="twitter:image" content="https://cprieto.com/images/camel.jpg">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>OCaml and sequences from scratch, part 2</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2018-02-08T00:00:00+01:00">08 February 2018</time>
+           on <a rel="tag" href="/tag/ocaml.html">ocaml</a>, <a rel="tag" href="/tag/sequences.html">sequences</a>, <a rel="tag" href="/tag/samples.html">samples</a>, <a rel="tag" href="/tag/learning.html">learning</a>, <a rel="tag" href="/tag/functional-programming.html">functional programming</a>, <a rel="tag" href="/tag/algorithms.html">algorithms</a>          <span class="readtime">4 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>This is the second part of my series about simple sequences in OCaml from scratch, the first part is <a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-1.html">here</a>.</p>
+<p>We are going to explore a few more complex but not difficult list (or our own definition, <code>seq</code>) functions, they will be our building blocks for (<em>hopefully</em>) future blog posts. This is a very common pattern in functional programming algorithms, base in smaller functions doing a simple operation. Isn&#8217;t it&nbsp;beautiful?!</p>
+<p>Now it is time for a little more complicated functions, we will start with one of the jewels of the OCaml standard library, <code>rev</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">sample</span> <span class="o">=</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nc">End</span><span class="o">)))</span> <span class="o">;;</span>
+
+<span class="k">let</span> <span class="n">seq_rev</span> <span class="n">l</span> <span class="o">=</span>
+  <span class="k">let</span> <span class="k">rec</span> <span class="n">rev&#39;</span> <span class="n">acc</span> <span class="o">=</span> <span class="k">function</span>
+    <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="n">acc</span>
+    <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">tl</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">rev&#39;</span> <span class="o">(</span><span class="n">seq_cons</span> <span class="n">x</span> <span class="n">acc</span><span class="o">)</span> <span class="n">tl</span>
+  <span class="k">in</span>
+  <span class="n">rev&#39;</span> <span class="nc">End</span> <span class="n">l</span>
+<span class="o">;;</span>
+
+<span class="n">seq_rev</span> <span class="n">sample</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_rev : 'a seq -&gt; 'a seq = &lt;fun&gt;
+- : int seq = Next (3, Next (2, Next (1, End)))
+</pre>
+</div>
+</div>
+<p>I said before this is one of the jewels of OCaml, while implementing sequence operations you will use it <em>many times</em>.</p>
+<p>Now let&#8217;s try something a little more complex, the <code>init</code> function, the idea is that you provide a function <code>f</code> and a number <code>n</code> and it will return a sequence with <em><code>n</code> number of elements when applying the function <code>f</code> <code>n</code>  number of times</em>. The signature of the function is <code>int -&gt; 'a</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_init</span> <span class="n">n</span> <span class="n">f</span> <span class="o">=</span>
+  <span class="k">let</span> <span class="k">rec</span> <span class="n">init&#39;</span> <span class="n">n&#39;</span> <span class="n">acc</span> <span class="o">=</span> 
+    <span class="k">if</span> <span class="n">n&#39;</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">then</span> <span class="n">acc</span> <span class="k">else</span> <span class="n">init&#39;</span> <span class="o">(</span><span class="n">n&#39;</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="o">(</span><span class="n">cons_seq</span> <span class="o">(</span><span class="n">f</span> <span class="n">n&#39;</span><span class="o">)</span> <span class="n">acc</span><span class="o">)</span>
+  <span class="k">in</span>
+  <span class="n">init&#39;</span> <span class="n">n</span> <span class="nc">End</span>
+<span class="o">;;</span>
+
+<span class="n">seq_init</span> <span class="mi">3</span> <span class="o">(</span><span class="k">fun</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span><span class="o">)</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_init : int -&gt; (int -&gt; 'a) -&gt; 'a seq = &lt;fun&gt;
+- : int seq = Next (1, Next (2, Next (3, End)))
+</pre>
+</div>
+</div>
+<p>As you see, the <em>inner accumulator</em> pattern is used here as well, get used to it because it is <em>very common</em> in OCaml, oh, and the function is <em>tail recursive</em>!.</p>
+<h4>Concatenate&nbsp;lists</h4>
+<p>We already saw an operation to <em>append</em> an element to the beginning of the list. As you may remember, <code>cons</code> (expressed as well in OCaml as the operator <code>::</code>) is a <em>time constant operation</em>, it doesn&#8217;t matter how big is the list we are appending the element to, it will <em>always</em> take the same constant&nbsp;time.</p>
+<p>This is not the case with appending an element at the end, which is the same case as appending two lists (after all, appending another list is just adding its first element as the last element of the first&nbsp;list).</p>
+<p>Let&#8217;s give our first&nbsp;try:</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="k">rec</span> <span class="n">seq_append</span> <span class="n">a</span> <span class="n">b</span> <span class="o">=</span>
+  <span class="k">match</span> <span class="n">a</span> <span class="k">with</span>
+   <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="n">b</span>
+   <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">tl</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nc">Next</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="o">((</span><span class="n">append_seq</span> <span class="o">[@</span><span class="n">tailcall</span><span class="o">])</span> <span class="n">tl</span> <span class="n">b</span><span class="o">))</span>
+<span class="o">;;</span>
+<span class="n">seq_append</span> <span class="n">sample</span> <span class="o">(</span><span class="nc">Next</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="nc">End</span><span class="o">))</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_append : 'a seq -&gt; 'a seq -&gt; 'a seq
+- : int seq = Next (1, Next (2, Next (3, Next (4, End))))
+</pre>
+</div>
+</div>
+<p>But wait, the OCaml compiler emits a warning! (yeah, that is why I actually added the <code>[@tailcall]</code> notation&nbsp;there)</p>
+<div class="admonition warning">
+<p>Warning 51: expected&nbsp;tailcall</p>
+</div>
+<p>Yes, that is because our implementation is not tail recursive!, it means it cannot work in <em>very long sequences</em>, I did that on purpose because the standard implementation of <code>append</code> in the OCaml List module <em>it is not tail recursive neither!</em>.</p>
+<p>We can do better than this, we can write a tail recursive function!. It is not as efficient though, the operation will roughly be <span class="math">\(O(n^2)\)</span></p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_append</span> <span class="n">a</span> <span class="n">b</span> <span class="o">=</span>
+  <span class="k">let</span> <span class="k">rec</span> <span class="n">append&#39;</span> <span class="n">acc</span> <span class="o">=</span> <span class="k">function</span>
+    <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="n">acc</span>
+    <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">t</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">append&#39;</span> <span class="o">(</span><span class="nc">Next</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">acc</span><span class="o">))</span> <span class="n">t</span>
+  <span class="k">in</span>
+  <span class="n">append&#39;</span> <span class="nc">End</span> <span class="o">(</span><span class="n">seq_rev</span> <span class="n">a</span><span class="o">)</span>
+<span class="o">;;</span>
+
+<span class="n">seq_append</span> <span class="n">sample</span> <span class="o">(</span><span class="nc">Next</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="nc">End</span><span class="o">))</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_append : 'a seq -&gt; 'a seq -&gt; 'a seq
+- : int seq = Next (1, Next (2, Next (3, Next (4, End))))
+</pre>
+</div>
+</div>
+<p>Did you notice the usage of <code>rev</code> here? this is another patter I like to call <em>reverse inner accumulator loop</em> (again, I made up that name, I am pretty sure it is known with another sexier name). That pattern is another of the things you will see <em>very often</em> in OCaml list functions, it looks <em>weird</em> but you will see it <em>everywhere</em> with list functions. In the standard <a href="https://caml.inria.fr/pub/docs/manual-ocaml/libref/List.html">Caml list module</a> we have the function <code>rev_append</code> and that does exactly the&nbsp;same.</p>
+<p>That is all for today, as usual you can find the original Jupyter Notebook in my <a href="https://github.com/cprieto/notebooks/blob/master/ocaml/OCaml_lists.ipynb">GitHub repository</a>.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-comment-of-part-2.html" rel="prev" title="OCaml and sequences from scratch, comment of part 2">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-1.html" rel="next" title="OCaml and sequences from scratch, part 1">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

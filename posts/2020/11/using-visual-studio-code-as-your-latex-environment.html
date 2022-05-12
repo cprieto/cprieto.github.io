@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Using Visual Studio Code as your LaTeX&nbsp;environment</title>
+  <meta name="description" content="LaTeX is one of those things you are sort of forced to learn when preparing technical documents, especially for academia. It is an old (but highly effective) typesetting system, and it is, at its core, complex as hell to use. In my day to day I jump between plaforms and …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Using Visual Studio Code as your LaTeX environment" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2020/11/using-visual-studio-code-as-your-latex-environment.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Using Visual Studio Code as your LaTeX environment</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-11-12T00:00:00+01:00">12 November 2020</time>
+           on <a rel="tag" href="/tag/misc.html">misc</a>, <a rel="tag" href="/tag/til.html">til</a>          <span class="readtime">4 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p><a href="https://www.latex-project.org/">LaTeX</a> is one of those things you are sort of forced to learn when preparing technical documents, especially for academia. It is an old (but highly effective) typesetting system, and it is, at its core, complex as hell to&nbsp;use.</p>
+<p>In my day to day I jump between plaforms and operating systems so I always dreamed with a LaTeX editor that <em>rule them all</em>, sadly I had not found such thing (yet) but the closest has been, so far, <a href="https://code.visualstudio.com/">Visual Studio Code</a> so I took some time to prepare an environment and ensure I can work in the same document in the same way in any platform and, well, document the&nbsp;experience.</p>
+<p>First we need to install the fantastic <a href="https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop">LaTeX Workshop</a>, a Visual Studio Code extension designed to make your life with LaTeX easier (of course you need to have <span class="caps">VS</span> Code installed first). Now there is the big question, what about LaTeX? well, we have plenty of options, yes, you need to decide what <a href="https://www.latex-project.org/get/#tex-distributions">LaTeX distribution</a> to install and run in each of your operating systems and platforms, this is where I have most of my problems in the past, mostly because I got into a point where my installation was corrupted in macOS and I cannot compile Tex documents. Another problem I would like to avoid is to have <em>global applications</em> in my operating system; for example, I use <a href="https://ctan.org/pkg/minted?lang=en">minted</a> a lot and this requires <a href="https://pygments.org/">Pygments</a> to be installed in your system, because this is a Python library I would prefer if it is installed in a <a href="https://docs.python.org/3/tutorial/venv.html">virtual environment</a> and all of that&#8230; As you see it could be daunting and I wanted to have a single and unique way to do&nbsp;it.</p>
+<h4>Containers to the&nbsp;rescue</h4>
+<p>If there were a way to isolate (and distribute) a process from all the rest of your processes&#8230; Wait a minute, such thing exists! It is called <a href="https://www.docker.com/">Docker</a>! What if I use a container with all the dependencies I need to do the typesetting of a document in a container and just use it to compile the document and simple reuse the container all over&nbsp;again!</p>
+<p>Visual Studio Code has an extension for this, <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Remote Containers</a>, I just need to configure it to do what I need and make it work with LaTeX Workshop. This was a lot simpler than I thought but it required a few steps, especially for those that never used the extension&nbsp;before.</p>
+<p>First, after installed the mentioned extension, we need to create a folder, <code>.devcontainer</code> in the directory where our document project is located, this directory with its content <em>needs to be version controlled</em> if you want to share your experience, it behaves pretty much like your <em>settings</em> for the project. Inside this directory we have to create a <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile</a> with the instructions to assemble our LaTeX container with our requirements, in my case it is very&nbsp;simple:</p>
+<div class="highlight"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">ubuntu</span>
+
+<span class="k">RUN</span><span class="w"> </span>apt update <span class="o">&amp;&amp;</span> <span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive apt install --no-install-recommends -y <span class="se">\</span>
+        python3 python3-pip texlive texlive-extra-utils texlive-base git <span class="se">\</span>
+        latexmk texlive-xetex texlive-pstricks texlive-science texlive-publishers <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> pip3 install pygments <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> rm -rf /var/cache/apt/*
+</code></pre></div>
+
+<p>Feel free to change it to whatever you want to include in your LaTeX distribution, I prefer not to use <code>texlive-full</code> because, well, it will require to install <span class="caps">2GB</span> of packages and I don&#8217;t need them all&nbsp;(yet).</p>
+<p>Now that we have the instructions to assemble our container I build it locally <em>to avoid delay when running the whole process</em>:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>docker build -t cprieto/latex .
+</code></pre></div>
+
+<p>Feel free to use whatever name you want for your&nbsp;image.</p>
+<p>Now we create another file, <code>devcontainer.json</code> with the instructions of how to use a container for our project&nbsp;root:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LaTeX&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;extensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="s2">&quot;james-yu.latex-workshop&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;dockerFile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Dockerfile&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;image&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cprieto/latex&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;forwardPorts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="mi">36887</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>The <code>dockerFile</code> and <code>image</code> tell to VSCode to use the image we already built, if this image does not exists it will build it from scratch (and this will probably take some time). We tell it to automatically install the LaTeX Workshop extension in this container (if not, later VSCode will ask us if we want to install it or not) and opening the port 36887 from the container, we need to do this to enable the native preview used by the&nbsp;extension.</p>
+<p>And this is all! When we open the directory with our LaTeX project VSCode will just ask us if we want to do this in the container, just follow the prompts and it will be set, our project will be compiled with our container and generate our document, if you need something else installed just do it in the container image instead of your&nbsp;machine.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2021/03/cmake-and-threads.html" rel="prev" title="CMake and Threads">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-conan.html" rel="next" title="Handling external dependencies in C/C++ with Conan">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

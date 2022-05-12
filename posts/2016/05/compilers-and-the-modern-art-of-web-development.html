@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Compilers and the modern art of Web&nbsp;Development</title>
+  <meta name="description" content="With the only exception of people living in a cave, we already know everything is JavaScript now, fluid web ui, server side applications, native mobile applications and even desktop applications, everything is JavaScript… Now we talk about components when developing user interfaces for the web, now we talk about ES2015 …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Compilers and the modern art of Web Development" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2016/05/compilers-and-the-modern-art-of-web-development.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Compilers and the modern art of Web Development</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2016-05-04T00:00:00+02:00">04 May 2016</time>
+           on <a rel="tag" href="/tag/web-development.html">web development</a>, <a rel="tag" href="/tag/javascript.html">javascript</a>, <a rel="tag" href="/tag/compilers.html">compilers</a>          <span class="readtime">2 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>With the only exception of people living in a cave, we already know everything is JavaScript now, fluid web ui, server side applications, native mobile applications and even desktop applications, everything is JavaScript&#8230; Now we talk about <em>components</em> when developing user interfaces for the web, now we talk about <span class="caps">ES2015</span> and beyond, people mention on the streets about <a href="http://babeljs.io">Babel</a> to compile your <a href="https://babeljs.io/docs/learn-es2015/">EcmaScript</a> (this may be an exaggeration, but I wish people talk about that on the streets), some other scholars are debating about different loaders and no doubt <a href="https://webpack.github.io/">Webpack</a> is the default linker for the web&#8230; Wait a minute? compilers? loaders? linkers? we are talking about JavaScript, right? That thing that runs in the browser? right? why are you mentioning compilers? and even more obscure things like linkers and loaders? man, you have been drinking&nbsp;again&#8230;</p>
+<p>A few years ago I gave a few talks about linkers and loaders, later I talked about symbols and compilers (maybe one day I will try to talk about lexers and parser, dreams&#8230;) and most of the people in the room asked me what all of this have to do with web development, well, I will try to do a comparison of those <em>low level things</em> from the point of view of modern web&nbsp;development.</p>
+<p>As a few of you already may know, there are a few languages out there which &#8216;compile&#8217; code into JavaScript (<a href="http://www.typescriptlang.org">TypeScript</a>, <a href="http://www.dartlang.org">Dart</a>, <a href="http://elm-lang.org">Elm</a>, <a href="http://www.purescript.org">PureScript</a> to name a few) in fact, that type of compiler is usually named <a href="https://en.wikipedia.org/wiki/Source-to-source_compiler">transpilers</a> and are not different from the native compilers we already know, basically
+converting JavaScript 5 into our assembly language. Do you want to know how this works? well, the <a href="https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/README.md">Babel documentation</a> has a lot of information about&nbsp;that.</p>
+<p>The point is, our browsers only know about JavaScript 5, so, if you want to debug your code, you need a way to navigate from the generated compacted code to your original code, this is where our friend <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/">Source Maps</a> help, they are not different from Symbol files (the famous <a href="http://www.wintellect.com/devcenter/jrobbins/pdb-files-what-every-developer-must-know"><span class="caps">PDB</span> files</a> in Windows development) and we should care in the same way for source map files. Generate them, keep them in a safe place, version them, give them some love. Source maps are your&nbsp;friends.</p>
+<p>I really love the subject of linkers and loaders, if you want to know more I can highly recommend John R. Levine&#8217;s book <a href="http://linker.iecc.com/">Linkers and Loaders</a> (great book by the way, go buy it and read it). I prefer to think that Webpack is our <em>linker</em> and the code it injects to load the dependencies is our <em>loader</em> (using <span class="caps">AMD</span> or CommonJS, or whatever is the new kid on the block). This is where I see that <a href="http://browserify.org/">Browserify</a> is more of a loader and Webpack more of a&nbsp;linker&#8230;</p>
+<p>In conclusion: yes, it is true, JavaScript 5 is our new assembler language and the browser our new virtual machine. Maybe soon our university  professors will start using them to teach compilers&nbsp;theory&#8230;</p>
+<p><strong><span class="caps">PS</span>:</strong> I am pretty sure my grammar in this blog post is awful, sorry, I wrote it in a&nbsp;rush.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2016/09/the-simplest-cmake-possible.html" rel="prev" title="The simplest CMake possible">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2016/02/javascript-is-the-english-language-of-web-development.html" rel="next" title="Javascript is the English language of web development">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

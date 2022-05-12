@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - Data structures, Binary search&nbsp;trees</title>
+  <meta name="description" content="I already mentioned trees are heavily used in the world of data structures and here we are again, with our first specialized tree structure, the binary search tree (BST for short). A binary search tree is as any other trees but with one specific characteristic: The value in the left …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="Data structures, Binary search trees" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/drafts/data-structures-binary-search-trees.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>Data structures, Binary search trees</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2020-09-12T00:00:00+02:00">12 September 2020</time>
+           on <a rel="tag" href="/tag/theory.html">theory</a>, <a rel="tag" href="/tag/data-structures.html">data structures</a>, <a rel="tag" href="/tag/kotlin.html">kotlin</a>, <a rel="tag" href="/tag/algorithm.html">algorithm</a>          <span class="readtime">4 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>I already mentioned trees are heavily used in the world of data structures and here we are again, with our first <em>specialized</em> tree structure, the <a href="https://en.wikipedia.org/wiki/Binary_search_tree">binary search tree</a> (<span class="caps">BST</span> for short). A binary search tree is as any other trees but with one specific characteristic: The value in the left node is smaller that the root node and the value in the right node is greater than the value in the root node, this characteristic makes the tree really easy to navigate and search for values, you compare values and search at the right or left depending of the&nbsp;operation.</p>
+<p>Overall a binary search tree has the following&nbsp;operations:</p>
+<ul>
+<li>Insert a new element in the tree, this will involve deciding if we need to insert it at the left or&nbsp;right</li>
+<li>Search for a value in the tree, thanks to the comparisson operations we can easily find a value in the whole&nbsp;tree</li>
+<li>Delete a value in the tree, this is the most complicated operation, mostly because we need to make sure the &#8220;ordering&#8221; is maintained in the&nbsp;tree</li>
+</ul>
+<p>Let&#8217;s start with insert, because we need to compare elements we will make sure we restrict our generic to a comparable&nbsp;value:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">BNode</span><span class="o">&lt;</span><span class="n">T</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Comparable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">data</span><span class="p">:</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">left</span><span class="p">:</span><span class="w"> </span><span class="n">BNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">right</span><span class="p">:</span><span class="w"> </span><span class="n">BNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="kd">fun</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BNode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">left</span><span class="o">?.</span><span class="na">insert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">right</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BNode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">right</span><span class="o">?.</span><span class="na">insert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="kd">fun</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">values</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">values</span><span class="p">.</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">insert</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Notice the calls to each of the nodes to do the insert, they will do the same until find the correct empty place to put the value. Doing a simple insert like&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BNode</span><span class="p">(</span><span class="m">5</span><span class="p">)</span><span class="w"></span>
+<span class="n">tree</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">12</span><span class="p">,</span><span class="w"> </span><span class="m">13</span><span class="p">,</span><span class="w"> </span><span class="m">22</span><span class="p">))</span><span class="w"></span>
+</code></pre></div>
+
+<p>Will generate a tree with the following&nbsp;shape:</p>
+<p><img alt="tree" src="https://cprieto.com/drafts/images/tree-3.png" title="Skewed binary search tree"></p>
+<p>To search in the tree the same logic is&nbsp;applied:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="n">T</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">left</span><span class="o">?.</span><span class="na">exists</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">right</span><span class="o">?.</span><span class="na">exists</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Because inserting and searching are done in a simple fashing and taking into account the value both operations are extremely fast, to be precise <span class="math">\(\mathcal{O}(\log{n})\)</span> in the best case for both operations, though there is a worse case of <span class="math">\(\mathcal{O}(h)\)</span> where <span class="math">\(h\)</span> is the height of the tree (or even in very bad cases, the number of elements). This will happen if we <em>always</em> insert a value that is smaller or a set of values that are larger, that will skew the tree to the left/right and basically transform it into a linked list, removing all the advantages of a binary search&nbsp;tree.</p>
+<p>Removing an element from the tree is a little more complicated because we need to check if when removing the element we will need to rebalance the tree (remember, the smaller values should go to the left and bigger to the right), in general we have the simple cases when&nbsp;removing:</p>
+<ul>
+<li>The node that we have to remove is a leave, nothing to do here we just remove the tree (simplest&nbsp;case)</li>
+<li></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kd">fun</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

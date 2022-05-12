@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IDisposable Thoughts - OCaml and sequences from scratch, part&nbsp;1</title>
+  <meta name="description" content="I really like ML languages (OCaml, Elm, F#). Recently I was doing the problems in 99 problems in OCaml and found my lack of understanding in some basic patterns with lists. I decided to reimplement some basic functions and structures in OCaml from scratch as an exercise. I usually do …" />
+  <meta name="author" content="Cristian Prieto" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Pelican" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:title" content="OCaml and sequences from scratch, part 1" />
+  <meta property="og:type" content="blog">
+  <meta property="og:url" content="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-1.html" />
+  <meta property="og:sitename" content="IDisposable Thoughts" />
+  <!-- This should be move to one min css -->
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/normalize.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/skeleton.css"/>
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/base16-google-light.css" />
+  <link rel="stylesheet" href="https://cprieto.com/theme/css/site.css"/>
+  <link rel="shortcut icon" type="image/x-icon" href="https://cprieto.com/favicon.ico">
+
+  <!-- For KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OCaml and sequences from scratch, part 1">
+<meta name="twitter:image" content="https://cprieto.com/images/camel_seq_01.jpg">
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-57001655-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-57001655-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <div class="container">
+<div class="eight columns offset-by-two">
+  <header class="post">
+    <h1><a rel="index" href="https://cprieto.com/index.html">IDisposable Thoughts</a></h1>
+  </header>
+</div>
+<main role="main" class="post">
+  <div class="twelve columns">
+    <article>
+      <header>
+        <h2>OCaml and sequences from scratch, part 1</h2>
+        <div class="meta">
+          <span class="u-helper"></span>
+          <a rel="author" href="https://cprieto.com/about.html">
+          <img class="avatar" loading="lazy" alt="Cristian Prieto" src="https://cprieto.com/theme/images/avatar01_small.jpeg" />
+          </a>
+          <time pubdate datetime="2018-02-07T00:00:00+01:00">07 February 2018</time>
+           on <a rel="tag" href="/tag/ocaml.html">ocaml</a>, <a rel="tag" href="/tag/sequences.html">sequences</a>, <a rel="tag" href="/tag/samples.html">samples</a>, <a rel="tag" href="/tag/learning.html">learning</a>, <a rel="tag" href="/tag/functional-programming.html">functional programming</a>, <a rel="tag" href="/tag/algorithms.html">algorithms</a>          <span class="readtime">5 minutes reading</span>
+        </div>
+      </header>
+      <section>
+        <p>I really like <a href="https://en.wikipedia.org/wiki/Category:ML_programming_language_family"><span class="caps">ML</span> languages</a> (<a href="https://ocaml.org/">OCaml</a>, <a href="http://elm-lang.org/">Elm</a>, <a href="http://fsharp.org/">F#</a>). Recently I was doing the problems in <a href="https://ocaml.org/learn/tutorials/99problems.html">99 problems in OCaml</a> and found my lack of understanding in some basic patterns with&nbsp;lists.</p>
+<p>I decided to reimplement some basic functions and structures in OCaml from scratch as an exercise. I usually do this in a <a href="http://jupyter.org/">Jupyter notebook</a> but I took my notes and I will be publishing them in my blog from now on (as a way to remember <em>where I put that bloody notebook</em>). You can practice and redo this samples with the Jupyter kernel for OCaml, in fact, I already have a small docker image with it ready for you to try if you want to, go and pull it from <a href="https://hub.docker.com/r/cprieto/jupyter-ocaml/">Docker Hub</a>.</p>
+<h3>The definition of&nbsp;sequences</h3>
+<p>Let&#8217;s start defining a sequence, we will call it <code>seq</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">type</span> <span class="k">&#39;</span><span class="n">a</span> <span class="n">seq</span> <span class="o">=</span>
+  <span class="o">|</span> <span class="nc">End</span>
+  <span class="o">|</span> <span class="nc">Next</span> <span class="k">of</span> <span class="k">&#39;</span><span class="n">a</span> <span class="o">*</span> <span class="k">&#39;</span><span class="n">a</span> <span class="n">seq</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>type 'a seq = Nil | Next of 'a * 'a seq
+</pre>
+</div>
+</div>
+<p>As you can see we use a generic parameter <code>'a</code> for the value of the sequence. We can create a sequence with numbers from 0 to 3 and an empty&nbsp;sequence:</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">sample</span> <span class="o">=</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="nc">Next</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nc">End</span><span class="o">)))</span> <span class="o">;;</span>
+<span class="k">let</span> <span class="n">empty</span> <span class="o">=</span> <span class="nc">End</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val sample : int seq = Next (1, Next (2, Next (3, End)))
+val empty : 'a seq = End
+</pre>
+</div>
+</div>
+<h3>Basic&nbsp;operations</h3>
+<p>Let&#8217;s create the simplest operations in town: <code>length</code>, <code>head</code>, <code>tail</code>, <code>cons</code> and <code>nth</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_length</span> <span class="n">x</span> <span class="o">=</span>
+  <span class="k">let</span> <span class="k">rec</span> <span class="n">length&#39;</span> <span class="n">acc</span> <span class="o">=</span> <span class="k">function</span>
+    <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="n">acc</span>
+    <span class="o">|</span> <span class="nc">Next</span> <span class="o">(_,</span> <span class="n">t</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">length&#39;</span> <span class="o">(</span><span class="n">acc</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span> <span class="n">t</span>
+  <span class="k">in</span>
+  <span class="n">length&#39;</span> <span class="mi">0</span> <span class="n">x</span>
+<span class="o">;;</span>
+
+<span class="n">seq_length</span> <span class="n">sample</span> <span class="o">;;</span>
+<span class="n">seq_length</span> <span class="n">empty</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_length : 'a seq -&gt; int = &lt;fun&gt;
+- : int = 3
+- : int = 0
+</pre>
+</div>
+</div>
+<p>This pattern is very common in OCaml, I call it <em>inner accumulator loop</em>. There is a variation of this pattern and we will see&nbsp;later.</p>
+<p>The standard library in OCaml and Caml has the function <code>length</code> in the <a href="https://caml.inria.fr/pub/docs/manual-ocaml/libref/List.html">List&nbsp;module</a></p>
+<p>Now it is time for the <code>head</code> operator, or well, it is named <code>hd</code> in the <code>List</code> module in Caml, it will return only the first element of a sequence or throw an invalid argument if the sequence is&nbsp;empty.</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_head</span> <span class="o">=</span> <span class="k">function</span>
+  <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Invalid_argument</span> <span class="s2">&quot;seq_head&quot;</span><span class="o">)</span>
+  <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="o">_)</span> <span class="o">-&gt;</span> <span class="n">x</span>
+<span class="o">;;</span>
+
+<span class="n">seq_head</span> <span class="n">sample</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_head : 'a seq -&gt; 'a = &lt;fun&gt;
+- : int = 1
+</pre>
+</div>
+</div>
+<p>The contrapart of this operator is its brother <code>tail</code>, or <code>tl</code> in the List&nbsp;module.</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_tail</span> <span class="o">=</span> <span class="k">function</span>
+  <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Invalid_argument</span> <span class="s2">&quot;seq_tail&quot;</span><span class="o">)</span>
+  <span class="o">|</span> <span class="nc">Next</span> <span class="o">(_,</span> <span class="n">t</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">t</span>
+<span class="o">;;</span>
+
+<span class="n">seq_tail</span> <span class="n">sample</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_tail : 'a seq -&gt; 'a seq = &lt;fun&gt;
+- : int seq = Next(2, Next(3, End))
+</pre>
+</div>
+</div>
+<p>Easy!</p>
+<p>It is time for the <code>cons</code> operator, this is basically adding an element to the head of the sequence, in OCaml and Standard <span class="caps">ML</span> is denoted as well with the operator <code>::</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_cons</span> <span class="n">x</span> <span class="n">al</span> <span class="o">=</span> <span class="nc">Next</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">l</span><span class="o">)</span> <span class="o">;;</span>
+
+<span class="n">seq_cons</span> <span class="mi">0</span> <span class="n">sample</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_cons : 'a -&gt; 'a seq -&gt; 'a seq = &lt;fun&gt;
+- : int seq = Next(0, Next(1, Next(2, Next(3, End))))
+</pre>
+</div>
+</div>
+<p>Last but not least, it is time to implement the <code>nth</code> operator, it will return the element at the index <code>n</code> starting from&nbsp;0.</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_nth</span> <span class="n">n</span> <span class="n">l</span> <span class="o">=</span>
+  <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Invalid_argument</span> <span class="s2">&quot;nth&quot;</span><span class="o">)</span> <span class="k">else</span>
+  <span class="k">match</span> <span class="n">l</span> <span class="k">with</span>
+    <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Failure</span> <span class="s2">&quot;nth&quot;</span><span class="o">)</span>
+    <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">tl</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="k">if</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">then</span> <span class="n">x</span> <span class="k">else</span> <span class="n">nth_seq</span> <span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="n">tl</span>
+<span class="o">;;</span>
+
+<span class="n">seq_nth</span> <span class="mi">0</span> <span class="n">sample</span> <span class="o">;;</span>
+<span class="n">seq_nth</span> <span class="mi">2</span> <span class="n">sample</span>
+</code></pre></div>
+
+<div class="notebook_output" data-output="">
+<div class="notebook_output_text"><span>Out[*]:</span></div>
+<div class="notebook_output_code">
+<pre>val seq_nth : int -&gt; 'a seq -&gt; 'a
+- : int = 1
+- : int = 3
+</pre>
+</div>
+</div>
+<p>Interestinly, this function had the potential to use the <em>inner accumulator loop</em> but if we see clearly it is not needed, remember, if we discard the value of a function when it returns in a recursive call it is basically tail recursive, and here we do nothing with the return value of the function until we need&nbsp;it.</p>
+<p>An easy way to check if a function call is <a href="http://wiki.c2.com/?TailRecursion"><em>tail recursive</em></a> is asking the compiler to tell us so (available since OCaml&nbsp;4.04)</p>
+<div class="highlight"><pre><span></span><code><span class="k">let</span> <span class="n">seq_nth</span> <span class="n">n</span> <span class="n">l</span> <span class="o">=</span>
+  <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Invalid_argument</span> <span class="s2">&quot;nth&quot;</span><span class="o">)</span> <span class="k">else</span>
+  <span class="k">match</span> <span class="n">l</span> <span class="k">with</span>
+    <span class="o">|</span> <span class="nc">End</span> <span class="o">-&gt;</span> <span class="k">raise</span> <span class="o">(</span><span class="nc">Failure</span> <span class="s2">&quot;nth&quot;</span><span class="o">)</span>
+    <span class="o">|</span> <span class="nc">Next</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">tl</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="k">if</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">then</span> <span class="n">x</span> <span class="k">else</span> <span class="o">((</span><span class="n">nth_seq</span> <span class="o">[@</span><span class="n">tailcall</span><span class="o">])</span> <span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="n">tl</span><span class="o">)</span>
+</code></pre></div>
+
+<p>In this case, if that marked call is not tail recursive (the place where we suspect is not), the compiler will throw a&nbsp;warning.</p>
+<p>That is all for today, we will continue another&nbsp;day!.</p>
+<p><strong><span class="caps">NOTE</span>:</strong> If somebody is interested in the Jupyter notebook for this blog post (and the whole series), it is located in my <a href="https://github.com/cprieto/notebooks/blob/master/ocaml/OCaml_lists.ipynb">GitHub repository</a>.</p>
+      </section>
+    </article>
+  </div>
+</main>
+    <footer class="bottom">
+<div id="disqus_thread"></div>
+<script>
+(function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<div class="row">
+  <div class="twelve columns">
+    <nav>
+      <ul>
+          <li><a href="https://cprieto.com/posts/2018/02/ocaml-and-sequences-from-scratch-part-2.html" rel="prev" title="OCaml and sequences from scratch, part 2">Next post</a></li>
+          <li><a href="https://cprieto.com/posts/2017/11/python-object-operations-and-vectors.html" rel="next" title="Python, object operations and vectors">Previous post</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+        <div class="row">
+          <div class="ten columns offset-by-one">
+            <section class="endnote">
+              <p>
+              Powered by <a rel="external" href="http://blog.getpelican.com/">Pelican</a> | <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><i class="fa fa-creative-commons"></a></i> <a rel="author" href="https://cprieto.com/about.html">Cristian Prieto</a> &copy; 2020
+              </p>
+            </section>
+          </div>
+        </div>
+    </footer>
+  </div>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
