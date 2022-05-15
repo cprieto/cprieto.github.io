@@ -2,16 +2,21 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>https://cprieto.com/</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>daily</changefreq>
 <priority>1.00</priority>
 </url><url>
-<loc>https://cprieto.com/posts/2022/05/meson-and-dependencies.html</loc>
-<lastmod>2022-05-12</lastmod>
+<loc>https://cprieto.com/posts/2022/05/meson-and-conan.html</loc>
+<lastmod>2022-05-15</lastmod>
 <changefreq>weekly</changefreq>
 <priority>0.80</priority>
 </url><url>
 <loc>https://cprieto.com/posts/2022/05/meson-and-external-wraps.html</loc>
+<lastmod>2022-05-15</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.80</priority>
+</url><url>
+<loc>https://cprieto.com/posts/2022/05/meson-and-dependencies.html</loc>
 <lastmod>2022-05-12</lastmod>
 <changefreq>weekly</changefreq>
 <priority>0.80</priority>
@@ -327,7 +332,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>https://cprieto.com/tag/building.html</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -343,6 +348,11 @@
 </url><url>
 <loc>https://cprieto.com/tag/compilers.html</loc>
 <lastmod>2022-05-12</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.40</priority>
+</url><url>
+<loc>https://cprieto.com/tag/conan.html</loc>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -427,7 +437,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>https://cprieto.com/tag/meson.html</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -437,7 +447,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>https://cprieto.com/tag/native.html</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -452,7 +462,7 @@
 <priority>0.40</priority>
 </url><url>
 <loc>https://cprieto.com/tag/programming.html</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
@@ -532,12 +542,12 @@
 <priority>0.40</priority>
 </url><url>
 <loc>https://cprieto.com/posts/index.html</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url><url>
 <loc>https://cprieto.com/tags/index.html</loc>
-<lastmod>2022-05-12</lastmod>
+<lastmod>2022-05-15</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.40</priority>
 </url>

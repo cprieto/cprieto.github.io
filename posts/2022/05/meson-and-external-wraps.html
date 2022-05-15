@@ -76,8 +76,8 @@
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
-<p>Ok, time for the simplest build&nbsp;file:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;test_criterion&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;c&#39;</span><span class="p">)</span><span class="w"></span>
+<p>Ok, time for the simplest build file (ignore the <code>default_options</code> part, that is just to make <code>clang</code> happy in&nbsp;macOS):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;test_criterion&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;c&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default_options</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s">&#39;cpp_std=c++17&#39;</span><span class="p">])</span><span class="w"></span>
 <span class="n">criterion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dependency</span><span class="p">(</span><span class="s">&#39;criterion&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="nb">executable</span><span class="p">(</span><span class="s">&#39;test_criterion&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;test.c&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">criterion</span><span class="p">])</span><span class="w"></span>
 </code></pre></div>
@@ -120,6 +120,7 @@
   <div class="twelve columns">
     <nav>
       <ul>
+          <li><a href="https://cprieto.com/posts/2022/05/meson-and-conan.html" rel="prev" title="Meson and Conan">Next post</a></li>
           <li><a href="https://cprieto.com/posts/2022/05/meson-and-dependencies.html" rel="next" title="Meson and dependencies">Previous post</a></li>
       </ul>
     </nav>
