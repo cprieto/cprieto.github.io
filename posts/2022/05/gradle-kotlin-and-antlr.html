@@ -78,20 +78,20 @@
 
 <p>Remember to save this file in the proper place, including potential <code>package</code> directory, in my case it will be <code>src/main/antlr/com/cprieto/samples/ArrayInit.g4</code>. This is important because if not your generated classes will be placed in the default&nbsp;package!</p>
 <p>Now let&#8217;s write our simple consumer for our parser in&nbsp;Kotlin:</p>
-<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">com</span><span class="o">.</span><span class="n">cprieto</span><span class="o">.</span><span class="n">sample</span>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">com.cprieto.sample</span><span class="w"></span>
 
-<span class="kn">import</span> <span class="nn">org.antlr.v4.runtime.CharStreams</span>
-<span class="kn">import</span> <span class="nn">org.antlr.v4.runtime.CommonTokenStream</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.antlr.v4.runtime.CharStreams</span><span class="w"></span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.antlr.v4.runtime.CommonTokenStream</span><span class="w"></span>
 
-<span class="n">fun</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">val</span> <span class="nb">input</span> <span class="o">=</span> <span class="n">CharStreams</span><span class="o">.</span><span class="n">fromStream</span><span class="p">(</span><span class="n">System</span><span class="o">.</span><span class="err">`</span><span class="ow">in</span><span class="err">`</span><span class="p">)</span>
-    <span class="n">val</span> <span class="n">lexer</span> <span class="o">=</span> <span class="n">ArrayInitLexer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-    <span class="n">val</span> <span class="n">tokens</span> <span class="o">=</span> <span class="n">CommonTokenStream</span><span class="p">(</span><span class="n">lexer</span><span class="p">)</span>
-    <span class="n">val</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">ArrayInitParser</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CharStreams</span><span class="p">.</span><span class="na">fromStream</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="n">`in`</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">lexer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ArrayInitLexer</span><span class="p">(</span><span class="n">input</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">tokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CommonTokenStream</span><span class="p">(</span><span class="n">lexer</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">parser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ArrayInitParser</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span><span class="w"></span>
 
-    <span class="n">val</span> <span class="n">tree</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-    <span class="n">println</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">toStringTree</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parser</span><span class="p">.</span><span class="na">init</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">tree</span><span class="p">.</span><span class="na">toStringTree</span><span class="p">(</span><span class="n">parser</span><span class="p">))</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
 <p>Nice, you know where to put this (<code>src/main/kotlin/com/cprieto/samples/App.kt</code>). Our <code>build.gradle</code> file should be pretty simple using the right&nbsp;plugins:</p>
