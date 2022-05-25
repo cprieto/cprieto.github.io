@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>IDisposable Thoughts - Meson and&nbsp;dependencies</title>
-  <meta name="description" content="I know meson has been out for a while but last time I checked, support was very rudimentary and it didn’t fit my workflow for what I wanted to do. Well, apparently times had changed and now is a pretty awesome build system, supported by a wide range of …" />
+  <meta name="description" content="I know Meson has been out for a while and somehow those days it didn’t fit into my workflow. Times had changed and now is a pretty awesome build system, supported by a wide range of projects (especially in Linux) and many IDEs and editors (for example, CLion and …" />
   <meta name="author" content="Cristian Prieto" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Pelican" />
@@ -24,6 +24,10 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
 
+<meta name="twitter:creator" content="@cprieto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Meson and dependencies">
+<meta name="twitter:image" content="https://cprieto.com/images/meson_dependencies.png">
 
   <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -66,10 +70,10 @@
         </div>
       </header>
       <section>
-        <p>I know <a href="https://mesonbuild.com/index.html">meson</a> has been out for a while but last time I checked, support was very rudimentary and it didn&#8217;t fit my workflow for what I wanted to do. Well, apparently times had changed and now is a pretty awesome build system, supported by a wide range of projects (especially in Linux) and many IDEs and editors (for example, <a href="https://wanzenbug.xyz/clion-meson-compiledb/">CLion</a> and <a href="https://marketplace.visualstudio.com/items?itemName=mesonbuild.mesonbuild">Visual Studio Code</a>). I don&#8217;t even need to explain how to build with Meson, the documentation is <em>amazing</em> and so easy to follow, you can be productive building your project in no&nbsp;time!</p>
-<p>For my workflow I am more interested in <em>integrating a project using Meson</em> with dependencies you can grab somewhere else, I mean, your project rarely lives in isolation and depends on other libraries, installed or not in your machine, so how dows Meson would fit in those scenarios?. I did a few experiments and went through the documentation but a few papercuts were done, so I decided to put it in a simple post so I can remember in the&nbsp;future.</p>
+        <p>I know <a href="https://mesonbuild.com/index.html">Meson</a> has been out for a while and somehow those days it didn&#8217;t fit into my workflow. Times had changed and now is a pretty awesome build system, supported by a wide range of projects (especially in Linux) and many IDEs and editors (for example, <a href="https://wanzenbug.xyz/clion-meson-compiledb/">CLion</a> and <a href="https://marketplace.visualstudio.com/items?itemName=mesonbuild.mesonbuild">Visual Studio Code</a>). I don&#8217;t even need to explain how to build with Meson, the documentation is <em>amazing</em> and so easy to follow, you can be productive building your project in no&nbsp;time!</p>
+<p>Your project rarely lives in isolation and depends on other libraries, installed or not in your machine, so how does Meson would fit in those scenarios? I did a few experiments and went through the documentation and decided to put what I learned about dependencies in a few posts, this is the first one of&nbsp;those.</p>
 <h4>Meson and&nbsp;wraps</h4>
-<p>Meson has the concept of <a href="https://mesonbuild.com/Subprojects.html">subprojects</a>, that is, you can componetize your main project in smaller Meson projects and that is all, later you handle those dependencies in your main project as is they were part of your project. With <em>external</em> projects, you know, those living in GitHub or some other place, you have what Meson calls <a href="https://mesonbuild.com/Wrap-dependency-system-manual.html">wraps</a> which basically is just a small file with metadata about how to grab your project and instructions about exported dependencies. Meson offers a database of existing <em>wraps</em> (known as <a href="https://mesonbuild.com/Using-the-WrapDB.html">wrapdb</a>) and tooling to easy the&nbsp;process.</p>
+<p>Meson has the concept of <a href="https://mesonbuild.com/Subprojects.html">subprojects</a>, that is, other projects you depend on can be placed with their own dependencies and builds in a separate project or place. With <em>external</em> projects, you know, those living in GitHub or some other place, you have what Meson calls <a href="https://mesonbuild.com/Wrap-dependency-system-manual.html">wraps</a> which basically is just a small file with metadata about how to grab your project and exported dependencies. Meson offers a database of existing <em>wraps</em> (known as <a href="https://mesonbuild.com/Using-the-WrapDB.html">wrapdb</a>) and tooling to easy the&nbsp;process.</p>
 <p>Let&#8217;s take a simple example from <a href="https://cprieto.com/posts/2020/10/handling-external-dependencies-in-cplusplus-with-conan.html">handling dependencies with Conan</a> blog&nbsp;post:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
@@ -82,7 +86,7 @@
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 
-<p>We need the excelent NLohmann <span class="caps">JSON</span> library, and affortunately they are listed in the WrapDB (the library actually offers a CMakeLists and Meson build files), so to include this as a wrap dependency we just type in the command line (you need to have the <code>subprojects</code> directory&nbsp;created):</p>
+<p>We need the excelent <a href="https://github.com/nlohmann/json">nlohmann <span class="caps">JSON</span> library</a>, and affortunately they are listed in the WrapDB (the library actually offers a CMakeLists and Meson build files), so to include this as a wrap dependency we just type in the command line (you need to have the <code>subprojects</code> directory&nbsp;created):</p>
 <div class="highlight"><pre><span></span><code>meson wrap install nlohmann_json
 </code></pre></div>
 
@@ -99,7 +103,7 @@
 </code></pre></div>
 
 <p>In our <code>meson.build</code> file we just add this as a dependency, as any other dependency (as described in the <a href="https://mesonbuild.com/Dependencies.html">dependency</a> segment in the&nbsp;documentation):</p>
-<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;hello_cristian&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span><span class="p">)</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">&#39;demo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cpp&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span><span class="p">)</span><span class="w"></span>
 
 <span class="n">nlohman_json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dependency</span><span class="p">(</span><span class="s">&#39;nlohmann_json&#39;</span><span class="p">)</span><span class="w"></span>
 
